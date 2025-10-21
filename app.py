@@ -66,8 +66,17 @@ rivalries = [
     #NHL
 ]
 
-def calculate_score(home, away):
-    return
+def calculate_score(home, away, league):
+    if league == "NBA":
+        return NBArating.calculate_score(home, away)
+    elif league == "NFL":
+        return NFLrating.calculate_score(home, away)
+    elif league == "NHL":
+        return NHLrating.calculate_score(home, away)
+    elif league == "MLB":
+        return NHLrating.calculate_score(home, away)
+    else:
+        return 0
 
 @app.route('/')
 def index():
@@ -95,7 +104,7 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
-                score = calculate_score(home_abbr, away_abbr)
+                score = calculate_score(home_abbr, away_abbr, sport["name"])
 
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
