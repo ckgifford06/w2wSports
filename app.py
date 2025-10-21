@@ -66,14 +66,26 @@ rivalries = [
 ]
 
 def calculate_score(home, away):
-    rivalry = 5 if (home, away) in rivalries or (away, home) in rivalries else 0
-    marketability = team_marketability.get(home, 5) + team_marketability.get(away, 5)
-    return rivalry + marketability
+    return rivalry(home, away) + marketability(home, away)
 
+def rivalry(home, away):
+    if (home, away) in rivalries or (away, home) in rivalries
+        return 5
+    else return 0
+
+def marketability(home, away):
+    return team_marketability.get(home, 5) + team_marketability.get(away, 5)
+    
+def competitiveness(home, away):
+    homeRecord = records.get(home).split("-")
+    awayRecord = records.get(away).split("-")
+    
+
+def gameImportance(home, away):
 
 @app.route('/')
 def index():
-    # ✅ Get timezone dynamically from user (defaults to US/Eastern)
+    #Get timezone from user (defaults to US/Eastern)
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
