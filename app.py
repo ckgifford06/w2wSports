@@ -56,6 +56,10 @@ def index():
                 home_team = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_team = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
                 score = calculate_score(home_team, away_team)
+
+                display_home = home_team.split("_")[0]
+                display_away = away_team.split("_")[0]
+                
                 all_games.append({
                     "matchup": f"{home_team} vs {away_team}",
                     "league": sport["name"],
