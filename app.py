@@ -53,15 +53,16 @@ def index():
 
             for event in data.get("events", []):
                 competitors = event["competitions"][0]["competitors"]
-                home_team = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
-                away_team = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
-                score = calculate_score(home_team, away_team)
+                home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
+                away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
 
-                display_home = home_team.split("_")[0]
-                display_away = away_team.split("_")[0]
-                
+                home_name = competitors[0]['team']['displayName']
+                away_name = competitors[1]['team']['displayName']
+
+                score = calculate_score(home_abbr, away_abbr)
+
                 all_games.append({
-                    "matchup": f"{home_team} vs {away_team}",
+                    "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
                     "score": score
                 })
