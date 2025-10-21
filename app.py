@@ -1,6 +1,7 @@
 from flask import Flask, render_template
 import requests
 from datetime import datetime
+import pytz
 
 app = Flask(__name__)
 
@@ -27,7 +28,8 @@ def calculate_score(home, away):
 
 @app.route('/')
 def index():
-    today = datetime.today().strftime('%Y%m%d')
+    eastern = pytz.timezone("US/Eastern")
+    today = datetime.now(eastern).strftime("%Y%m%d")
     all_games = []
 
     # Fetch matchups from all sports
