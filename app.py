@@ -15,10 +15,16 @@ sports = {
 
 # Mock marketability and rivalry scores
 team_marketability = {
-    "LAL": 10, "BOS": 9, "NY": 9, "DAL": 8, "NYG": 8, "NE": 10, "NYR": 9, "NYY": 10, "BOSMLB": 9
+    "LAL_NBA": 10, "BOS_NBA": 9, "NY_NBA": 9,
+    "DAL_NFL": 8, "NYG_NFL": 8, "NE_NFL": 10,
+    "NYR_NHL": 9, "NYY_MLB": 10, "BOS_MLB": 9
 }
+
 rivalries = [
-    ("LAL", "BOS"), ("NYG", "DAL"), ("NYY", "BOSMLB"), ("NYR", "BOS")
+    ("LAL_NBA", "BOS_NBA"),
+    ("NYG_NFL", "DAL_NFL"),
+    ("NYY_MLB", "BOS_MLB"),
+    ("NYR_NHL", "BOS_NHL")
 ]
 
 def calculate_score(home, away):
@@ -47,8 +53,8 @@ def index():
 
             for event in data.get("events", []):
                 competitors = event["competitions"][0]["competitors"]
-                home_team = competitors[0]["team"]["abbreviation"]
-                away_team = competitors[1]["team"]["abbreviation"]
+                home_team = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
+                away_team = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
                 score = calculate_score(home_team, away_team)
                 all_games.append({
                     "matchup": f"{home_team} vs {away_team}",
