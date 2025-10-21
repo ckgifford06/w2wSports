@@ -1,6 +1,6 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 import requests
-from datetime import datetime, timedelta
+from datetime import datetime
 import pytz
 
 app = Flask(__name__)
@@ -26,10 +26,17 @@ def calculate_score(home, away):
     marketability = team_marketability.get(home, 5) + team_marketability.get(away, 5)
     return rivalry + marketability
 
+
 @app.route('/')
 def index():
-    eastern = pytz.timezone("US/Eastern")
-    today = datetime.now(eastern).strftime("%Y%m%d")
+    # ✅ Get timezone dynamically from user (defaults to US/Eastern)
+    timezone_str = request.args.get("tz", "US/Eastern")
+    try:
+        local_tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        local_tz = pytz.timezone("US/Eastern")
+
+    today = datetime.now(local_tz).strftime("%Y%m%d")
     all_games = []
 
     # Fetch matchups from all sports
@@ -57,9 +64,11 @@ def index():
 
     return render_template('index.html', matchups=top_10_games)
 
+
 @app.route('/about')
 def about():
     return render_template('about.html')
+
 
 if __name__ == '__main__':
     import os
