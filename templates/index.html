@@ -1,47 +1,101 @@
 <html>
 <head>
-  <title>Top 10 Sports Matchups</title>
+  <title>W2W Sports — Top 10 Matchups</title>
   <style>
+    /* General page styling */
     body {
       font-family: Arial, sans-serif;
-      background-color: #f5f5f5;
+      background-color: #BC9B6A;
+      color: #ffffff;
       text-align: center;
-    }
-    h1 {
-      color: #1e3a8a;
-    }
-    ol {
-      list-style-position: inside;
+      margin: 0;
       padding: 0;
     }
-    li {
-      background: #e0e7ff;
-      margin: 8px auto;
-      padding: 10px;
-      width: 60%;
-      border-radius: 10px;
+
+    /* Navigation bar */
+    nav {
+      background-color: #1f1f1f;
+      padding: 15px;
     }
+
     nav a {
-      margin: 0 15px;
+      color: #ffffff;
       text-decoration: none;
-      color: #1e3a8a;
+      margin: 0 20px;
       font-weight: bold;
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #98002E;
+    }
+
+    /* Page header */
+    h1 {
+      margin-top: 40px;
+      font-size: 36px;
+      color: #98002E;
+    }
+
+    /* Ordered list */
+    ol {
+      margin: 30px auto;
+      padding: 0;
+      width: 60%;
+      text-align: left;
+    }
+
+    ol li {
+      background-color: #98002E;
+      margin: 10px 0;
+      padding: 15px;
+      border-radius: 8px;
+      color: #BC9B6A;
+      font-size: 20px;
+      transition: transform 0.2s, background-color 0.2s;
+    }
+
+    ol li:hover {
+      background-color: #BC9B6A;
+      color: #121212;
+      transform: scale(1.03);
     }
   </style>
 </head>
 <body>
   <nav>
-    <a href="/">Home</a>
-    <a href="/about">About Us</a>
+    <a href="/"> Home</a> |
+    <a href="/about"> About Us</a>
   </nav>
 
-  <h1>Today's Top 10 Sports Matchups</h1>
+  <h1>🔥 Top 10 Matchups Today (All Sports)</h1>
 
-  <ol>
+  <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
     {% for game in matchups %}
-      <li>[{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}</li>
+      <li style="
+          list-style: none; 
+          background-color:#98002E; 
+          margin:10px 0; 
+          padding:15px 15px 15px 50px; 
+          border-radius:8px; 
+          color:#BC9B6A; 
+          font-size:20px; 
+          position:relative;
+          transition: transform 0.2s, background-color 0.2s;
+      ">
+        <span style="
+            position:absolute;
+            left:15px;
+            font-weight:bold;
+            color:#BC9B6A;
+        ">{{ loop.index }}.</span>
+        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
+      </li>
     {% endfor %}
-  </ol>
+    </ol>
+</body>
+</html>
 
   <p>Currently showing {{ matchups|length }} games for today.</p>
 </body>
