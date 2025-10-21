@@ -2,6 +2,7 @@ from flask import Flask, render_template, request
 import requests
 from datetime import datetime
 import pytz
+import NBArating
 
 app = Flask(__name__)
 
