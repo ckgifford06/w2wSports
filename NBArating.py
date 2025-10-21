@@ -18,6 +18,9 @@ rivalries = [
     ("OKC_NBA", "GS_NBA", 6),("LAC_NBA", "GS_NBA", 7), ("LAL_NBA", "SAS_NBA", 7)
 ]
 
+def calculate_score(home, away):
+    return rivalry(home,away) + marketability(home,away) + competitiveness(home,away) + gameImportance(home,away)
+    
 def rivalry(home, away):
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
