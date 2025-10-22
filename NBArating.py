@@ -1,3 +1,6 @@
+import requests
+url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
+data = requests.get(url).json()
 
 season_length = 82
 playoffs = False
@@ -17,10 +20,26 @@ rivalries = [
     ("TOR_NBA", "BOS_NBA", 4),("NY_NBA", "PHI_NBA", 8),("DAL_NBA", "LAL_NBA", 8)
     ("OKC_NBA", "GS_NBA", 6),("LAC_NBA", "GS_NBA", 7), ("LAL_NBA", "SAS_NBA", 7)
 ]
+def buildRecords():
+    for event in data["events"]:
+        for competitor in event["competitions"][0]["competitors"]:
+            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            record = competitor["records"][0]["summary"]  # e.g. "5-2"
+            records[team_abbr] = record
+    return records
+def buildSeeds():
+    for event in data["events"]:
+        for competitor in event["competitions"][0]["competitors"]:
+            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            seed = competitor.get("seed", {}).get("rank", None)
+            seeds[team_abbr] = int(seed) if seed else None
+    return seeds
+
 
 def calculate_score(home, away):
     return rivalry(home,away) + marketability(home,away) + competitiveness(home,away) + gameImportance(home,away)
-    
+
+
 def rivalry(home, away):
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
@@ -31,6 +50,7 @@ def marketability(home, away):
     return team_marketability.get(home, 5) + team_marketability.get(away, 5)
     
 def competitiveness(home, away):
+    records = buildRecords()
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
     winDiff = abs(homeRecord[0] - awayRecord.[0])
@@ -38,6 +58,8 @@ def competitiveness(home, away):
     return compRank
     
 def gameImportance(home, away):
+    seeds = buildSeeds()
+    records = buildRecords()
     importance = 0
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
