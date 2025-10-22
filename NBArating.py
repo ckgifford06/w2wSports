@@ -55,7 +55,7 @@ def competitiveness(home, away):
     records = buildRecords()
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
-    winDiff = abs(homeRecord[0] - awayRecord.[0])
+    winDiff = abs(homeRecord[0] - awayRecord[0])
     compRank = (20 - winDiff) / 5
     return compRank
     
@@ -71,7 +71,7 @@ def gameImportance(home, away):
     away_seed = away["team"].get("seed", {}).get("rank")
     gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
-        # not yet
+        pass
     else:
         if gamesLeft > 50:
             return importance
