@@ -116,6 +116,7 @@ def index():
             continue
 
     # Sort all games by score descending and take top 10
+    print(f"Fetched {len(all_games)} games total")
     top_10_games = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
     return render_template('index.html', matchups=top_10_games)
