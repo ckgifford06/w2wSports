@@ -9,25 +9,27 @@ team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 10, "PHI_NBA": 8, "TOR_NBA": 6,
     "CHI_NBA": 8, "CLE_NBA": 7, "DET_NBA": 5, "IND_NBA": 6, "MIL_NBA": 7,
     "ATL_NBA": 7, "CHA_NBA": 5, "MIA_NBA": 7, "ORL_NBA": 6, "WAS_NBA": 6.5,
-    "DEN_NBA": 7, "MIN_NBA": 6, "OKC_NBA": 6, "POR_NBA": 5:, "UTAH_NBA": 5,
+    "DEN_NBA": 7, "MIN_NBA": 6, "OKC_NBA": 6, "POR_NBA": 5, "UTAH_NBA": 5,
     "GS_NBA": 9, "LAC_NBA": 7, "LAL_NBA": 10, "PHX_NBA":7, "SAC_NBA": 5,
     "DAL_NBA": 8, "HOU_NBA": 7.5, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 7
 }
 rivalries = [
-    ("LAL_NBA", "BOS_NBA", 10), ("NY_NBA", "BOS_NBA", 10),("NY_NBA", "IND_NBA", 7) 
+    ("LAL_NBA", "BOS_NBA", 10), ("NY_NBA", "BOS_NBA", 10),("NY_NBA", "IND_NBA", 7), 
     ("CHI_NBA", "IND_NBA", 6), ("MIA_NBA", "BOS_NBA", 6),("MIA_NBA", "NY_NBA", 6),
     ("DAL_NBA", "SAS_NBA", 5),("GS_NBA", "LAL_NBA", 5),("PHX_NBA", "SAS_NBA", 5), 
     ("TOR_NBA", "BOS_NBA", 4),("NY_NBA", "PHI_NBA", 8),("DAL_NBA", "LAL_NBA", 8)
     ("OKC_NBA", "GS_NBA", 6),("LAC_NBA", "GS_NBA", 7), ("LAL_NBA", "SAS_NBA", 7)
 ]
 def buildRecords():
+    records = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_NFL"
-            record = competitor["records"][0]["summary"]  # e.g. "5-2"
+            record = competitor["records"][0]["summary"]
             records[team_abbr] = record
     return records
 def buildSeeds():
+    seeds = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_NFL"
