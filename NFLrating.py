@@ -28,6 +28,7 @@ team_division = {
     "ARI_NFL": "NFC West", "LAR_NFL": "NFC West", "SF_NFL": "NFC West", "SEA_NFL": "NFC West"
 }
 def buildRecords():
+    records = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_NFL"
@@ -36,6 +37,7 @@ def buildRecords():
     return records
 
 def buildSeeds():
+    seeds = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_NFL"
