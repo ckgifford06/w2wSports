@@ -53,11 +53,11 @@ team_marketability = {
 
 rivalries = [
     #NBA
-    ("LAL_NBA", "BOS_NBA"), ("NY_NBA", "BOS_NBA"),("NY_NBA", "IND_NBA") 
-    ("CHI_NBA", "IND_NBA"), ("MIA_NBA", "BOS_NBA"),("MIA_NBA", "NY_NBA"),
-    ("DAL_NBA", "SAS_NBA"),("GS_NBA", "LAL_NBA"),("PHX_NBA", "SAS_NBA"), 
-    ("TOR_NBA", "BOS_NBA"),("NY_NBA", "PHI_NBA"),("DAL_NBA", "LAL_NBA")
-    ("OKC_NBA", "GS_NBA"),("LAC_NBA", "GS_NBA"), ("LAL_NBA", "SAS_NBA")  
+    ("LAL_NBA", "BOS_NBA"), ("NY_NBA", "BOS_NBA"), ("NY_NBA", "IND_NBA"),
+    ("CHI_NBA", "IND_NBA"), ("MIA_NBA", "BOS_NBA"), ("MIA_NBA", "NY_NBA"),
+    ("DAL_NBA", "SAS_NBA"), ("GS_NBA", "LAL_NBA"), ("PHX_NBA", "SAS_NBA"),
+    ("TOR_NBA", "BOS_NBA"), ("NY_NBA", "PHI_NBA"), ("DAL_NBA", "LAL_NBA"),
+    ("OKC_NBA", "GS_NBA"), ("LAC_NBA", "GS_NBA"), ("LAL_NBA", "SAS_NBA")
 
     #NFL
 
