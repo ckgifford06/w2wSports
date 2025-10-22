@@ -43,7 +43,8 @@ def buildSeeds():
             seeds[team_abbr] = int(seed) if seed else None
     return seeds
 
-
+def calculateScore(home, away):
+    return rivalry(home,away) + marketability(home,away) + competitiveness(home,away) + gameImportance(home,away)
 
 def rivalry(home, away):
     rating = 0
