@@ -14,11 +14,21 @@ team_marketability = {
     "DAL_NBA": 8, "HOU_NBA": 7.5, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 7
 }
 rivalries = [
-    ("LAL_NBA", "BOS_NBA", 10), ("NY_NBA", "BOS_NBA", 10),("NY_NBA", "IND_NBA", 7), 
-    ("CHI_NBA", "IND_NBA", 6), ("MIA_NBA", "BOS_NBA", 6),("MIA_NBA", "NY_NBA", 6),
-    ("DAL_NBA", "SAS_NBA", 5),("GS_NBA", "LAL_NBA", 5),("PHX_NBA", "SAS_NBA", 5), 
-    ("TOR_NBA", "BOS_NBA", 4),("NY_NBA", "PHI_NBA", 8),("DAL_NBA", "LAL_NBA", 8)
-    ("OKC_NBA", "GS_NBA", 6),("LAC_NBA", "GS_NBA", 7), ("LAL_NBA", "SAS_NBA", 7)
+    ("LAL_NBA", "BOS_NBA", 10),
+    ("NY_NBA", "BOS_NBA", 10),
+    ("NY_NBA", "IND_NBA", 7),
+    ("CHI_NBA", "IND_NBA", 6),
+    ("MIA_NBA", "BOS_NBA", 6),
+    ("MIA_NBA", "NY_NBA", 6),
+    ("DAL_NBA", "SAS_NBA", 5),
+    ("GS_NBA", "LAL_NBA", 5),
+    ("PHX_NBA", "SAS_NBA", 5),
+    ("TOR_NBA", "BOS_NBA", 4),
+    ("NY_NBA", "PHI_NBA", 8),
+    ("DAL_NBA", "LAL_NBA", 8),   
+    ("OKC_NBA", "GS_NBA", 6),
+    ("LAC_NBA", "GS_NBA", 7),
+    ("LAL_NBA", "SAS_NBA", 7)
 ]
 def buildRecords():
     records = {}
