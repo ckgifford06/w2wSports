@@ -105,7 +105,6 @@ def index():
                 away_name = competitors[1]['team']['displayName']
 
                 score = calculate_score(home_abbr, away_abbr, sport["name"])
-                score = 0
 
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
