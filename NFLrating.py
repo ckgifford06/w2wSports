@@ -10,7 +10,7 @@ team_marketability = {
     "CHI_NFL": 9, "CIN_NFL": 8, "CLE_NFL": 7, "DAL_NFL": 10, "DEN_NFL": 8,
     "DET_NFL": 7.5, "GB_NFL": 9, "HOU_NFL": 6.5, "IND_NFL": 6, "JAX_NFL": 6,
     "KC_NFL": 10, "LV_NFL": 9, "LAC_NFL": 6.5, "LAR_NFL": 8, "MIA_NFL": 8,
-    "MIN_NFL": 7.5, "BUF_NFL": 10, "NO_NFL": 8, "NYG_NFL": 9, "NYJ_NFL": 8.5,
+    "MIN_NFL": 7.5, "NE_NFL": 10, "NO_NFL": 8, "NYG_NFL": 9, "NYJ_NFL": 8.5,
     "PHI_NFL": 9.5, "PIT_NFL": 9, "SF_NFL": 10, "SEA_NFL": 8, "TB_NFL": 8,
     "TEN_NFL": 6.5, "WAS_NFL": 7
 }
@@ -27,10 +27,27 @@ team_division = {
     "ATL_NFL": "NFC South", "CAR_NFL": "NFC South", "NO_NFL": "NFC South", "TB_NFL": "NFC South",
     "ARI_NFL": "NFC West", "LAR_NFL": "NFC West", "SF_NFL": "NFC West", "SEA_NFL": "NFC West"
 }
+def buildRecords():
+    for event in data["events"]:
+        for competitor in event["competitions"][0]["competitors"]:
+            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            record = competitor["records"][0]["summary"]  # e.g. "5-2"
+            records[team_abbr] = record
+    return records
+
+def buildSeeds():
+    for event in data["events"]:
+        for competitor in event["competitions"][0]["competitors"]:
+            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            seed = competitor.get("seed", {}).get("rank", None)
+            seeds[team_abbr] = int(seed) if seed else None
+    return seeds
+
+
 
 def rivalry(home, away):
     rating = 0
-    if team_division.get(home) == team_vision.get(away):
+    if team_division.get(home) == team_division.get(away):
         rating += 5
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
@@ -41,23 +58,27 @@ def marketability(home, away):
     return team_marketability.get(home, 5) + team_marketability.get(away, 5)
     
 def competitiveness(home, away):
+    records = buildRecords()
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
-    winDiff = abs(homeRecord[0] - awayRecord.[0])
+    winDiff = abs(int(homeRecord[0]) - int(awayRecord.[0]))
     compRank = (10 - winDiff)
     return compRank
     
 def gameImportance(home, away):
+    records = buildRecords()
+    seeds = buildSeeds()
     importance = 0
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
-    homeGamesPlayed = homeRecord[0] + homeRecord[1]
-    awayGamesPlayed = awayRecord[0] + awayRecord[1]
-    home_seed = home["team"].get("seed", {}).get("rank")
-    away_seed = away["team"].get("seed", {}).get("rank")
+    homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
+    awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
+    home_seed = seeds.get(home)
+    away_seed = seeds.get(away)
     gamesLeft = 17 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
         # not yet
+        pass
     else:
         if gamesLeft > 12:
             return importance
