@@ -31,7 +31,7 @@ team_marketability = {
     "KC_NFL": 10, "LV_NFL": 9, "LAC_NFL": 6.5, "LAR_NFL": 8, "MIA_NFL": 8,
     "MIN_NFL": 7.5, "NE_NFL": 10, "NO_NFL": 8, "NYG_NFL": 9, "NYJ_NFL": 8.5,
     "PHI_NFL": 9.5, "PIT_NFL": 9, "SF_NFL": 10, "SEA_NFL": 8, "TB_NFL": 8,
-    "TEN_NFL": 6.5, "WAS_NFL": 7
+    "TEN_NFL": 6.5, "WAS_NFL": 7,
 
     #MLB
     "ARI_MLB": 6, "ATL_MLB": 8, "BAL_MLB": 7.5, "BOS_MLB": 10, "CHC_MLB": 9,
