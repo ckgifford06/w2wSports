@@ -54,7 +54,7 @@ def calculate_score(home, away):
     r = rivalry(home, away)
     m = marketability(home, away)
     c = competitiveness(home, away)
-    q = qualityOfPlayed(home, away)
+    q = qualityOfPlay(home, away)
     g = gameImportance(home, away)
 
     print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
@@ -82,8 +82,8 @@ def qualityOfPlay(home, away):
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    combinedWins = homeRecord[0] + awayRecord[0]
-    gamesPlayed = homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1]
+    combinedWins = float(homeRecord[0] + awayRecord[0])
+    gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
     quality = (combinedWins / gamesPlayed)*10
     return quality
     
