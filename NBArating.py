@@ -90,8 +90,6 @@ def gameImportance(home, away):
     if playoffs:
         pass
     else:
-        if gamesLeft > 50:
-            importance += .15
         if gamesLeft <= 50:
             importance += 1
         if gamesLeft <= 30:
