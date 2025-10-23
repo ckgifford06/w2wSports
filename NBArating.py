@@ -50,7 +50,6 @@ def buildSeeds():
 
 
 def calculate_score(home, away):
-    def calculate_score(home, away):
     r = rivalry(home, away)
     m = marketability(home, away)
     c = competitiveness(home, away)
