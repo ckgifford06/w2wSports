@@ -38,7 +38,7 @@
       color: #98002E;
     }
 
-    /* Ordered list */
+
     ol {
       margin: 30px auto;
       padding: 0;
@@ -53,16 +53,14 @@
       border-radius: 8px;
       color: #BC9B6A;
       font-size: 20px;
-      transition: transform 0.2s, background-color 0.2s;
       position: relative;
+      transition: transform 0.2s;
     }
+
 
     ol li:hover {
-      background-color: #BC9B6A;
-      color: #121212;
       transform: scale(1.03);
     }
-
 
 
     .details-btn {
@@ -74,14 +72,10 @@
       cursor: pointer;
       font-weight: bold;
       margin-left: 10px;
-      transition: background-color 0.3s;
+
     }
 
-    .details-btn:hover {
-      background-color: #e0c48a;
-    }
 
-    /* Modal background */
     .modal {
       display: none;
       position: fixed;
@@ -90,11 +84,10 @@
       top: 0;
       width: 100%;
       height: 100%;
-      overflow: auto;
       background-color: rgba(0, 0, 0, 0.7);
     }
 
-    /* Modal content box */
+
     .modal-content {
       background-color: #BC9B6A;
       color: #000;
@@ -104,6 +97,7 @@
       border-radius: 12px;
       width: 60%;
       text-align: left;
+      position: relative;
     }
 
     .close-btn {
@@ -117,7 +111,6 @@
     .close-btn:hover {
       color: #98002E;
     }
-
   </style>
 </head>
 <body>
@@ -126,7 +119,7 @@
     <a href="/about"> About Us</a>
   </nav>
 
-  <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
+  <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
 
   <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
     {% for game in matchups %}
@@ -140,8 +133,7 @@
 
 
         <button class="details-btn" onclick="openModal('modal{{ loop.index }}')">Details</button>
-
-
+        
         <div id="modal{{ loop.index }}" class="modal">
           <div class="modal-content">
             <span class="close-btn" onclick="closeModal('modal{{ loop.index }}')">&times;</span>
@@ -158,7 +150,6 @@
 
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
-
   <script>
     function openModal(id) {
       document.getElementById(id).style.display = 'block';
@@ -169,14 +160,7 @@
     }
 
 
-    window.onclick = function(event) {
-      const modals = document.querySelectorAll('.modal');
-      modals.forEach(m => {
-        if (event.target === m) m.style.display = 'none';
-      });
-    };
-
-
+    // Detect user's timezone and reload page with it
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     if (!window.location.search.includes('tz=')) {
       const params = new URLSearchParams(window.location.search);
@@ -184,9 +168,5 @@
       window.location.search = params.toString();
     }
   </script>
-</body>
-</html>
-
-  <p>Currently showing {{ matchups|length }} games for today.</p>
 </body>
 </html>
