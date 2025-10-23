@@ -127,6 +127,13 @@ def index():
 def about():
     return render_template('about.html')
 
+@app.route('/')
+def home():
+    matchups = get_matchups()
+    print("DEBUG - Matchups count:", len(matchups), flush=True)
+    for m in matchups:
+        print("DEBUG -", m, flush=True)
+    return render_template('index.html', matchups=matchups)
 
 if __name__ == '__main__':
     import os
