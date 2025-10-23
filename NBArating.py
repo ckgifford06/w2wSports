@@ -98,3 +98,19 @@ def gameImportance(home, away):
     return importance
 
 
+if __name__ == "__main__":
+    print("Testing NBA rating system...\n")
+
+    sample_games = [
+        ("NY_NBA", "BOS_NBA"),
+        ("LAL_NBA", "GS_NBA"),
+        ("DAL_NBA", "LAL_NBA"),
+        ("MIA_NBA", "NY_NBA"),
+        ("CHI_NBA", "IND_NBA")
+    ]
+
+    for home, away in sample_games:
+        score = calculate_score(home, away)
+        print(f"{home} vs {away} → Score: {score}")
+
+
