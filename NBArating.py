@@ -74,7 +74,10 @@ def competitiveness(home, away):
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    winDiff = abs(homeRecord[0] - awayRecord[0])
+    try:
+        winDiff = abs(homeRecord[0] - awayRecord[0])
+    except ValueError:
+        winDiff = 0
     compRank = (20 - winDiff) / 5
     return compRank
 
