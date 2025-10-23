@@ -86,22 +86,25 @@ def index():
                 if odds_info:
                     odds_item = odds_info[0]
                     
-                    # 1️⃣ Get moneyline from 'details' field
-                    details = odds_item.get("details", "")  # e.g., "OKC -290"
-                    if details:
-                        favored_display = details  # this is the **moneyline**
+                    # Moneyline might be in a nested 'moneyline' dict
+                    moneyline = odds_item.get("moneyline", {})
+                    home_ml = moneyline.get("home")
+                    away_ml = moneyline.get("away")
+                
+                    # Fallback for details field if moneyline dict is empty
+                    details = odds_item.get("details", "")
+                
+                    if home_ml is not None and away_ml is not None:
+                        # Determine which team is favored
+                        if home_ml < away_ml:
+                            favored_display = f"{home_name} {home_ml}"
+                        else:
+                            favored_display = f"{away_name} {away_ml}"
+                    elif details:
+                        favored_display = details
                     else:
                         favored_display = "No odds"
-                
-                    # 2️⃣ Get spread separately
-                    spread_points = odds_item.get("spread", None)  # e.g., 7.5
-                    if spread_points is not None:
-                        # Get favored team from 'details' to label the spread
-                        favored_team_name = details.split(" ")[0] if details else "Favored team"
-                        spread_display = f"{favored_team_name} {spread_points}"  # e.g., "OKC -7.5"
-                    else:
-                        spread_display = "No spread"
-            
+                            
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
                 try:
