@@ -87,6 +87,8 @@ def qualityOfPlay(home, away):
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
     combinedWins = float(homeRecord[0] + awayRecord[0])
     gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
+    if gamesPlayed == 0:
+        return 0
     quality = (combinedWins / gamesPlayed)*10
     return quality
     
