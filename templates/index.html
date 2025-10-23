@@ -155,9 +155,10 @@
       </button>
 
       <div id="details-{{ loop.index }}" class="details-box">
-        <p><strong>Time: </strong>(Coming Soon)</p>
+        <p><strong>Start time: </strong>(Coming Soon)</p>
         <p><strong>Where to watch: </strong>(Coming Soon)</p>
-        <p><strong>Betting odds (via ESPN Bet): </strong> (Coming Soon)</p>
+        <p><strong>Odds (via ESPN Bet):</strong> {{ game.favored_odds }}</p>
+        <p><strong>Spread (via ESPN Bet):</strong> {{ game.favored_spread }}</p>
         <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
       </div>
     </li>
