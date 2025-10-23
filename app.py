@@ -87,13 +87,13 @@ def index():
                         favored_spread = away_odds.get("spread")
                         favored_odds = away_odds.get("moneyLine")
 
-# Clean defaults if missing
-if not favored_team:
-    favored_team = "Even matchup"
-if not favored_spread:
-    favored_spread = "N/A"
-if not favored_odds:
-    favored_odds = "N/A"
+
+                if not favored_team:
+                    favored_team = "Even matchup"
+                if not favored_spread:
+                    favored_spread = "N/A"
+                if not favored_odds:
+                    favored_odds = "N/A"
                     
                 # Safe scoring
                 rivalInfo = ""
