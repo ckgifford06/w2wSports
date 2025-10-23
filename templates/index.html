@@ -2,6 +2,30 @@
 <head>
   <title>W2W Sports — Top 10 Matchups</title>
   <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 9999; 
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.8);
+    }
+
+    .modal-content {
+      background-color: #BC9B6A;
+      color: #000;
+      margin: 10% auto;
+      padding: 20px;
+      border: 3px solid #000;
+      border-radius: 12px;
+      width: 60%;
+      text-align: left;
+      position: relative;
+      z-index: 10000; 
+    }
+    
     body {
       font-family: Arial, sans-serif;
       background-color: #BC9B6A;
@@ -70,30 +94,6 @@
     }
 
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 9999; 
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-content {
-      background-color: #BC9B6A;
-      color: #000;
-      margin: 10% auto;
-      padding: 20px;
-      border: 3px solid #000;
-      border-radius: 12px;
-      width: 60%;
-      text-align: left;
-      position: relative;
-      z-index: 10000; 
-    }
-
     .close-btn {
       float: right;
       font-size: 22px;
@@ -142,6 +142,17 @@
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
+    
+    document.addEventListener("DOMContentLoaded", () => {
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!window.location.search.includes("tz=")) {
+      const params = new URLSearchParams(window.location.search);
+      params.set("tz", tz);
+      const newUrl = window.location.pathname + "?" + params.toString();
+      history.replaceState(null, "", newUrl);
+    }
+
     function openModal(id) {
       document.getElementById(id).style.display = 'block';
     }
@@ -149,18 +160,16 @@
     function closeModal(id) {
       document.getElementById(id).style.display = 'none';
     }
+  });
 
 
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (!window.location.search.includes('tz=')) {
-      const params = new URLSearchParams(window.location.search);
-      params.set('tz', tz);
-      const newUrl = window.location.pathname + '?' + params.toString();
-      history.replaceState(null, '', newUrl); 
+  function openModal(id) {
+    document.getElementById(id).style.display = "flex";
+  }
+
+  function closeModal(id) {
+    document.getElementById(id).style.display = "none"; 
     }
-  </script>
-</body>
-</html>
   </script>
 </body>
 </html>
