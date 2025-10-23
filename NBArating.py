@@ -72,7 +72,6 @@ def competitiveness(home, away):
 def gameImportance(home, away):
     seeds = buildSeeds()
     records = buildRecords()
-    importance = 0
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
     homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
