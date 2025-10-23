@@ -67,9 +67,9 @@ def index():
                 away_name = competitors[1]['team']['displayName']
 
                 # Safe scoring
+                rivalInfo = ""
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
-                    rivalInfo = ""
                     if rivalryMatchup(home_abbr, away_abbr, sport["name"]):
                         rivalInfo = "Rivalry Matchup"
                 except Exception as e:
