@@ -90,20 +90,19 @@ def index():
                     moneyline = odds_item.get("moneyline", {})
                     home_ml = moneyline.get("home")
                     away_ml = moneyline.get("away")
-                
-                    # Fallback for details field if moneyline dict is empty
-                    details = odds_item.get("details", "")
-                
+                    
+                    # If they exist as dicts, extract the numeric value
+                    if isinstance(home_ml, dict):
+                        home_ml = home_ml.get("current")
+                    if isinstance(away_ml, dict):
+                        away_ml = away_ml.get("current")
+                    
+                    # Now compare safely
                     if home_ml is not None and away_ml is not None:
-                        # Determine which team is favored
                         if home_ml < away_ml:
                             favored_display = f"{home_name} {home_ml}"
                         else:
                             favored_display = f"{away_name} {away_ml}"
-                    elif details:
-                        favored_display = details
-                    else:
-                        favored_display = "No odds"
                             
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
