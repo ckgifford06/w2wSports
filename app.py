@@ -85,20 +85,21 @@ def index():
                 
                 if odds_info:
                     odds_item = odds_info[0]
+                    
+                    # Get the moneyline from 'details'
                     details = odds_item.get("details", "")
-                    spread = odds_item.get("spread", None)
-                
-                    # Parse favored team from the odds details (e.g., "Thunder -7.5")
                     if details:
-                        favored_team = details.split(" ")[0]
                         favored_display = details  # e.g., "Thunder -290"
-                
-                    if favored_team and spread:
-                        spread_display = f"{favored_team} {spread}"  # e.g., "Thunder -7.5"
-                
-                else:
-                    favored_display = "No odds"
-                    spread_display = "No spread"
+                    else:
+                        favored_display = "No odds"
+                    
+                    # Get the spread from 'spread' field
+                    spread_points = odds_item.get("spread", None)
+                    if spread_points is not None and details:
+                        favored_team_name = details.split(" ")[0]
+                        spread_display = f"{favored_team_name} {spread_points}"  # e.g., "Thunder -7.5"
+                    else:
+                        spread_display = "No spread"
             
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
