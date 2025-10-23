@@ -2,7 +2,7 @@
 <head>
   <title>W2W Sports — Top 10 Matchups</title>
   <style>
-    /* General page styling */
+
     body {
       font-family: Arial, sans-serif;
       background-color: #BC9B6A;
@@ -12,7 +12,7 @@
       padding: 0;
     }
 
-    /* Navigation bar */
+
     nav {
       background-color: #1f1f1f;
       padding: 15px;
@@ -31,7 +31,7 @@
       color: #98002E;
     }
 
-    /* Page header */
+
     h1 {
       margin-top: 40px;
       font-size: 36px;
@@ -54,6 +54,7 @@
       color: #BC9B6A;
       font-size: 20px;
       transition: transform 0.2s, background-color 0.2s;
+      position: relative;
     }
 
     ol li:hover {
@@ -61,6 +62,62 @@
       color: #121212;
       transform: scale(1.03);
     }
+
+
+
+    .details-btn {
+      background-color: #BC9B6A;
+      color: #000;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+      margin-left: 10px;
+      transition: background-color 0.3s;
+    }
+
+    .details-btn:hover {
+      background-color: #e0c48a;
+    }
+
+    /* Modal background */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.7);
+    }
+
+    /* Modal content box */
+    .modal-content {
+      background-color: #BC9B6A;
+      color: #000;
+      margin: 10% auto;
+      padding: 20px;
+      border: 3px solid #000;
+      border-radius: 12px;
+      width: 60%;
+      text-align: left;
+    }
+
+    .close-btn {
+      float: right;
+      font-size: 22px;
+      font-weight: bold;
+      cursor: pointer;
+      color: #000;
+    }
+
+    .close-btn:hover {
+      color: #98002E;
+    }
+
   </style>
 </head>
 <body>
@@ -73,36 +130,60 @@
 
   <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
     {% for game in matchups %}
-      <li style="
-          list-style: none; 
-          background-color:#98002E; 
-          margin:10px 0; 
-          padding:15px 15px 15px 50px; 
-          border-radius:8px; 
-          color:#BC9B6A; 
-          font-size:20px; 
-          position:relative;
-          transition: transform 0.2s, background-color 0.2s;
-      ">
-        <span style="
-            position:absolute;
-            left:15px;
-            font-weight:bold;
-            color:#BC9B6A;
-        ">{{ loop.index }}.</span>
-        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }} {{game.description}}
+      <li style="list-style: none; padding:15px 15px 15px 50px;">
+        <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">
+          {{ loop.index }}.
+        </span>
+
+
+        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }} {{ game.description }}
+
+
+        <button class="details-btn" onclick="openModal('modal{{ loop.index }}')">Details</button>
+
+
+        <div id="modal{{ loop.index }}" class="modal">
+          <div class="modal-content">
+            <span class="close-btn" onclick="closeModal('modal{{ loop.index }}')">&times;</span>
+            <h2>{{ game.matchup }}</h2>
+            <p><strong>League:</strong> {{ game.league }}</p>
+            <p><strong>Score:</strong> {{ game.score }}</p>
+            <p><strong>Description:</strong> {{ game.description or 'No rivalry detected.' }}</p>
+            <p><strong>Extra Details:</strong> Coming soon...</p>
+          </div>
+        </div>
       </li>
     {% endfor %}
-    </ol>
-<script>
-  // Detect user’s timezone and reload page with it
-  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  if (!window.location.search.includes('tz=')) {
-    const params = new URLSearchParams(window.location.search);
-    params.set('tz', tz);
-    window.location.search = params.toString();
-  }
-</script>
+  </ol>
+
+  <p>Currently showing {{ matchups|length }} games for today.</p>
+
+
+  <script>
+    function openModal(id) {
+      document.getElementById(id).style.display = 'block';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+
+    window.onclick = function(event) {
+      const modals = document.querySelectorAll('.modal');
+      modals.forEach(m => {
+        if (event.target === m) m.style.display = 'none';
+      });
+    };
+
+
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!window.location.search.includes('tz=')) {
+      const params = new URLSearchParams(window.location.search);
+      params.set('tz', tz);
+      window.location.search = params.toString();
+    }
+  </script>
 </body>
 </html>
 
