@@ -156,7 +156,8 @@
 
       <div id="details-{{ loop.index }}" class="details-box">
         <p><strong>Start Time:</strong> {{ game.time }}</p>
-        <p><strong>Odds:</strong> {{ game.favored }}</p>
+        <p><strong>Favored Team:</strong> {{ game.favored_team }}</p>
+        <p><strong>Odds:</strong> {{ game.favored_odds }}</p>
         <p><strong>Spread:</strong> {{ game.favored_spread }}</p>
         <p><strong>Where to watch:</strong> Coming soon...}</p>
         <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
