@@ -53,7 +53,18 @@ def index():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     all_games = []
 
-    # Fetch matchups from all sports
+@app.route('/')
+def index():
+    # Get timezone from user (defaults to US/Eastern)
+    timezone_str = request.args.get("tz", "US/Eastern")
+    try:
+        local_tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        local_tz = pytz.timezone("US/Eastern")
+
+    today = datetime.now(local_tz).strftime("%Y%m%d")
+    all_games = []
+
     for key, sport in sports.items():
         try:
             print(f"Fetching {sport['name']} games...", flush=True)
@@ -70,7 +81,7 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
-                # --- 🕒 Get Game Time ---
+                # --- 🕒 Game Time ---
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
@@ -78,46 +89,58 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
-                # --- 📊 Odds & Spread ---
+                odds_info = competition.get("odds", [])
                 favored_display = "No odds"
                 spread_display = "No spread"
+                favored_team = None
 
-                odds_info = competition.get("odds", [])
+                # --- 💰 Odds per sport ---
                 if odds_info:
                     odds_item = odds_info[0]
 
-                    # Handle NBA moneylines specifically
-                    if sport["name"] == "NBA":
+                    if key == "nba":
+                        # NBA moneyline
                         moneyline = odds_item.get("moneyline", {})
                         home_ml = moneyline.get("home")
                         away_ml = moneyline.get("away")
-                        
-                        # If they exist as dicts, extract the numeric value
                         if isinstance(home_ml, dict):
                             home_ml = home_ml.get("current")
                         if isinstance(away_ml, dict):
                             away_ml = away_ml.get("current")
-                        
-                        # Now compare safely
+
                         if home_ml is not None and away_ml is not None:
                             if home_ml < away_ml:
                                 favored_display = f"{home_name} {home_ml}"
+                                favored_team = home_name
                             else:
                                 favored_display = f"{away_name} {away_ml}"
+                                favored_team = away_name
+                        else:
+                            favored_display = "No odds"
 
+                        # NBA spread (only for favored team)
                         spread = odds_item.get("spread")
-                        if spread is not None:
-                            favored_team = home_name if spread < 0 else away_name
-                            spread_display = f"{favored_team} {abs(spread)}"
+                        if spread is not None and favored_team:
+                            spread_display = f"{favored_team} {spread}"
+
+                    elif key == "nfl":
+                        # NFL already uses 'details'
+                        details = odds_item.get("details", "")
+                        spread = odds_item.get("spread")
+                        if details:
+                            favored_display = details  # ex: "LAC -3.5"
+                            favored_team = details.split(" ")[0]
+                        if spread is not None and favored_team:
+                            spread_display = f"{favored_team} {spread}"
 
                     else:
-                        # For other leagues: use 'details' and 'spread'
+                        # NHL / MLB (already working)
                         details = odds_item.get("details", "")
-                        spread = odds_item.get("spread", None)
+                        spread = odds_item.get("spread")
                         if details:
                             favored_display = details
-                        if details and spread is not None:
                             favored_team = details.split(" ")[0]
+                        if spread is not None and favored_team:
                             spread_display = f"{favored_team} {spread}"
 
                 # --- 🔢 Safe scoring ---
@@ -145,12 +168,7 @@ def index():
             continue
 
     # Sort and display top 10
-    print(f"Fetched {len(all_games)} total games", flush=True)
     top_10_games = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
-
-    print("Top Games (for debugging):", flush=True)
-    for game in top_10_games:
-        print(f"  [{game['league']}] {game['matchup']} — Score: {game['score']}", flush=True)
 
     return render_template('index.html', matchups=top_10_games)
 
