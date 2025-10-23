@@ -80,7 +80,7 @@ def calculate_score(home, away, league):
 
 @app.route('/')
 def index():
-    #Get timezone from user (defaults to US/Eastern)
+    # Get timezone from user (defaults to US/Eastern)
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
@@ -93,6 +93,7 @@ def index():
     # Fetch matchups from all sports
     for key, sport in sports.items():
         try:
+            print(f"Fetching {sport['name']} games...", flush=True)
             response = requests.get(sport["url"], params={"dates": today})
             data = response.json()
 
@@ -104,7 +105,12 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
-                score = calculate_score(home_abbr, away_abbr, sport["name"])
+                # Safe scoring
+                try:
+                    score = calculate_score(home_abbr, away_abbr, sport["name"])
+                except Exception as e:
+                    print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
+                    score = 0
 
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
@@ -113,13 +119,17 @@ def index():
                 })
 
         except Exception as e:
+            print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
-    # Sort all games by score descending and take top 10
-    print(f"Fetched {len(all_games)} games total")
+    # Sort and display top 10
+    print(f"Fetched {len(all_games)} total games", flush=True)
     top_10_games = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
-    print(top_10_games)  # ✅ temporary test
+    print("Top Games (for debugging):", flush=True)
+    for game in top_10_games:
+        print(f"  [{game['league']}] {game['matchup']} — Score: {game['score']}", flush=True)
+
     return render_template('index.html', matchups=top_10_games)
 
 
