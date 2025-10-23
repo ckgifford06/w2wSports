@@ -4,8 +4,6 @@ from datetime import datetime
 import pytz
 import NBArating
 import NFLrating
-import NHLrating
-import MLBrating
 
 app = Flask(__name__)
 
