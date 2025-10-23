@@ -71,7 +71,9 @@ def index():
                 # Safe scoring
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
-                    rivalInfo = rivalryMatchup(home_abbr, away_abbr, sport["name"])
+                    rivalInfo = ""
+                    if rivalryMatchup(home_abbr, away_abbr, sport["name"]):
+                        rivalInfo = "Rivalry Matchup"
                 except Exception as e:
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
