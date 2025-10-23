@@ -63,34 +63,34 @@ def index():
             for event in data.get("events", []):
                 competition = event["competitions"][0]
                 competitors = competition["competitors"]
-
+            
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
+            
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
-
-          
-                event_time_str = event.get("date")
-               try:
+            
+                # --- 🕒 Get Game Time ---
+                try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
                     game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except Exception:
                     game_time = "TBD"
-                
+            
                 # --- 💰 Get Odds and Spread ---
                 odds_info = competition.get("odds", [])
-                
+            
                 favored_team = None
                 favored_odds = None
                 favored_spread = None
-                
+            
                 if odds_info:
                     odds_data = odds_info[0]
                     favored_team = odds_data.get("favorite", None)
                     favored_odds = odds_data.get("moneyLine", None)
                     favored_spread = odds_data.get("spread", None)
-                
+            
                     # Backup: sometimes spread is inside text like "Thunder -7.5"
                     details = odds_data.get("details", "")
                     if favored_spread is None and details:
@@ -98,38 +98,13 @@ def index():
                         match = re.search(r"([-+]\d+\.?\d*)", details)
                         if match:
                             favored_spread = match.group(1)
-                
+            
                 if favored_team and favored_odds:
                     favored_display = f"{favored_team} {favored_odds}"
                 else:
                     favored_display = "No odds available"
-                odds_info = competition.get("odds", [])
-                favored_team = None
-                favored_spread = None
-                favored_odds = None
-
-                if odds_info:
-                    odds_data = odds_info[0]
-                    home_odds = odds_data.get("homeTeamOdds", {})
-                    away_odds = odds_data.get("awayTeamOdds", {})
-
-                    if home_odds.get("favorite") is True:
-                        favored_team = home_name
-                        favored_spread = home_odds.get("spread")
-                        favored_odds = home_odds.get("moneyLine")
-                    elif away_odds.get("favorite") is True:
-                        favored_team = away_name
-                        favored_spread = away_odds.get("spread")
-                        favored_odds = away_odds.get("moneyLine")
-
-                if not favored_team:
-                    favored_team = "Even matchup"
-                if not favored_spread:
-                    favored_spread = "N/A"
-                if not favored_odds:
-                    favored_odds = "N/A"
-
-  
+            
+                # --- 🔢 Safe scoring ---
                 rivalInfo = ""
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
@@ -138,8 +113,7 @@ def index():
                 except Exception as e:
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
-
-
+            
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
