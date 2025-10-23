@@ -81,7 +81,7 @@ def index():
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
-                    "score": score
+                    "score": score,
                     "description": rivalInfo
                 })
 
