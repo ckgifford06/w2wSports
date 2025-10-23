@@ -71,14 +71,38 @@ def index():
 
           
                 event_time_str = event.get("date")
-                try:
-                    utc_time = datetime.fromisoformat(event_time_str.replace("Z", "+00:00"))
-                    local_time = utc_time.astimezone(local_tz)
-                    readable_time = local_time.strftime("%I:%M %p")
+               try:
+                    game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
+                    game_datetime_local = game_datetime_utc.astimezone(local_tz)
+                    game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except Exception:
-                    readable_time = "TBD"
-
-    
+                    game_time = "TBD"
+                
+                # --- 💰 Get Odds and Spread ---
+                odds_info = competition.get("odds", [])
+                
+                favored_team = None
+                favored_odds = None
+                favored_spread = None
+                
+                if odds_info:
+                    odds_data = odds_info[0]
+                    favored_team = odds_data.get("favorite", None)
+                    favored_odds = odds_data.get("moneyLine", None)
+                    favored_spread = odds_data.get("spread", None)
+                
+                    # Backup: sometimes spread is inside text like "Thunder -7.5"
+                    details = odds_data.get("details", "")
+                    if favored_spread is None and details:
+                        import re
+                        match = re.search(r"([-+]\d+\.?\d*)", details)
+                        if match:
+                            favored_spread = match.group(1)
+                
+                if favored_team and favored_odds:
+                    favored_display = f"{favored_team} {favored_odds}"
+                else:
+                    favored_display = "No odds available"
                 odds_info = competition.get("odds", [])
                 favored_team = None
                 favored_spread = None
