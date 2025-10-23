@@ -84,53 +84,46 @@ def index():
                 favored_team = None
 
                 # --- 💰 Odds per sport ---
+                competition = event["competitions"][0]
+                odds_info = competition.get("odds", [])
+                favored_display = "No odds"
+                spread_display = "No spread"
+                
                 if odds_info:
                     odds_item = odds_info[0]
-
-                    if key == "nba":
-                        # NBA moneyline
-                        moneyline = odds_item.get("moneyline", {})
-                        home_ml = moneyline.get("home")
-                        away_ml = moneyline.get("away")
-                        if isinstance(home_ml, dict):
-                            home_ml = home_ml.get("current")
-                        if isinstance(away_ml, dict):
-                            away_ml = away_ml.get("current")
-
-                        if home_ml is not None and away_ml is not None:
-                            if home_ml < away_ml:
-                                favored_display = f"{home_name} {home_ml}"
-                                favored_team = home_name
-                            else:
-                                favored_display = f"{away_name} {away_ml}"
-                                favored_team = away_name
-                        else:
+                
+                    # --- NHL (already working) ---
+                    if sport["name"] == "NHL":
+                        details = odds_item.get("details", "")
+                        spread = odds_item.get("spread", None)
+                        if details:
+                            favored_team = details.split(" ")[0]
+                            favored_display = details  # e.g., "NYI -135"
+                        if favored_team and spread:
+                            spread_display = f"{favored_team} {spread}"  # e.g., "NYI -1.5"
+                
+                    # --- NBA & NFL ---
+                    elif sport["name"] in ["NBA", "NFL"]:
+                        # Sometimes home/away prices are under 'home'/'away' keys
+                        try:
+                            home_odds = odds_item.get("home", {}).get("moneyLine", None)
+                            away_odds = odds_item.get("away", {}).get("moneyLine", None)
+                            home_spread = odds_item.get("home", {}).get("spread", None)
+                            away_spread = odds_item.get("away", {}).get("spread", None)
+                
+                            # Determine favored team
+                            if home_odds is not None and away_odds is not None:
+                                if home_odds < away_odds:  # Negative odds favored
+                                    favored_display = f"{competitors[0]['team']['displayName']} {home_odds}"
+                                    if home_spread is not None:
+                                        spread_display = f"{competitors[0]['team']['displayName']} {home_spread}"
+                                else:
+                                    favored_display = f"{competitors[1]['team']['displayName']} {away_odds}"
+                                    if away_spread is not None:
+                                        spread_display = f"{competitors[1]['team']['displayName']} {away_spread}"
+                        except Exception:
                             favored_display = "No odds"
-
-                        # NBA spread (only for favored team)
-                        spread = odds_item.get("spread")
-                        if spread is not None and favored_team:
-                            spread_display = f"{favored_team} {spread}"
-
-                    elif key == "nfl":
-                        # NFL already uses 'details'
-                        details = odds_item.get("details", "")
-                        spread = odds_item.get("spread")
-                        if details:
-                            favored_display = details  # ex: "LAC -3.5"
-                            favored_team = details.split(" ")[0]
-                        if spread is not None and favored_team:
-                            spread_display = f"{favored_team} {spread}"
-
-                    else:
-                        # NHL / MLB (already working)
-                        details = odds_item.get("details", "")
-                        spread = odds_item.get("spread")
-                        if details:
-                            favored_display = details
-                            favored_team = details.split(" ")[0]
-                        if spread is not None and favored_team:
-                            spread_display = f"{favored_team} {spread}"
+                            spread_display = "No spread"
 
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
