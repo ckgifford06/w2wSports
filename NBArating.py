@@ -34,7 +34,7 @@ def buildRecords():
     records = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
             record = competitor["records"][0]["summary"]
             records[team_abbr] = record
     return records
@@ -42,7 +42,7 @@ def buildSeeds():
     seeds = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
             seed = competitor.get("seed", {}).get("rank", None)
             seeds[team_abbr] = int(seed) if seed else None
     return seeds
