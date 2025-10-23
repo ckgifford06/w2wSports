@@ -71,7 +71,7 @@ def competitiveness(home, away):
 def gameImportance(home, away):
     records = buildRecords()
     seeds = buildSeeds()
-    importance = 0
+    importance = 2
     homeRecord = records.get(home).split("-")
     awayRecord = records.get(away).split("-")
     homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
