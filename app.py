@@ -41,17 +41,6 @@ def rivalryMatchup(home, away, league):
     else:
         return false
 
-@app.route('/')
-def index():
-    # Get timezone from user (defaults to US/Eastern)
-    timezone_str = request.args.get("tz", "US/Eastern")
-    try:
-        local_tz = pytz.timezone(timezone_str)
-    except pytz.UnknownTimeZoneError:
-        local_tz = pytz.timezone("US/Eastern")
-
-    today = datetime.now(local_tz).strftime("%Y%m%d")
-    all_games = []
 
 @app.route('/')
 def index():
