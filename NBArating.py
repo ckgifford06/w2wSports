@@ -58,7 +58,7 @@ def calculate_score(home, away):
     g = gameImportance(home, away)
 
     print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
-    return (r or 0) + (m or 0) + (c or 0) + (q or 0) + (g or 0)
+    return round((r + m + + c + q + g), 2)
 
 
 def rivalry(home, away):
