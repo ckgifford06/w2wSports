@@ -4,6 +4,7 @@ data = requests.get(url).json()
 
 season_length = 82
 playoffs = False
+importance = 0
 
 team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 10, "PHI_NBA": 8, "TOR_NBA": 6,
