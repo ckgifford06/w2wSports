@@ -63,13 +63,13 @@ def index():
             for event in data.get("events", []):
                 competition = event["competitions"][0]
                 competitors = competition["competitors"]
-            
+
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
-            
+
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
-            
+
                 # --- 🕒 Get Game Time ---
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
@@ -77,33 +77,49 @@ def index():
                     game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except Exception:
                     game_time = "TBD"
-            
-                competition = event["competitions"][0]
-                odds_info = competition.get("odds", [])
+
+                # --- 📊 Odds & Spread ---
                 favored_display = "No odds"
                 spread_display = "No spread"
-                
+
+                odds_info = competition.get("odds", [])
                 if odds_info:
                     odds_item = odds_info[0]
-                    
-                    # Moneyline might be in a nested 'moneyline' dict
-                    moneyline = odds_item.get("moneyline", {})
-                    home_ml = moneyline.get("home")
-                    away_ml = moneyline.get("away")
-                    
-                    # If they exist as dicts, extract the numeric value
-                    if isinstance(home_ml, dict):
-                        home_ml = home_ml.get("current")
-                    if isinstance(away_ml, dict):
-                        away_ml = away_ml.get("current")
-                    
-                    # Now compare safely
-                    if home_ml is not None and away_ml is not None:
-                        if home_ml < away_ml:
-                            favored_display = f"{home_name} {home_ml}"
-                        else:
-                            favored_display = f"{away_name} {away_ml}"
-                            
+
+                    # Handle NBA moneylines specifically
+                    if sport["name"] == "NBA":
+                        moneyline = odds_item.get("moneyline", {})
+                        home_ml = moneyline.get("home")
+                        away_ml = moneyline.get("away")
+                        
+                        # If they exist as dicts, extract the numeric value
+                        if isinstance(home_ml, dict):
+                            home_ml = home_ml.get("current")
+                        if isinstance(away_ml, dict):
+                            away_ml = away_ml.get("current")
+                        
+                        # Now compare safely
+                        if home_ml is not None and away_ml is not None:
+                            if home_ml < away_ml:
+                                favored_display = f"{home_name} {home_ml}"
+                            else:
+                                favored_display = f"{away_name} {away_ml}"
+
+                        spread = odds_item.get("spread")
+                        if spread is not None:
+                            favored_team = home_name if spread < 0 else away_name
+                            spread_display = f"{favored_team} {abs(spread)}"
+
+                    else:
+                        # For other leagues: use 'details' and 'spread'
+                        details = odds_item.get("details", "")
+                        spread = odds_item.get("spread", None)
+                        if details:
+                            favored_display = details
+                        if details and spread is not None:
+                            favored_team = details.split(" ")[0]
+                            spread_display = f"{favored_team} {spread}"
+
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
                 try:
@@ -113,7 +129,7 @@ def index():
                 except Exception as e:
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
-            
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
