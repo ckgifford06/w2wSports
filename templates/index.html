@@ -2,6 +2,17 @@
 <head>
   <title>W2W Sports — Top 10 Matchups</title>
   <style>
+
+    .details-box {
+        display: none;
+        margin-top: 10px;
+        background-color: #BC9B6A;
+        color: #000;
+        border: 2px solid #000;
+        border-radius: 8px;
+        padding: 10px 15px;
+        font-size: 18px;
+      }
     .modal {
       display: none;
       position: fixed;
@@ -116,28 +127,39 @@
   <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
 
   <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
-    {% for game in matchups %}
-      <li>
-        <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">
-          {{ loop.index }}.
-        </span>
-        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }} {{ game.description }}
-        <button class="details-btn" onclick="openModal('modal{{ loop.index }}')">Details</button>
+  {% for game in matchups %}
+    <li style="
+        list-style: none; 
+        background-color:#98002E; 
+        margin:10px 0; 
+        padding:15px 15px 15px 50px; 
+        border-radius:8px; 
+        color:#BC9B6A; 
+        font-size:20px; 
+        position:relative;
+    ">
+      <span style="
+          position:absolute;
+          left:15px;
+          font-weight:bold;
+          color:#BC9B6A;
+      ">{{ loop.index }}.</span>
 
+      [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }} {{game.description}}
       
-        <div id="modal{{ loop.index }}" class="modal">
-          <div class="modal-content">
-            <span class="close-btn" onclick="closeModal('modal{{ loop.index }}')">&times;</span>
-            <h2>{{ game.matchup }}</h2>
-            <p><strong>League:</strong> {{ game.league }}</p>
-            <p><strong>Score:</strong> {{ game.score }}</p>
-            <p><strong>Description:</strong> {{ game.description or 'No rivalry detected.' }}</p>
-            <p><strong>Extra Details:</strong> Coming soon...</p>
-          </div>
-        </div>
-      </li>
-    {% endfor %}
-  </ol>
+
+      <button 
+        style="margin-left:10px; background-color:#BC9B6A; color:#000; border:2px solid #000; border-radius:6px; cursor:pointer;"
+        onclick="toggleDetails('details-{{ loop.index }}')">
+        Details
+      </button>
+
+      <div id="details-{{ loop.index }}" class="details-box">
+        <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
+      </div>
+    </li>
+  {% endfor %}
+</ol>
 
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
@@ -170,6 +192,11 @@
   function closeModal(id) {
     document.getElementById(id).style.display = "none"; 
     }
+    
+   function toggleDetails(id) {
+    const box = document.getElementById(id);
+    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+  }
   </script>
 </body>
 </html>
