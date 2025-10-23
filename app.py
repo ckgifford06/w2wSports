@@ -121,10 +121,9 @@ def index():
                     "league": sport["name"],
                     "score": score,
                     "description": rivalInfo,
-                    "favored_team": favored_team,
-                    "favored_spread": favored_spread,
-                    "favored_odds": favored_odds,
-                    "time": readable_time
+                    "time": game_time,
+                    "favored": f"{favored_team} {favored_odds}",
+                    "favored_spread": favored_spread
                 })
 
         except Exception as e:
