@@ -63,8 +63,8 @@ def marketability(home, away):
     
 def competitiveness(home, away):
     records = buildRecords()
-    homeRecord = records.get(home).split("-")
-    awayRecord = records.get(away).split("-")
+    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
+    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
     winDiff = abs(homeRecord[0] - awayRecord[0])
     compRank = (20 - winDiff) / 5
     return compRank
@@ -73,18 +73,18 @@ def gameImportance(home, away):
     seeds = buildSeeds()
     records = buildRecords()
     importance = 0
-    homeRecord = records.get(home).split("-")
-    awayRecord = records.get(away).split("-")
-    homeGamesPlayed = homeRecord[0] + homeRecord[1]
-    awayGamesPlayed = awayRecord[0] + awayRecord[1]
-    home_seed = home["team"].get("seed", {}).get("rank")
-    away_seed = away["team"].get("seed", {}).get("rank")
+    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
+    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
+    homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
+    awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
+    home_seed = seeds.get(home)
+    away_seed = seeds.get(away)
     gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
         pass
     else:
         if gamesLeft > 50:
-            return importance
+            importance += .15
         if gamesLeft <= 50:
             importance += 1
         if gamesLeft <= 30:
