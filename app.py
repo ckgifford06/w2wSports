@@ -25,7 +25,7 @@ def calculate_score(home, away, league):
     elif league == "NHL":
         return NHLrating.calculate_score(home, away)
     elif league == "MLB":
-        return NHLrating.calculate_score(home, away)
+        return MLBrating.calculate_score(home, away)
     else:
         return 0
 
