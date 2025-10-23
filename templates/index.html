@@ -90,7 +90,7 @@
             font-weight:bold;
             color:#BC9B6A;
         ">{{ loop.index }}.</span>
-        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
+        [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }} — {{game.description}}
       </li>
     {% endfor %}
     </ol>
