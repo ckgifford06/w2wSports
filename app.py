@@ -68,6 +68,33 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
+                odds_info = competition.get("odds", [])
+                favored_team = None
+                favored_spread = None
+                favored_odds = None
+                
+                if odds_info:
+                    odds_data = odds_info[0]
+                    home_odds = odds_data.get("homeTeamOdds", {})
+                    away_odds = odds_data.get("awayTeamOdds", {})
+                
+                    if home_odds.get("favorite") is True:
+                        favored_team = home_name
+                        favored_spread = home_odds.get("spread")
+                        favored_odds = home_odds.get("moneyLine")
+                    elif away_odds.get("favorite") is True:
+                        favored_team = away_name
+                        favored_spread = away_odds.get("spread")
+                        favored_odds = away_odds.get("moneyLine")
+
+# Clean defaults if missing
+if not favored_team:
+    favored_team = "Even matchup"
+if not favored_spread:
+    favored_spread = "N/A"
+if not favored_odds:
+    favored_odds = "N/A"
+                    
                 # Safe scoring
                 rivalInfo = ""
                 try:
@@ -83,6 +110,9 @@ def index():
                     "league": sport["name"],
                     "score": score,
                     "description": rivalInfo
+                    "favored_team": favored_team,
+                    "favored_spread": favored_spread,
+                    "favored_odds": favored_odds,
                 })
 
         except Exception as e:
