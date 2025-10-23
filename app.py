@@ -86,18 +86,19 @@ def index():
                 if odds_info:
                     odds_item = odds_info[0]
                     
-                    # Get the moneyline from 'details'
-                    details = odds_item.get("details", "")
+                    # 1️⃣ Get moneyline from 'details' field
+                    details = odds_item.get("details", "")  # e.g., "OKC -290"
                     if details:
-                        favored_display = details  # e.g., "Thunder -290"
+                        favored_display = details  # this is the **moneyline**
                     else:
                         favored_display = "No odds"
-                    
-                    # Get the spread from 'spread' field
-                    spread_points = odds_item.get("spread", None)
-                    if spread_points is not None and details:
-                        favored_team_name = details.split(" ")[0]
-                        spread_display = f"{favored_team_name} {spread_points}"  # e.g., "Thunder -7.5"
+                
+                    # 2️⃣ Get spread separately
+                    spread_points = odds_item.get("spread", None)  # e.g., 7.5
+                    if spread_points is not None:
+                        # Get favored team from 'details' to label the spread
+                        favored_team_name = details.split(" ")[0] if details else "Favored team"
+                        spread_display = f"{favored_team_name} {spread_points}"  # e.g., "OKC -7.5"
                     else:
                         spread_display = "No spread"
             
