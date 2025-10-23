@@ -29,7 +29,8 @@ rivalries = [
     ("DAL_NBA", "LAL_NBA", 8),   
     ("OKC_NBA", "GS_NBA", 6),
     ("LAC_NBA", "GS_NBA", 7),
-    ("LAL_NBA", "SAS_NBA", 7)
+    ("LAL_NBA", "SAS_NBA", 7),
+    ("OKC_NBA", "IND_NBA", 7)
 ]
 def buildRecords():
     records = {}
