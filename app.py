@@ -61,23 +61,34 @@ def index():
             data = response.json()
 
             for event in data.get("events", []):
-                competitors = event["competitions"][0]["competitors"]
+                competition = event["competitions"][0]
+                competitors = competition["competitors"]
+
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
-
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
+          
+                event_time_str = event.get("date")
+                try:
+                    utc_time = datetime.fromisoformat(event_time_str.replace("Z", "+00:00"))
+                    local_time = utc_time.astimezone(local_tz)
+                    readable_time = local_time.strftime("%I:%M %p")
+                except Exception:
+                    readable_time = "TBD"
+
+    
                 odds_info = competition.get("odds", [])
                 favored_team = None
                 favored_spread = None
                 favored_odds = None
-                
+
                 if odds_info:
                     odds_data = odds_info[0]
                     home_odds = odds_data.get("homeTeamOdds", {})
                     away_odds = odds_data.get("awayTeamOdds", {})
-                
+
                     if home_odds.get("favorite") is True:
                         favored_team = home_name
                         favored_spread = home_odds.get("spread")
@@ -87,15 +98,14 @@ def index():
                         favored_spread = away_odds.get("spread")
                         favored_odds = away_odds.get("moneyLine")
 
-
                 if not favored_team:
                     favored_team = "Even matchup"
                 if not favored_spread:
                     favored_spread = "N/A"
                 if not favored_odds:
                     favored_odds = "N/A"
-                    
-                # Safe scoring
+
+  
                 rivalInfo = ""
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
@@ -105,14 +115,16 @@ def index():
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
 
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
                     "score": score,
-                    "description": rivalInfo
+                    "description": rivalInfo,
                     "favored_team": favored_team,
                     "favored_spread": favored_spread,
                     "favored_odds": favored_odds,
+                    "time": readable_time
                 })
 
         except Exception as e:
