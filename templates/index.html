@@ -9,16 +9,17 @@
       color: #000;
       border: 2px solid #000;
       border-radius: 8px;
-      padding: 10px 15px;
+      padding: 10px 15px 50px 15px;
       font-size: 18px;
       position: relative;
+      min-height: 80px;
     }
 
     .live-score {
       position: absolute;
       top: 10px;
-      right: 15px;
-      font-size: 22px;
+      right: 20px;
+      font-size: 26px;
       font-weight: bold;
       color: #000;
     }
@@ -80,29 +81,31 @@
     }
 
     nav .divider {
-      color: #ffffff; 
+      color: #ffffff;
       margin: 0 8px;
     }
   </style>
 </head>
 <body>
   <nav>
-    <a href="/">Home</a> 
+    <a href="/">Home</a>
     <span class="divider">|</span>
     <a href="/about">About Us</a>
   </nav>
 
   <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
 
-  <ol style="width:60%; margin:30px auto; text-align:left;">
-  {% for game in matchups %}
+  <ol>
+    {% for game in matchups %}
     <li onclick="toggleDetails('details-{{ loop.index }}')">
       <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
       [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
       <div id="details-{{ loop.index }}" class="details-box">
+        <!-- 🟢 Live Score Display -->
         <span id="live-score-{{ loop.index }}" class="live-score">
-          Live Score: Has not started yet
+          {{ game.live_score }}
         </span>
+
         <p><strong>Start Time:</strong> {{ game.time }}</p>
         <p><strong>Moneyline (via ESPN Bet):</strong> {{ game.favored }}</p>
         <p><strong>Spread (via ESPN Bet):</strong> {{ game.favored_spread }}</p>
@@ -110,7 +113,7 @@
         <p><strong>Where to watch:</strong> {{ game.where_to_watch }}</p>
       </div>
     </li>
-  {% endfor %}
+    {% endfor %}
   </ol>
 
   <p>Currently showing {{ matchups|length }} games for today.</p>
@@ -122,7 +125,7 @@
       box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
     }
 
-    // Auto-refresh live scores
+    // 🔄 Auto-refresh live scores every 30 seconds
     async function updateLiveScores() {
       try {
         const response = await fetch("/api/live");
@@ -136,6 +139,9 @@
           if (game.status.toLowerCase().includes("in progress") || game.status.toLowerCase().includes("live")) {
             el.textContent = `Live Score: ${game.score}`;
             el.style.color = "green";
+          } else if (game.status.toLowerCase().includes("final")) {
+            el.textContent = `Final Score: ${game.score}`;
+            el.style.color = "red";
           } else {
             el.textContent = "Live Score: Has not started yet";
             el.style.color = "#000";
