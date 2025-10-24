@@ -80,6 +80,10 @@ def index():
 
                 # --- 💰 Odds per sport ---
                 odds_info = competition.get("odds", [])
+                if odds_info:
+                    print(f"\nDEBUG ODDS for {sport['name']}:")
+                    import json
+                    print(json.dumps(odds_info, indent=2))
                 favored_display = "No odds"
                 spread_display = "No spread"
 
