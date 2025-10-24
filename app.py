@@ -39,7 +39,7 @@ def rivalryMatchup(home, away, league):
     elif league == "MLB":
         return (MLBrating.rivalry(home, away) > 5)
     else:
-        return false
+        return False
 
 
 @app.route('/')
@@ -78,6 +78,12 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
+                odds_info = competition.get("odds", [])
+                favored_display = "No odds"
+                spread_display = "No spread"
+                favored_team = None
+
+                # --- 💰 Odds per sport ---
                 competition = event["competitions"][0]
                 odds_info = competition.get("odds", [])
                 favored_display = "No odds"
@@ -86,33 +92,44 @@ def index():
                 if odds_info:
                     odds_item = odds_info[0]
                 
-                    # Try general info
-                    details = odds_item.get("details", "")
-                    if details:
-                        favored_display = details  # e.g. "LAL -145"
+                    # --- NHL (already working) ---
+                    if sport["name"] == "NHL":
+                        details = odds_item.get("details", "")
+                        spread = odds_item.get("spread", None)
+                        if details:
+                            favored_team = details.split(" ")[0]
+                            favored_display = details  # e.g., "NYI -135"
+                        if favored_team and spread:
+                            spread_display = f"{favored_team} {spread}"  # e.g., "NYI -1.5"
                 
-                    # Check if ESPN included team-specific odds (for NBA/NFL)
-                    home_odds_data = odds_item.get("homeTeamOdds") or {}
-                    away_odds_data = odds_item.get("awayTeamOdds") or {}
-                
-                    home_ml = home_odds_data.get("moneyLine")
-                    away_ml = away_odds_data.get("moneyLine")
-                    home_spread = home_odds_data.get("spread")
-                    away_spread = away_odds_data.get("spread")
-                
-                    # Determine favored team based on moneyline (lower = favored)
-                    if home_ml is not None and away_ml is not None:
-                        if home_ml < away_ml:
-                            favored_display = f"{competitors[0]['team']['displayName']} {home_ml}"
-                            if home_spread is not None:
-                                spread_display = f"{competitors[0]['team']['displayName']} {home_spread}"
-                        else:
-                            favored_display = f"{competitors[1]['team']['displayName']} {away_ml}"
-                            if away_spread is not None:
-                                spread_display = f"{competitors[1]['team']['displayName']} {away_spread}"
-                                        except Exception:
-                                            favored_display = "No odds"
-                                            spread_display = "No spread"
+                    # --- NBA & NFL (fixed section) ---
+                    elif sport["name"] in ["NBA", "NFL"]:
+                        try:
+                            home_odds_data = odds_item.get("homeTeamOdds") or {}
+                            away_odds_data = odds_item.get("awayTeamOdds") or {}
+
+                            home_ml = home_odds_data.get("moneyLine")
+                            away_ml = away_odds_data.get("moneyLine")
+                            home_spread = home_odds_data.get("spread")
+                            away_spread = away_odds_data.get("spread")
+
+                            # Determine favored team based on moneyline (lower = favored)
+                            if home_ml is not None and away_ml is not None:
+                                if home_ml < away_ml:
+                                    favored_display = f"{competitors[0]['team']['displayName']} {home_ml}"
+                                    if home_spread is not None:
+                                        spread_display = f"{competitors[0]['team']['displayName']} {home_spread}"
+                                else:
+                                    favored_display = f"{competitors[1]['team']['displayName']} {away_ml}"
+                                    if away_spread is not None:
+                                        spread_display = f"{competitors[1]['team']['displayName']} {away_spread}"
+                            elif odds_item.get("details"):
+                                favored_display = odds_item["details"]
+
+                        except Exception as e:
+                            print(f"Odds parsing error ({sport['name']}): {e}", flush=True)
+                            favored_display = "No odds"
+                            spread_display = "No spread"
 
                 # --- 🔢 Safe scoring ---
                 rivalInfo = ""
