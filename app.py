@@ -78,51 +78,36 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
-                odds_info = competition.get("odds", [])
-                favored_display = "No odds"
-                spread_display = "No spread"
-                favored_team = None
-
                 # --- 💰 Odds per sport ---
-                competition = event["competitions"][0]
                 odds_info = competition.get("odds", [])
                 favored_display = "No odds"
                 spread_display = "No spread"
-                
+
                 if odds_info:
                     odds_item = odds_info[0]
-                
-                    # --- NHL (improved) ---
+
+                    # --- NHL ---
                     if sport["name"] == "NHL":
                         details = odds_item.get("details", "")
                         spread = odds_item.get("spread", None)
                         if details:
                             favored_team = details.split(" ")[0]
-                            favored_display = details  # e.g., "NYI -135"
-                        if favored_team and spread is not None:
-                            # ESPN sometimes lists favorite spread as positive, flip it to negative
-                            try:
-                                spread_value = float(spread)
-                                if spread_value > 0:
-                                    spread_value = -spread_value
-                                spread_display = f"{favored_team} {spread_value:.1f}"
-                            except ValueError:
-                                spread_display = f"{favored_team} {spread}"
+                            favored_display = details  # e.g. "NYI -135"
+                        if spread is not None:
+                            if spread > 0:
+                                spread = -abs(spread)
+                            spread_display = f"{favored_team} {spread}"
 
-                    # --- NBA & NFL (improved) ---
+                    # --- NBA & NFL ---
                     elif sport["name"] in ["NBA", "NFL"]:
                         try:
-                            home_odds_data = odds_item.get("homeTeamOdds") or {}
-                            away_odds_data = odds_item.get("awayTeamOdds") or {}
+                            home_odds_data = odds_item.get("home", {})
+                            away_odds_data = odds_item.get("away", {})
 
                             home_ml = home_odds_data.get("moneyLine")
                             away_ml = away_odds_data.get("moneyLine")
                             home_spread = home_odds_data.get("spread")
                             away_spread = away_odds_data.get("spread")
-
-                            # Try top-level fallback if team odds missing
-                            if home_spread is None and away_spread is None:
-                                home_spread = odds_item.get("spread")
 
                             # Determine favored team based on moneyline (lower = favored)
                             if home_ml is not None and away_ml is not None:
@@ -134,11 +119,7 @@ def index():
                                     favored_display = f"{competitors[1]['team']['displayName']} {away_ml}"
                                     if away_spread is not None:
                                         spread_display = f"{competitors[1]['team']['displayName']} {away_spread}"
-                            elif odds_item.get("details"):
-                                favored_display = odds_item["details"]
-
-                        except Exception as e:
-                            print(f"Odds parsing error ({sport['name']}): {e}", flush=True)
+                        except Exception:
                             favored_display = "No odds"
                             spread_display = "No spread"
 
@@ -152,6 +133,32 @@ def index():
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
 
+                # --- 📺 Where to Watch ---
+                try:
+                    broadcasts = competition.get("broadcasts", [])
+                    geo_broadcasts = competition.get("geoBroadcasts", [])
+                    networks = []
+
+                    # Collect from standard 'broadcasts'
+                    for b in broadcasts:
+                        names = b.get("names", [])
+                        if names:
+                            networks.extend(names)
+
+                    # Collect from 'geoBroadcasts'
+                    for gb in geo_broadcasts:
+                        if gb.get("media") and gb["media"].get("shortName"):
+                            networks.append(gb["media"]["shortName"])
+
+                    # Clean and format
+                    if networks:
+                        where_to_watch = ", ".join(sorted(set(networks)))
+                    else:
+                        where_to_watch = "Coming soon..."
+                except Exception as e:
+                    print(f"Broadcast parsing error: {e}", flush=True)
+                    where_to_watch = "Coming soon..."
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
@@ -159,7 +166,8 @@ def index():
                     "description": rivalInfo,
                     "time": game_time,
                     "favored": favored_display,
-                    "favored_spread": spread_display
+                    "favored_spread": spread_display,
+                    "where_to_watch": where_to_watch
                 })
 
         except Exception as e:
