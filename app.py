@@ -214,6 +214,18 @@ def index():
     return render_template('index.html', matchups=top_10_games)
 
 
+@app.route("/api/live")
+def live_scores():
+    # Reuse your existing logic to fetch the latest games
+    games = get_games_today()  # or whatever function you already use
+    data = []
+    for g in games:
+        data.append({
+            "status": g.get("status", "Not Started"),
+            "score": g.get("score", "0–0")
+        })
+    return jsonify(data)
+
 @app.route('/about')
 def about():
     return render_template('about.html')
