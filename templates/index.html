@@ -2,41 +2,27 @@
 <head>
   <title>W2W Sports — Top 10 Matchups</title>
   <style>
-
     .details-box {
-        display: none;
-        margin-top: 10px;
-        background-color: #BC9B6A;
-        color: #000;
-        border: 2px solid #000;
-        border-radius: 8px;
-        padding: 10px 15px;
-        font-size: 18px;
-      }
-    .modal {
       display: none;
-      position: fixed;
-      z-index: 9999; 
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.8);
-    }
-
-    .modal-content {
+      margin-top: 10px;
       background-color: #BC9B6A;
       color: #000;
-      margin: 10% auto;
-      padding: 20px;
-      border: 3px solid #000;
-      border-radius: 12px;
-      width: 60%;
-      text-align: left;
+      border: 2px solid #000;
+      border-radius: 8px;
+      padding: 10px 15px;
+      font-size: 18px;
       position: relative;
-      z-index: 10000; 
     }
-    
+
+    .live-score {
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #000;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #BC9B6A;
@@ -91,19 +77,6 @@
 
     ol li:hover {
       transform: scale(1.03);
-      background-color: #b0002e; /* Slightly lighter red for hover feedback */
-    }
-
-    .close-btn {
-      float: right;
-      font-size: 22px;
-      font-weight: bold;
-      cursor: pointer;
-      color: #000;
-    }
-
-    .close-btn:hover {
-      color: #98002E;
     }
 
     nav .divider {
@@ -119,31 +92,17 @@
     <a href="/about">About Us</a>
   </nav>
 
-  <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
+  <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
 
-  <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
+  <ol style="width:60%; margin:30px auto; text-align:left;">
   {% for game in matchups %}
-    <li onclick="toggleDetails('details-{{ loop.index }}')" style="
-        list-style: none; 
-        background-color:#98002E; 
-        margin:10px 0; 
-        padding:15px 15px 15px 50px; 
-        border-radius:8px; 
-        color:#BC9B6A; 
-        font-size:20px; 
-        position:relative;
-        cursor:pointer;
-    ">
-      <span style="
-          position:absolute;
-          left:15px;
-          font-weight:bold;
-          color:#BC9B6A;
-      ">{{ loop.index }}.</span>
-
+    <li onclick="toggleDetails('details-{{ loop.index }}')">
+      <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
       [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
-
       <div id="details-{{ loop.index }}" class="details-box">
+        <span id="live-score-{{ loop.index }}" class="live-score">
+          Live Score: Has not started yet
+        </span>
         <p><strong>Start Time:</strong> {{ game.time }}</p>
         <p><strong>Moneyline (via ESPN Bet):</strong> {{ game.favored }}</p>
         <p><strong>Spread (via ESPN Bet):</strong> {{ game.favored_spread }}</p>
@@ -157,28 +116,39 @@
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      if (!window.location.search.includes("tz=")) {
-        const params = new URLSearchParams(window.location.search);
-        params.set("tz", tz);
-        const newUrl = window.location.pathname + "?" + params.toString();
-        history.replaceState(null, "", newUrl);
-      }
-    });
-
-    function openModal(id) {
-      document.getElementById(id).style.display = "flex";
-    }
-
-    function closeModal(id) {
-      document.getElementById(id).style.display = "none"; 
-    }
-    
+    // Toggle dropdown
     function toggleDetails(id) {
       const box = document.getElementById(id);
       box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
     }
+
+    // Auto-refresh live scores
+    async function updateLiveScores() {
+      try {
+        const response = await fetch("/api/live");
+        if (!response.ok) return;
+        const data = await response.json();
+
+        data.forEach((game, index) => {
+          const el = document.getElementById(`live-score-${index + 1}`);
+          if (!el) return;
+
+          if (game.status.toLowerCase().includes("in progress") || game.status.toLowerCase().includes("live")) {
+            el.textContent = `Live Score: ${game.score}`;
+            el.style.color = "green";
+          } else {
+            el.textContent = "Live Score: Has not started yet";
+            el.style.color = "#000";
+          }
+        });
+      } catch (e) {
+        console.error("Error updating live scores:", e);
+      }
+    }
+
+    // Refresh every 30 seconds
+    setInterval(updateLiveScores, 30000);
+    updateLiveScores();
   </script>
 </body>
 </html>
