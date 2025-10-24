@@ -80,10 +80,6 @@ def index():
 
                 # --- 💰 Odds per sport ---
                 odds_info = competition.get("odds", [])
-                if odds_info:
-                    print(f"\nDEBUG ODDS for {sport['name']}:")
-                    import json
-                    print(json.dumps(odds_info, indent=2))
                 favored_display = "No odds"
                 spread_display = "No spread"
 
@@ -105,48 +101,45 @@ def index():
                     # --- NBA & NFL ---
                     elif sport["name"] in ["NBA", "NFL"]:
                         try:
-                            # Try new ESPN structure first
+                            spread_display = "No spread"
+
+                            for odds_item in odds_info:
+                                away_odds = odds_item.get("awayTeamOdds", {})
+                                home_odds = odds_item.get("homeTeamOdds", {})
+
+                                # Determine which team is the favorite
+                                if away_odds.get("favorite"):
+                                    fav_team = away_odds.get("team", {}).get("displayName", "Away")
+                                    spread_val = odds_item.get("spread")
+                                    if spread_val:
+                                        spread_display = f"{fav_team} -{spread_val}"
+                                        break
+                                elif home_odds.get("favorite"):
+                                    fav_team = home_odds.get("team", {}).get("displayName", "Home")
+                                    spread_val = odds_item.get("spread")
+                                    if spread_val:
+                                        spread_display = f"{fav_team} -{spread_val}"
+                                        break
+
+                                # fallback if no favorite flag
+                                if odds_item.get("details"):
+                                    spread_display = odds_item["details"]
+                                    break
+
+                            # Determine favored team based on moneyline (lower = favored)
                             home_odds_data = odds_item.get("homeTeamOdds", odds_item.get("home", {}))
                             away_odds_data = odds_item.get("awayTeamOdds", odds_item.get("away", {}))
-                    
                             home_ml = home_odds_data.get("moneyLine")
                             away_ml = away_odds_data.get("moneyLine")
-                    
-                            home_spread = home_odds_data.get("spread")
-                            away_spread = away_odds_data.get("spread")
-                    
-                            # Determine favored team based on moneyline (lower = favored)
+
                             if home_ml is not None and away_ml is not None:
                                 if home_ml < away_ml:
-                                    favored_team = competitors[0]['team']['displayName']
-                                    favored_display = f"{favored_team} {home_ml}"
-                                    if home_spread is not None:
-                                        spread_display = f"{favored_team} {home_spread:+}"
+                                    favored_display = f"{competitors[0]['team']['displayName']} {home_ml}"
                                 else:
-                                    favored_team = competitors[1]['team']['displayName']
-                                    favored_display = f"{favored_team} {away_ml}"
-                                    if away_spread is not None:
-                                        spread_display = f"{favored_team} {away_spread:+}"
-                    
-                            # --- Fallback: sometimes spread is only in 'details' ---
+                                    favored_display = f"{competitors[1]['team']['displayName']} {away_ml}"
                             elif odds_item.get("details"):
-                                details = odds_item["details"]  # e.g. "LAL -3.5"
-                                favored_display = details
-                                parts = details.split()
-                                if len(parts) >= 2:
-                                    favored_team = parts[0]
-                                    try:
-                                        spread = float(parts[1])
-                                        spread_display = f"{favored_team} {spread:+}"
-                                    except ValueError:
-                                        spread_display = details
-                    
-                            # --- Final fallback: 'spread' exists directly at root ---
-                            elif odds_item.get("spread") is not None:
-                                spread = odds_item["spread"]
-                                favored_team = odds_item.get("team", {}).get("displayName", "Favored")
-                                spread_display = f"{favored_team} {spread:+}"
-                    
+                                favored_display = odds_item["details"]
+
                         except Exception as e:
                             print(f"Error parsing odds for {sport['name']}: {e}", flush=True)
                             favored_display = "No odds"
