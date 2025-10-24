@@ -158,8 +158,8 @@
         <p><strong>Start Time:</strong> {{ game.time }}</p>
         <p><strong>Odds (via ESPN Bet):</strong> {{ game.favored }}</p>
         <p><strong>Spread (via ESPN Bet):</strong> {{ game.favored_spread }}</p>
-         <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
-        <p><strong>Where to watch:</strong> Coming soon...</p>
+        <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
+        <p><strong>Where to watch:</strong> {{ game.where_to_watch }}</p>
       </div>
     </li>
   {% endfor %}
