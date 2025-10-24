@@ -44,7 +44,6 @@ def rivalryMatchup(home, away, league):
 
 @app.route('/')
 def index():
-    # Get timezone from user (defaults to US/Eastern)
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
@@ -70,7 +69,6 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
-                # --- 🕒 Game Time ---
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
@@ -78,7 +76,6 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
-                # --- 💰 Odds per sport ---
                 odds_info = competition.get("odds", [])
                 favored_display = "No odds"
                 spread_display = "No spread"
@@ -86,19 +83,19 @@ def index():
                 if odds_info:
                     odds_item = odds_info[0]
 
-                    # --- NHL ---
+                    # NHL
                     if sport["name"] == "NHL":
                         details = odds_item.get("details", "")
                         spread = odds_item.get("spread", None)
                         if details:
                             favored_team = details.split(" ")[0]
-                            favored_display = details  # e.g. "NYI -135"
+                            favored_display = details  
                         if spread is not None:
                             if spread > 0:
                                 spread = -abs(spread)
                             spread_display = f"{favored_team} {spread}"
 
-                    # --- NBA & NFL ---
+                    # NBA & NFL (Their API's are different)
                     elif sport["name"] in ["NBA", "NFL"]:
                         try:
                             spread_display = "No spread"
@@ -112,21 +109,19 @@ def index():
                                     fav_team = away_odds.get("team", {}).get("displayName", "Away")
                                     spread_val = odds_item.get("spread")
                                     if spread_val:
-                                        spread_display = f"{fav_team} -{spread_val}"
+                                        spread_display = f"{fav_team} {spread_val:+}"
                                         break
                                 elif home_odds.get("favorite"):
                                     fav_team = home_odds.get("team", {}).get("displayName", "Home")
                                     spread_val = odds_item.get("spread")
                                     if spread_val:
-                                        spread_display = f"{fav_team} -{spread_val}"
+                                        spread_display = f"{fav_team} {spread_val:+}"
                                         break
 
-                                # fallback if no favorite flag
                                 if odds_item.get("details"):
                                     spread_display = odds_item["details"]
                                     break
 
-                            # Determine favored team based on moneyline (lower = favored)
                             home_odds_data = odds_item.get("homeTeamOdds", odds_item.get("home", {}))
                             away_odds_data = odds_item.get("awayTeamOdds", odds_item.get("away", {}))
                             home_ml = home_odds_data.get("moneyLine")
@@ -145,7 +140,6 @@ def index():
                             favored_display = "No odds"
                             spread_display = "No spread"
 
-                # --- 🔢 Safe scoring ---
                 rivalInfo = ""
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
@@ -155,24 +149,23 @@ def index():
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
 
-                # --- 📺 Where to Watch ---
                 try:
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
                     networks = []
 
-                    # Collect from standard 'broadcasts'
+
                     for b in broadcasts:
                         names = b.get("names", [])
                         if names:
                             networks.extend(names)
 
-                    # Collect from 'geoBroadcasts'
+
                     for gb in geo_broadcasts:
                         if gb.get("media") and gb["media"].get("shortName"):
                             networks.append(gb["media"]["shortName"])
 
-                    # Clean and format
+
                     if networks:
                         where_to_watch = ", ".join(sorted(set(networks)))
                     else:
@@ -196,7 +189,7 @@ def index():
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
-    # Sort and display top 10
+
     top_10_games = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
     return render_template('index.html', matchups=top_10_games)
