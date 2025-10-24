@@ -87,13 +87,32 @@ def index():
                     if sport["name"] == "NHL":
                         details = odds_item.get("details", "")
                         spread = odds_item.get("spread", None)
-                        if details:
-                            favored_team = details.split(" ")[0]
-                            favored_display = details  
+                    
+                        # Use full team names for Moneyline and Spread
+                        away_team = odds_item.get("awayTeamOdds", {}).get("team", {}).get("displayName", "Away")
+                        home_team = odds_item.get("homeTeamOdds", {}).get("team", {}).get("displayName", "Home")
+                    
+                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
+                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
+                    
+                        if home_ml is not None and away_ml is not None:
+                            if home_ml < away_ml:
+                                favored_display = f"{home_team} {home_ml}"
+                            else:
+                                favored_display = f"{away_team} {away_ml}"
+                        elif details:
+                            favored_display = details
+                    
                         if spread is not None:
                             if spread > 0:
                                 spread = -abs(spread)
-                            spread_display = f"{favored_team} {spread}"
+                            # Determine which team is favored based on Moneyline
+                            if home_ml is not None and away_ml is not None:
+                                favored_team = home_team if home_ml < away_ml else away_team
+                                spread_display = f"{favored_team} {spread:+}"
+                            elif details:
+                                favored_team = details.split(" ")[0]
+                                spread_display = f"{favored_team} {spread:+}"
 
                     # NBA & NFL (Their API's are different)
                     elif sport["name"] in ["NBA", "NFL"]:
