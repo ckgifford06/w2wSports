@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import requests
 from datetime import datetime
 import pytz
@@ -55,7 +55,6 @@ def index():
 
     for key, sport in sports.items():
         try:
-            print(f"Fetching {sport['name']} games...", flush=True)
             response = requests.get(sport["url"], params={"dates": today})
             data = response.json()
 
@@ -65,10 +64,10 @@ def index():
 
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
-
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
+                # Game Time
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
@@ -76,6 +75,19 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
+                # 🟢 LIVE SCORE
+                status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
+                home_score = competitors[0].get("score", "0")
+                away_score = competitors[1].get("score", "0")
+
+                if status == "STATUS_IN_PROGRESS":
+                    live_score = f"Live score: {home_score} - {away_score}"
+                elif status == "STATUS_FINAL":
+                    live_score = f"Final score: {home_score} - {away_score}"
+                else:
+                    live_score = "Live score: Has not started yet"
+
+                # Odds
                 odds_info = competition.get("odds", [])
                 favored_display = "No odds"
                 spread_display = "No spread"
@@ -87,14 +99,13 @@ def index():
                     if sport["name"] == "NHL":
                         details = odds_item.get("details", "")
                         spread = odds_item.get("spread", None)
-                    
-                        # Use full team names for Moneyline and Spread
+
                         away_team = odds_item.get("awayTeamOdds", {}).get("team", {}).get("displayName", "Away")
                         home_team = odds_item.get("homeTeamOdds", {}).get("team", {}).get("displayName", "Home")
-                    
+
                         home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
                         away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
-                    
+
                         if home_ml is not None and away_ml is not None:
                             if home_ml < away_ml:
                                 favored_display = f"{home_team} {home_ml}"
@@ -102,11 +113,10 @@ def index():
                                 favored_display = f"{away_team} {away_ml}"
                         elif details:
                             favored_display = details
-                    
+
                         if spread is not None:
                             if spread > 0:
                                 spread = -abs(spread)
-                            # Determine which team is favored based on Moneyline
                             if home_ml is not None and away_ml is not None:
                                 favored_team = home_team if home_ml < away_ml else away_team
                                 spread_display = f"{favored_team} {spread:+}"
@@ -114,7 +124,7 @@ def index():
                                 favored_team = details.split(" ")[0]
                                 spread_display = f"{favored_team} {spread:+}"
 
-                    # NBA & NFL (Their API's are different)
+                    # NBA & NFL
                     elif sport["name"] in ["NBA", "NFL"]:
                         try:
                             spread_display = "No spread"
@@ -123,7 +133,6 @@ def index():
                                 away_odds = odds_item.get("awayTeamOdds", {})
                                 home_odds = odds_item.get("homeTeamOdds", {})
 
-                                # Determine which team is the favorite
                                 if away_odds.get("favorite"):
                                     fav_team = away_odds.get("team", {}).get("displayName", "Away")
                                     spread_val = odds_item.get("spread")
@@ -148,14 +157,13 @@ def index():
 
                             if home_ml is not None and away_ml is not None:
                                 if home_ml < away_ml:
-                                    favored_display = f"{competitors[0]['team']['displayName']} {home_ml}"
+                                    favored_display = f"{home_name} {home_ml}"
                                 else:
-                                    favored_display = f"{competitors[1]['team']['displayName']} {away_ml}"
+                                    favored_display = f"{away_name} {away_ml}"
                             elif odds_item.get("details"):
                                 favored_display = odds_item["details"]
 
                         except Exception as e:
-                            print(f"Error parsing odds for {sport['name']}: {e}", flush=True)
                             favored_display = "No odds"
                             spread_display = "No spread"
 
@@ -164,33 +172,23 @@ def index():
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
                     if rivalryMatchup(home_abbr, away_abbr, sport["name"]):
                         rivalInfo = "Rivalry Matchup"
-                except Exception as e:
-                    print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
+                except Exception:
                     score = 0
 
+                # Broadcasts
                 try:
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
                     networks = []
-
-
                     for b in broadcasts:
                         names = b.get("names", [])
                         if names:
                             networks.extend(names)
-
-
                     for gb in geo_broadcasts:
                         if gb.get("media") and gb["media"].get("shortName"):
                             networks.append(gb["media"]["shortName"])
-
-
-                    if networks:
-                        where_to_watch = ", ".join(sorted(set(networks)))
-                    else:
-                        where_to_watch = "Coming soon..."
-                except Exception as e:
-                    print(f"Broadcast parsing error: {e}", flush=True)
+                    where_to_watch = ", ".join(sorted(set(networks))) if networks else "Coming soon..."
+                except Exception:
                     where_to_watch = "Coming soon..."
 
                 all_games.append({
@@ -201,35 +199,20 @@ def index():
                     "time": game_time,
                     "favored": favored_display,
                     "favored_spread": spread_display,
-                    "where_to_watch": where_to_watch
+                    "where_to_watch": where_to_watch,
+                    "live_score": live_score
                 })
 
         except Exception as e:
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
-
     top_10_games = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
-
     return render_template('index.html', matchups=top_10_games)
-
-
-@app.route("/api/live")
-def live_scores():
-    # Reuse your existing logic to fetch the latest games
-    games = get_games_today()  # or whatever function you already use
-    data = []
-    for g in games:
-        data.append({
-            "status": g.get("status", "Not Started"),
-            "score": g.get("score", "0–0")
-        })
-    return jsonify(data)
 
 @app.route('/about')
 def about():
     return render_template('about.html')
-
 
 if __name__ == '__main__':
     import os
