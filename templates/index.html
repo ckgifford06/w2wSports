@@ -86,24 +86,13 @@
       font-size: 20px;
       position: relative;
       transition: transform 0.2s;
+      cursor: pointer;
     }
 
     ol li:hover {
       transform: scale(1.03);
+      background-color: #b0002e; /* Slightly lighter red for hover feedback */
     }
-
-
-    .details-btn {
-      background-color: #BC9B6A;
-      color: #000;
-      border: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-      margin-left: 10px;
-    }
-
 
     .close-btn {
       float: right;
@@ -119,7 +108,7 @@
 
     nav .divider {
       color: #ffffff; 
-      margin: 0 8px; /
+      margin: 0 8px;
     }
   </style>
 </head>
@@ -134,7 +123,7 @@
 
   <ol style="width:60%; margin:30px auto; text-align:left; counter-reset: matchup-counter;">
   {% for game in matchups %}
-    <li style="
+    <li onclick="toggleDetails('details-{{ loop.index }}')" style="
         list-style: none; 
         background-color:#98002E; 
         margin:10px 0; 
@@ -143,6 +132,7 @@
         color:#BC9B6A; 
         font-size:20px; 
         position:relative;
+        cursor:pointer;
     ">
       <span style="
           position:absolute;
@@ -152,13 +142,6 @@
       ">{{ loop.index }}.</span>
 
       [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
-      
-
-      <button 
-        style="margin-left:10px; background-color:#BC9B6A; color:#000; border:2px solid #000; border-radius:6px; cursor:pointer;"
-        onclick="toggleDetails('details-{{ loop.index }}')">
-        Details
-      </button>
 
       <div id="details-{{ loop.index }}" class="details-box">
         <p><strong>Start Time:</strong> {{ game.time }}</p>
@@ -169,44 +152,33 @@
       </div>
     </li>
   {% endfor %}
-</ol>
+  </ol>
 
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
-    
     document.addEventListener("DOMContentLoaded", () => {
-
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    if (!window.location.search.includes("tz=")) {
-      const params = new URLSearchParams(window.location.search);
-      params.set("tz", tz);
-      const newUrl = window.location.pathname + "?" + params.toString();
-      history.replaceState(null, "", newUrl);
-    }
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (!window.location.search.includes("tz=")) {
+        const params = new URLSearchParams(window.location.search);
+        params.set("tz", tz);
+        const newUrl = window.location.pathname + "?" + params.toString();
+        history.replaceState(null, "", newUrl);
+      }
+    });
 
     function openModal(id) {
-      document.getElementById(id).style.display = 'block';
+      document.getElementById(id).style.display = "flex";
     }
 
     function closeModal(id) {
-      document.getElementById(id).style.display = 'none';
-    }
-  });
-
-
-  function openModal(id) {
-    document.getElementById(id).style.display = "flex";
-  }
-
-  function closeModal(id) {
-    document.getElementById(id).style.display = "none"; 
+      document.getElementById(id).style.display = "none"; 
     }
     
-   function toggleDetails(id) {
-    const box = document.getElementById(id);
-    box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
-  }
+    function toggleDetails(id) {
+      const box = document.getElementById(id);
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+    }
   </script>
 </body>
 </html>
