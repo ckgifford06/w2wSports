@@ -93,7 +93,7 @@
     <a href="/about">About Us</a>
   </nav>
 
-  <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
+  <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
 
   <ol>
     {% for game in matchups %}
@@ -101,7 +101,6 @@
       <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
       [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
       <div id="details-{{ loop.index }}" class="details-box">
-        <!-- 🟢 Live Score Display -->
         <span id="live-score-{{ loop.index }}" class="live-score">
           {{ game.live_score }}
         </span>
