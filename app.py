@@ -139,7 +139,7 @@ def index():
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
                     if rivalryMatchup(home_abbr, away_abbr, sport["name"]):
-                        rivalInfo = " (Rivalry Matchup)"
+                        rivalInfo = "Rivalry Matchup"
                 except Exception as e:
                     print(f"Error scoring {home_abbr} vs {away_abbr}: {e}", flush=True)
                     score = 0
