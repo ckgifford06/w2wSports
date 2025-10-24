@@ -80,20 +80,15 @@
       transform: scale(1.03);
     }
 
-    /* ▼ Arrow styling */
+    /* ▼ Arrow styling (always facing down) */
     .arrow {
       position: absolute;
       right: 20px;
       top: 50%;
-      transform: translateY(-50%) rotate(0deg);
-      transition: transform 0.3s ease;
+      transform: translateY(-50%);
       font-size: 22px;
       color: #BC9B6A;
       pointer-events: none;
-    }
-
-    .arrow.expanded {
-      transform: translateY(-50%) rotate(90deg);
     }
 
     nav .divider {
@@ -109,15 +104,15 @@
     <a href="/about">About Us</a>
   </nav>
 
-  <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
+  <h1>🔥 Top 10 Matchups Today (4 Major US Sports)</h1>
 
   <ol>
     {% for game in matchups %}
-    <li onclick="toggleDetails('details-{{ loop.index }}', 'arrow-{{ loop.index }}')">
+    <li onclick="toggleDetails('details-{{ loop.index }}')">
       <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
       [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
-      <!-- ▼ Arrow indicator -->
-      <span id="arrow-{{ loop.index }}" class="arrow">▶</span>
+      <!-- ▼ Always-facing-down arrow -->
+      <span class="arrow">▼</span>
 
       <div id="details-{{ loop.index }}" class="details-box">
         <span id="live-score-{{ loop.index }}" class="live-score">
@@ -137,17 +132,13 @@
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
-    // Toggle dropdown and arrow rotation
-    function toggleDetails(detailsId, arrowId) {
+    // Toggle dropdown visibility
+    function toggleDetails(detailsId) {
       const box = document.getElementById(detailsId);
-      const arrow = document.getElementById(arrowId);
-      const isHidden = box.style.display === "none" || box.style.display === "";
-
-      box.style.display = isHidden ? "block" : "none";
-      arrow.classList.toggle("expanded", isHidden);
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
     }
 
-
+    // 🔄 Auto-refresh live scores every 30 seconds
     async function updateLiveScores() {
       try {
         const response = await fetch("/api/live");
