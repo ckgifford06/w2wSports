@@ -85,7 +85,7 @@ def index():
                 elif status == "STATUS_FINAL":
                     live_score = f"Final score: {home_score} - {away_score}"
                 else:
-                    live_score = "Live score: Has not started yet"
+                    live_score = "Live score: Not Started"
 
                 # Odds
                 odds_info = competition.get("odds", [])
