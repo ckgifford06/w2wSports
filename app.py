@@ -92,17 +92,24 @@ def index():
                 if odds_info:
                     odds_item = odds_info[0]
                 
-                    # --- NHL (already working) ---
+                    # --- NHL (improved) ---
                     if sport["name"] == "NHL":
                         details = odds_item.get("details", "")
                         spread = odds_item.get("spread", None)
                         if details:
                             favored_team = details.split(" ")[0]
                             favored_display = details  # e.g., "NYI -135"
-                        if favored_team and spread:
-                            spread_display = f"{favored_team} {spread}"  # e.g., "NYI -1.5"
-                
-                    # --- NBA & NFL (fixed section) ---
+                        if favored_team and spread is not None:
+                            # ESPN sometimes lists favorite spread as positive, flip it to negative
+                            try:
+                                spread_value = float(spread)
+                                if spread_value > 0:
+                                    spread_value = -spread_value
+                                spread_display = f"{favored_team} {spread_value:.1f}"
+                            except ValueError:
+                                spread_display = f"{favored_team} {spread}"
+
+                    # --- NBA & NFL (improved) ---
                     elif sport["name"] in ["NBA", "NFL"]:
                         try:
                             home_odds_data = odds_item.get("homeTeamOdds") or {}
@@ -112,6 +119,10 @@ def index():
                             away_ml = away_odds_data.get("moneyLine")
                             home_spread = home_odds_data.get("spread")
                             away_spread = away_odds_data.get("spread")
+
+                            # Try top-level fallback if team odds missing
+                            if home_spread is None and away_spread is None:
+                                home_spread = odds_item.get("spread")
 
                             # Determine favored team based on moneyline (lower = favored)
                             if home_ml is not None and away_ml is not None:
