@@ -6,26 +6,26 @@ season_length = 82
 playoffs = False
 
 team_marketability = { 
-    "ANA_NHL": 6, "UTA_NHL": 5.5, "BOS_NHL": 10, "BUF_NHL": 7, "CAR_NHL": 6,
-    "CBJ_NHL": 6.5, "CGY_NHL": 7, "CHI_NHL": 8, "COL_NHL": 6.5, "DAL_NHL": 7.5,
-    "DET_NHL": 8, "EDM_NHL": 6, "FLA_NHL": 6.5, "LA_NHL": 9, "MIN_NHL": 7,
-    "MTL_NHL": 8.5, "NJD_NHL": 7, "NSH_NHL": 7.5, "NYI_NHL": 8, "NYR_NHL": 9,
-    "OTT_NHL": 6, "PHI_NHL": 8, "PIT_NHL": 9, "SJS_NHL": 7, "SEA_NHL": 7,
-    "STL_NHL": 7, "TBL_NHL": 8, "TOR_NHL": 9, "VAN_NHL": 6.5, "VGK_NHL": 7.5,
-    "WPG_NHL": 7, "WSH_NHL": 8
+    "ANA_NHL": 4, "UTA_NHL": 3.5, "BOS_NHL": 8, "BUF_NHL": 5, "CAR_NHL": 4,
+    "CBJ_NHL": 4.5, "CGY_NHL": 5, "CHI_NHL": 6, "COL_NHL": 4, "DAL_NHL": 5.5,
+    "DET_NHL": 6, "EDM_NHL": 4, "FLA_NHL": 4.5, "LA_NHL": 6.5, "MIN_NHL": 5,
+    "MTL_NHL": 6.5, "NJD_NHL": 5, "NSH_NHL": 5.5, "NYI_NHL": 6, "NYR_NHL": 7,
+    "OTT_NHL": 4, "PHI_NHL": 6, "PIT_NHL": 7, "SJS_NHL": 5, "SEA_NHL": 5,
+    "STL_NHL": 5, "TBL_NHL": 6, "TOR_NHL": 7, "VAN_NHL": 4.5, "VGK_NHL": 5.5,
+    "WPG_NHL": 5, "WSH_NHL": 6
 }
 
 rivalries = [
 
-    ("TOR_NHL", "MTL_NHL", 10),
-    ("DET_NHL", "CHI_NHL", 10),
-    ("NYR_NHL", "NYI_NHL", 10),
-    ("NYR_NHL", "NJD_NHL", 10),
-    ("PHI_NHL", "PIT_NHL", 10),
-    ("CAR_NHL", "TBL_NHL", 10),
-    ("LA_NHL", "ANA_NHL", 10),
-    ("DET_NHL", "COL_NHL", 10),
-    ("TOR_NHL", "BUF_NHL", 10),
+    ("TOR_NHL", "MTL_NHL", 7),
+    ("DET_NHL", "CHI_NHL", 7),
+    ("NYR_NHL", "NYI_NHL", 7),
+    ("NYR_NHL", "NJD_NHL", 7),
+    ("PHI_NHL", "PIT_NHL", 7),
+    ("CAR_NHL", "TBL_NHL", 7),
+    ("LA_NHL", "ANA_NHL", 7),
+    ("DET_NHL", "COL_NHL", 7),
+    ("TOR_NHL", "BUF_NHL", 7),
     # Use below website to continue
     # https://www.yardbarker.com/nhl/articles/the_all_time_best_nhl_rivalries/s1__40843961#slide_10
 ]
