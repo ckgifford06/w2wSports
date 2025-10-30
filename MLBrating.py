@@ -3,7 +3,7 @@ url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
 data = requests.get(url).json()
 
 season_length = 162
-playoffs = False
+playoffs = True
 
 
 team_marketability = {
@@ -81,7 +81,7 @@ def gameImportance(home, away):
     away_seed = seeds.get(away)
     gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
-        pass
+        importance += 30
     else:
         if gamesLeft <= 50:
             importance += 1
