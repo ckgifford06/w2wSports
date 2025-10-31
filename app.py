@@ -75,7 +75,6 @@ def index():
                 except Exception:
                     game_time = "TBD"
 
-                # 🟢 LIVE SCORE
                 status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
                 home_score = competitors[0].get("score", "0")
                 away_score = competitors[1].get("score", "0")
@@ -137,13 +136,13 @@ def index():
                                     fav_team = away_odds.get("team", {}).get("displayName", "Away")
                                     spread_val = odds_item.get("spread")
                                     if spread_val:
-                                        spread_display = f"{fav_team} {spread_val:+}"
+                                        spread_display = f"{fav_team} -{abs(spread_val)}"
                                         break
                                 elif home_odds.get("favorite"):
                                     fav_team = home_odds.get("team", {}).get("displayName", "Home")
                                     spread_val = odds_item.get("spread")
                                     if spread_val:
-                                        spread_display = f"{fav_team} {spread_val:+}"
+                                        spread_display = f"{fav_team} -{abs(spread_val)}"
                                         break
 
                                 if odds_item.get("details"):
