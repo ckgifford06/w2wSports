@@ -160,7 +160,7 @@ def index():
                                 elif home_ml > away_ml:
                                     favored_display = f"{away_name} {away_ml}"
                                 else:
-                                    favored_display = f"{away_name} & {home_name} (Even Odds — {away_ml})"
+                                    favored_display = f"Both teams {away_ml})"
                             elif odds_item.get("details"):
                                 favored_display = odds_item["details"]
 
