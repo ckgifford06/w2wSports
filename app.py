@@ -157,10 +157,10 @@ def index():
                             if home_ml is not None and away_ml is not None:
                                 if home_ml < away_ml:
                                     favored_display = f"{home_name} {home_ml}"
-                                elif home_ml == away_ml:
-                                    favored_display = f"{away_team} & {home_team} (Even Odds — {away_ml})"
-                                else:
+                                elif home_ml > away_ml:
                                     favored_display = f"{away_name} {away_ml}"
+                                else:
+                                    favored_display = f"{away_team} & {home_team} (Even Odds — {away_ml})"
                             elif odds_item.get("details"):
                                 favored_display = odds_item["details"]
 
