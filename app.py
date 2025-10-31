@@ -215,6 +215,10 @@ def index():
 def about():
     return render_template('about.html')
 
+@app.route("/formula")
+def formula():
+    return render_template("formula.html")
+
 if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
