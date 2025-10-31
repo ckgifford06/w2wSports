@@ -1,1 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Our Formula — W2W Sports</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      background-color: #BC9B6A;
+      color: #000000;
+      margin: 0;
+      padding: 0;
+    }
 
+    nav {
+      background-color: #1f1f1f;
+      padding: 15px;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    nav a {
+      color: #ffffff;
+      text-decoration: none;
+      margin: 0 20px;
+      font-weight: bold;
+      font-size: 18px;
+      transition: color 0.3s;
+    }
+
+    nav a:hover {
+      color: #98002E;
+    }
+
+    nav .divider {
+      color: #ffffff; 
+      margin: 0 8px; 
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 60px auto;
+      background-color: #BC9B6A;
+      color: #000000;
+      border: 4px solid #1f1f1f;
+      border-radius: 12px;
+      padding: 40px 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
+    }
+
+    h1 {
+      text-align: center;
+      color: #1f1f1f;
+      font-size: 40px;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    h2 {
+      color: #1f1f1f;
+      margin-top: 40px;
+      border-left: 6px solid #1f1f1f;
+      padding-left: 10px;
+    }
+
+    p {
+      font-size: 20px;
+      line-height: 1.7;
+      color: #000000;
+      margin: 20px 0;
+    }
+
+    ul {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #000000;
+    }
+
+    .highlight {
+      font-weight: bold;
+      color: #98002E;
+    }
+
+    footer {
+      background-color: #1f1f1f;
+      color: #ffffff;
+      text-align: center;
+      padding: 20px 0;
+      font-size: 14px;
+      margin-top: 60px;
+    }
+
+    hr {
+      border: none;
+      height: 3px;
+      background-color: #1f1f1f;
+      margin: 30px 0;
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="/">Home</a> 
+    <span class="divider">|</span>
+    <a href="/about">About Us</a>
+    <span class="divider">|</span>
+    <a href="/formula">Our Formula</a>
+  </nav>
+
+  <div class="container">
+    <h1>The W2W Score Formula</h1>
+    <hr>
+
+    <p>The <strong>W2W Score</strong> is a proprietary ranking system that evaluates every major U.S. sporting event across the <span class="highlight">NBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>, and <span class="highlight">MLB</span> to determine which matchups are the most exciting to watch on any given day.</p>
+
+    <p>Our algorithm blends <strong>statistics, storylines, and fan energy</strong> into one daily rating. Each category contributes a weighted percentage to create a total score out of 100. Here’s how it breaks down:</p>
+
+    <h2>Core Components</h2>
+    <ul>
+      <li><strong>Rivalry Index (25%)</strong> — Detects historical rivalries, divisional tension, and recent rematches.</li>
+      <li><strong>Competitiveness (25%)</strong> — Evaluates team records, point differentials, and expected game closeness.</li>
+      <li><strong>Marketability (20%)</strong> — Measures player star power, fan following, and national TV appeal.</li>
+      <li><strong>Quality of Play (15%)</strong> — Uses recent performance metrics, offensive/defensive efficiency, and streaks.</li>
+      <li><strong>Game Importance (15%)</strong> — Accounts for playoff impact, standings implications, and late-season stakes.</li>
+    </ul>
+
+    <h2>How It’s Calculated</h2>
+    <p>Each factor is normalized on a 0–10 scale using live data from ESPN APIs and custom Python modules (<span class="highlight">NBArating</span>, <span class="highlight">NFLrating</span>, <span class="highlight">NHLrating</span>, <span class="highlight">MLBrating</span>). The formula looks like this:</p>
+
+    <p style="text-align:center; font-size:22px; font-weight:bold; margin:40px 0;">
+      W2W Score = (0.25 × Rivalry) + (0.25 × Competitiveness) + (0.20 × Marketability) + (0.15 × Quality) + (0.15 × Importance)
+    </p>
+
+    <p>Scores are then sorted daily to generate our <strong>Top 10 Matchups</strong> leaderboard — giving fans a quick, data-driven way to decide which games are truly worth watching.</p>
+
+    <h2>Why It Matters</h2>
+    <p>We believe sports are about stories and energy, not just stats. The W2W Score is designed to highlight the games that <strong>feel</strong> the biggest — where the numbers and the narratives meet. Whether it’s Celtics–Lakers, Yankees–Red Sox, or a surprise playoff chase, our formula finds the matchups that define the day in sports.</p>
+  </div>
+
+  <footer>
+    &copy; 2025 W2W Sports. All Rights Reserved.
+  </footer>
+
+</body>
+</html>
