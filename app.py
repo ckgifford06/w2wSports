@@ -6,8 +6,26 @@ import NBArating
 import NFLrating
 import NHLrating
 import MLBrating
+import smtplib
+from email.mime.text import MIMEText
+import sqlite3
+import os
 
 app = Flask(__name__)
+
+DB_PATH = "emails.db"
+
+def init_db():
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS subscribers (
+                    email TEXT PRIMARY KEY,
+                    verified INTEGER DEFAULT 0
+                )''')
+    conn.commit()
+    conn.close()
+
+init_db()
 
 # Define sports and API endpoints
 sports = {
@@ -220,6 +238,43 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html")
+
+@app.route("/subscribe", methods=["POST"])
+def subscribe():
+    email = request.form.get("email")
+    if not email:
+        return jsonify({"error": "Email required"}), 400
+
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("INSERT OR IGNORE INTO subscribers (email) VALUES (?)", (email,))
+    conn.commit()
+    conn.close()
+
+    send_verification_email(email)
+    return "Verification email sent! Please check your inbox."
+
+def send_verification_email(email):
+    verify_link = f"https://yourdomain.com/verify?email={email}"
+    msg = MIMEText(f"Click this link to verify your subscription:\n\n{verify_link}")
+    msg["Subject"] = "Confirm your subscription"
+    msg["From"] = "you@yourdomain.com"
+    msg["To"] = email
+
+    with smtplib.SMTP("smtp.gmail.com", 587) as server:
+        server.starttls()
+        server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
+        server.send_message(msg)
+
+@app.route("/verify")
+def verify():
+    email = request.args.get("email")
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute("UPDATE subscribers SET verified = 1 WHERE email = ?", (email,))
+    conn.commit()
+    conn.close()
+    return f"Thanks {email}, you’re verified!"
 
 if __name__ == '__main__':
     import os
