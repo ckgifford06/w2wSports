@@ -98,23 +98,15 @@
   </style>
 </head>
 <body>
-   <!--  <nav> -->
-    <!--  <a href="/">Home</a> -->
-    <!--  <span class="divider">|</span> -->
-    <!--  <a href="/formula">Our Formula</a> -->
-    <!--  <span class="divider">|</span> -->
-     <!-- <a href="/about">About Us</a> -->
-    
-  <!-- </nav> -->
+   <nav>
+    <a href="/">Home</a>
+    <span class="divider">|</span>
+    <a href="/formula">Our Formula</a>
+    <span class="divider">|</span>
+     <a href="/about">About Us</a>
+  </nav>
 
   <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
-  <form action="/subscribe" method="POST" style="text-align:center; margin-top:20px;">
-     <label for="email">Subscribe for daily updates:</label><br>
-     <input type="email" id="email" name="email" placeholder="Enter your email" required>
-     <button type="submit">Subscribe</button>
-  </form>
-  <p style="text-align:center;">You’ll get one email every day at 8:00 AM.</p>
-
   <ol>
     {% for game in matchups %}
     <li onclick="toggleDetails('details-{{ loop.index }}')">
