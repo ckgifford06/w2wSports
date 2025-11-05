@@ -115,7 +115,8 @@ def index():
                 spread_display = "No spread"
 
                 # NHL
-                if sport["name"] == "NHL":
+                if sport["name"] == "NHL" and odds_info:
+                    odds_item = odds_info[0]  
                     details = odds_item.get("details", "")
                     spread = odds_item.get("spread", None)
                 
@@ -143,9 +144,8 @@ def index():
                             favored_team = details.split(" ")[0]
                             spread_display = f"{favored_team} {spread:+}"
                 
-                
                 # NBA & NFL
-                elif sport["name"] in ["NBA", "NFL"]:
+                elif sport["name"] in ["NBA", "NFL"] and odds_info:
                     try:
                         spread_display = "No spread"
                 
@@ -171,11 +171,10 @@ def index():
                                 spread_display = odds_item["details"]
                                 break
                 
-                        home_odds_data = odds_item.get("homeTeamOdds", odds_item.get("home", {}))
-                        away_odds_data = odds_item.get("awayTeamOdds", odds_item.get("away", {}))
-                
-                        home_ml = home_odds_data.get("moneyLine")
-                        away_ml = away_odds_data.get("moneyLine")
+                        # Determine moneyline favorite
+                        odds_item = odds_info[0]
+                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
+                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
                 
                         if home_ml is not None and away_ml is not None:
                             if home_ml < away_ml:
@@ -186,10 +185,11 @@ def index():
                                 favored_display = f"Both teams are {away_ml}"
                         elif odds_item.get("details"):
                             favored_display = odds_item["details"]
+                
+                    except Exception:
+                        favored_display = "No odds"
+                        spread_display = "No spread"
 
-                except Exception:
-                    favored_display = "No odds"
-                    spread_display = "No spread"
 
 
                 rivalInfo = ""
