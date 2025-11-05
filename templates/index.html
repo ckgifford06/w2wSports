@@ -137,7 +137,7 @@
     <a href="/about">About Us</a>
   
     <form method="GET" action="/" class="filter-container">
-      <label for="league">Filter:</label>
+      <label for="league">Filter leagues:</label>
       <select name="league" id="league" onchange="this.form.submit()">
         <option value="all" {% if selected_league=='all' %}selected{% endif %}>All</option>
         <option value="NBA" {% if selected_league=='NBA' %}selected{% endif %}>NBA</option>
