@@ -123,7 +123,7 @@
 
       <span class="arrow">▼</span>
 
-      <div id="details-{{ loop.index }}" class="details-box" style="display:none;">
+      <div id="details-{{ loop.index }}" class="details-box">
         <span id="live-score-{{ loop.index }}" class="live-score">
           {{ game.live_score }}
         </span>
@@ -142,29 +142,9 @@
 
   <script>
     // Toggle dropdown visibility
-    function toggleDetails(detailsId) {
-      const box = document.getElementById(detailsId);
-
-      // If it's currently visible, hide it
-      if (box.style.display === "block") {
-        box.classList.remove("show");
-        setTimeout(() => {
-          box.style.display = "none";
-        }, 200); // matches fade timing
-      } 
-      else {
-        // close all others
-        document.querySelectorAll(".details-box").forEach(b => {
-          b.classList.remove("show");
-          b.style.display = "none";
-        });
-
-        // show this one
-        box.style.display = "block";
-        setTimeout(() => {
-          box.classList.add("show");
-        }, 10);
-      }
+    function toggleDetails(detailsId) { 
+      const box = document.getElementById(detailsId); 
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none"; 
     }
 
     async function updateLiveScores() {
