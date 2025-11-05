@@ -187,9 +187,9 @@ def index():
                         elif odds_item.get("details"):
                             favored_display = odds_item["details"]
 
-    except Exception:
-        favored_display = "No odds"
-        spread_display = "No spread"
+                except Exception:
+                    favored_display = "No odds"
+                    spread_display = "No spread"
 
 
                 rivalInfo = ""
