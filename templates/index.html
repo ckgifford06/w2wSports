@@ -144,9 +144,27 @@
     // Toggle dropdown visibility
     function toggleDetails(detailsId) {
       const box = document.getElementById(detailsId);
-      const isVisible = box.classList.contains("show");
-      document.querySelectorAll(".details-box").forEach(b => b.classList.remove("show"));
-      if (!isVisible) box.classList.add("show");
+
+      // If it's currently visible, hide it
+      if (box.style.display === "block") {
+        box.classList.remove("show");
+        setTimeout(() => {
+          box.style.display = "none";
+        }, 200); // matches fade timing
+      } 
+      else {
+        // close all others
+        document.querySelectorAll(".details-box").forEach(b => {
+          b.classList.remove("show");
+          b.style.display = "none";
+        });
+
+        // show this one
+        box.style.display = "block";
+        setTimeout(() => {
+          box.classList.add("show");
+        }, 10);
+      }
     }
 
     async function updateLiveScores() {
