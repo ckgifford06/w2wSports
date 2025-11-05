@@ -44,6 +44,29 @@
     nav {
       background-color: #1f1f1f;
       padding: 15px;
+      position: relative;
+      text-align: center;
+    }
+
+    .filter-container {
+      position: absolute;
+      right: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .filter-container select {
+      padding: 6px 10px;
+      border-radius: 6px;
+      background: #2c2c2c;
+      color: #ffffff;
+      border: 1px solid #444;
+      cursor: pointer;
+      font-size: 15px;
+      transition: 0.25s;
     }
 
     nav a {
@@ -106,14 +129,24 @@
   </style>
 </head>
 <body>
-   <nav>
+  <nav> 
     <a href="/">Home</a>
     <span class="divider">|</span>
     <a href="/formula">Our Formula</a>
     <span class="divider">|</span>
-     <a href="/about">About Us</a>
+    <a href="/about">About Us</a>
+  
+    <form method="GET" action="/" class="filter-container">
+      <label for="league">Filter:</label>
+      <select name="league" id="league" onchange="this.form.submit()">
+        <option value="all" {% if selected_league=='all' %}selected{% endif %}>All</option>
+        <option value="NBA" {% if selected_league=='NBA' %}selected{% endif %}>NBA</option>
+        <option value="NFL" {% if selected_league=='NFL' %}selected{% endif %}>NFL</option>
+        <option value="NHL" {% if selected_league=='NHL' %}selected{% endif %}>NHL</option>
+        <option value="MLB" {% if selected_league=='MLB' %}selected{% endif %}>MLB</option>
+      </select>
+    </form>
   </nav>
-
   <h1>Top 10 Matchups Today (4 Major US Sports)</h1>
   <ol>
     {% for game in matchups %}
