@@ -15,6 +15,7 @@ app = Flask(__name__)
 
 DB_PATH = "emails.db"
 
+# In progress...
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
