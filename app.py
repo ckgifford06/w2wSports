@@ -114,6 +114,24 @@ def index():
                 favored_display = "No moneyline"
                 spread_display = "No spread"
 
+                if odds_info:
+                    odds = odds_info[0]
+                    home = odds.get("homeTeamOdds", {})
+                    away = odds.get("awayTeamOdds", {})
+                
+                    home_ml = home.get("moneyLine")
+                    away_ml = away.get("moneyLine")
+                
+                    if home_ml is not None and away_ml is not None:
+                        if home.get("favorite"):
+                            favored_display = f"{home['team']['displayName']} ({home_ml})"
+                        else:
+                            favored_display = f"{away['team']['displayName']} ({away_ml})"
+                
+                    spread = odds.get("spread")
+                    if spread is not None:
+                        spread_display = odds.get("details", f"{spread}")
+
                 rivalInfo = ""
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
