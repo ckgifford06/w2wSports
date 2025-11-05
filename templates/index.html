@@ -144,7 +144,9 @@
     // Toggle dropdown visibility
     function toggleDetails(detailsId) {
       const box = document.getElementById(detailsId);
-      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+      const isVisible = box.classList.contains("show");
+      document.querySelectorAll(".details-box").forEach(b => b.classList.remove("show"));
+      if (!isVisible) box.classList.add("show");
     }
 
     async function updateLiveScores() {
