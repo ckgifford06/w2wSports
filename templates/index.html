@@ -147,7 +147,6 @@
       box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
     }
 
-    // 🔄 Auto-refresh live scores every 30 seconds
     async function updateLiveScores() {
       try {
         const response = await fetch("/api/live");
