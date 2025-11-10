@@ -6,6 +6,7 @@ import NBArating
 import NFLrating
 import NHLrating
 import MLBrating
+import CFBrating
 import smtplib
 from email.mime.text import MIMEText
 import sqlite3
@@ -34,6 +35,7 @@ sports = {
     "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"},
     "nhl": {"name": "NHL", "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"},
     "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"}
+    "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"}
 }
 
 def calculate_score(home, away, league):
@@ -45,6 +47,8 @@ def calculate_score(home, away, league):
         return NHLrating.calculate_score(home, away)
     elif league == "MLB":
         return MLBrating.calculate_score(home, away)
+    elif league == "CFB":
+        return CFBrating.calculate_score(home, away)
     else:
         return 0
 
@@ -57,6 +61,8 @@ def rivalryMatchup(home, away, league):
         return (NHLrating.rivalry(home, away) > 5)
     elif league == "MLB":
         return (MLBrating.rivalry(home, away) > 5)
+    elif league == "CFB":
+        return (CFBrating.rivalry(home, away) > 5)
     else:
         return False
 
