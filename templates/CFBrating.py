@@ -5,6 +5,75 @@ data = requests.get(url).json()
 season_length = 13
 playoffs = false
 
+team_marketability = {
+    # SEC
+    "ALA_CFB": 10, "TEX_CFB": 10, "UGA_CFB": 9.5, "LSU_CFB": 9, "FLA_CFB": 9,
+    "TENN_CFB": 8.5, "AUB_CFB": 8.5, "TEXAM_CFB": 8, "ARK_CFB": 7,
+    "MSST_CFB": 6.5, "MISS_CFB": 7, "MIZZ_CFB": 6.5, "UK_CFB": 6.5,
+    "SCAR_CFB": 7, "VANDY_CFB": 5.5,
+
+    # Big Ten
+    "MICH_CFB": 10, "OSU_CFB": 10, "PSU_CFB": 9, "WISC_CFB": 8,
+    "IOWA_CFB": 7.5, "MSU_CFB": 7.5, "NEB_CFB": 8, "MINN_CFB": 7,
+    "ILL_CFB": 6, "IND_CFB": 6, "NW_CFB": 6.5, "RUTG_CFB": 6,
+    "MD_CFB": 6.5, "PUR_CFB": 6.5,
+
+    # Big 12
+    "OK_CFB": 9.5, "KSU_CFB": 7.5, "TCU_CFB": 7.5,
+    "BAY_CFB": 7, "TTU_CFB": 7, "WVU_CFB": 7, "BYU_CFB": 8,
+    "CIN_CFB": 7, "UCF_CFB": 7, "HOU_CFB": 6.5, "ISU_CFB": 6.5,
+    "KU_CFB": 6.5, "UTSA_CFB": 6,
+
+    # ACC
+    "CLEM_CFB": 9, "FSU_CFB": 9, "MIA_CFB": 8.5, "ND_CFB": 9.5,   # Notre Dame partial ACC member
+    "UNC_CFB": 8, "VT_CFB": 8, "NCST_CFB": 7.5, "LOU_CFB": 7.5,
+    "PITT_CFB": 7, "GT_CFB": 7, "WAKE_CFB": 6.5, "BC_CFB": 6.5,
+    "DUKE_CFB": 7, "SYR_CFB": 7, "UVA_CFB": 7
+}
+rivalries = {
+    "ALA_CFB": [("AUB_CFB", 10), ("LSU_CFB", 9), ("TENN_CFB", 8)],
+    "AUB_CFB": [("ALA_CFB", 10), ("GA_CFB", 8)],
+    "LSU_CFB": [("ALA_CFB", 9), ("ARK_CFB", 7)],
+    "GA_CFB": [("FLA_CFB", 9), ("AUB_CFB", 8)],
+    
+    "MICH_CFB": [("OSU_CFB", 10), ("MSU_CFB", 8)],
+    "OSU_CFB": [("MICH_CFB", 10), ("UM_CFB", 7)],
+    
+    "TEX_CFB": [("OK_CFB", 9), ("UT_CFB", 8)],
+    "OK_CFB": [("TEX_CFB", 9)],
+    
+    "USC_CFB": [("ND_CFB", 8), ("UCLA_CFB", 7)],
+    "ND_CFB": [("USC_CFB", 8)],
+    
+    "FLA_CFB": [("GA_CFB", 9), ("FSU_CFB", 8)],
+    "FSU_CFB": [("FLA_CFB", 8)]
+}
+team_conference = {
+    # SEC
+    "ALA_CFB": "SEC", "ARK_CFB": "SEC", "AUB_CFB": "SEC", "FLA_CFB": "SEC",
+    "GA_CFB": "SEC", "KY_CFB": "SEC", "LSU_CFB": "SEC", "MSST_CFB": "SEC",
+    "MO_CFB": "SEC", "MIA_CFB": "SEC", "TENN_CFB": "SEC", "VANDY_CFB": "SEC",
+    "TEXASAM_CFB": "SEC", "UGA_CFB": "SEC", "USC_CFB": "SEC",
+
+    # Big Ten
+    "ILL_CFB": "Big Ten", "IND_CFB": "Big Ten", "IOWA_CFB": "Big Ten",
+    "MARY_CFB": "Big Ten", "MICH_CFB": "Big Ten", "MINN_CFB": "Big Ten",
+    "NEB_CFB": "Big Ten", "NW_CFB": "Big Ten", "OSU_CFB": "Big Ten",
+    "PSU_CFB": "Big Ten", "RUTG_CFB": "Big Ten", "WISC_CFB": "Big Ten",
+
+    # Big 12
+    "BAY_CFB": "Big 12", "BYU_CFB": "Big 12", "CIN_CFB": "Big 12", 
+    "KANS_CFB": "Big 12", "KSU_CFB": "Big 12", "OK_CFB": "Big 12",
+    "OKST_CFB": "Big 12", "TCU_CFB": "Big 12", "UT_CFB": "Big 12",
+    "UTSA_CFB": "Big 12", "WVU_CFB": "Big 12",
+
+    # ACC
+    "BC_CFB": "ACC", "CLEM_CFB": "ACC", "Duke_CFB": "ACC", "FLS_CFB": "ACC",
+    "GT_CFB": "ACC", "MIA_CFB": "ACC", "NCST_CFB": "ACC", "ND_CFB": "ACC",
+    "PITT_CFB": "ACC", "Syracuse_CFB": "ACC", "UVA_CFB": "ACC", "VT_CFB": "ACC",
+    "WF_CFB": "ACC", "UNC_CFB": "ACC"
+}
+
 def buildRecords():
     records = {}
     for event in data.get("events", []):
@@ -40,7 +109,7 @@ def calculate_score(home, away):
 
 def rivalry(home, away):
     rating = 0
-    if team_division.get(home) == team_division.get(away):
+    if team_conference.get(home) and team_conference.get(home) == team_conference.get(away):
         rating += 5
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
