@@ -3,7 +3,7 @@ url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
 data = requests.get(url).json()
 
 season_length = 162
-playoffs = True
+playoffs = False
 
 
 team_marketability = {
