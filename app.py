@@ -221,20 +221,20 @@ def index():
                 
                         # ----- Moneyline -----
                         if home_ml is not None and away_ml is not None:
-                            favored_display = f"{home_name if home_ml < away_ml else away_name} {min(home_ml, away_ml)}"
-                        elif details:
-                            # Try to use details string (usually "TEAM -X")
-                            favored_display = details
+                            if home_ml < away_ml:
+                                favored_display = f"{home_name} {home_ml}"
+                            else:
+                                favored_display = f"{away_name} {away_ml}"
                         else:
-                            favored_display = "No moneyline"
-                
+                            favored_display = "No moneyline"  # Don't use details here
+                        
                         # ----- Spread -----
                         if spread_val is not None:
                             if home_ml is not None and away_ml is not None:
                                 favored_team = home_name if home_ml < away_ml else away_name
                                 spread_display = f"{favored_team} {spread_val:+}"
-                            elif details and "-" in details:
-                                # Parse team from details if moneyline missing
+                            elif details:
+                                # Use details string for spread if moneyline missing
                                 spread_display = details
                             else:
                                 spread_display = f"{spread_val:+}"
