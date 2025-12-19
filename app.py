@@ -220,30 +220,32 @@ def index():
                         details = odds_item.get("details")
                 
                         # ----- Moneyline -----
-                        if home_ml is not None and away_ml is not None:
-                            if home_ml < away_ml:
+                        moneyline = competition.get("odds", [{}])[0].get("moneyline", {})
+                        home_ml = moneyline.get("home", {}).get("close", {}).get("odds")
+                        away_ml = moneyline.get("away", {}).get("close", {}).get("odds")
+                        
+                        if home_ml and away_ml:
+                            if int(home_ml) < int(away_ml):
                                 favored_display = f"{home_name} {home_ml}"
                             else:
                                 favored_display = f"{away_name} {away_ml}"
                         else:
-                            favored_display = "No moneyline"  # Don't use details here
+                            favored_display = "No moneyline"
                         
                         # ----- Spread -----
-                        if spread_val is not None:
-                            if home_ml is not None and away_ml is not None:
-                                favored_team = home_name if home_ml < away_ml else away_name
-                                spread_display = f"{favored_team} {spread_val:+}"
-                            elif details:
-                                # Use details string for spread if moneyline missing
-                                spread_display = details
+                        spread = competition.get("odds", [{}])[0].get("pointSpread", {})
+                        home_spread = spread.get("home", {}).get("close", {}).get("line")
+                        away_spread = spread.get("away", {}).get("close", {}).get("line")
+                        
+                        if home_spread and away_spread:
+                            if home_ml and away_ml:
+                                favored_team = home_name if int(home_ml) < int(away_ml) else away_name
+                                spread_display = f"{favored_team} {home_spread}"
                             else:
-                                spread_display = f"{spread_val:+}"
+                                # fallback to home spread if no moneyline
+                                spread_display = f"{home_name} {home_spread}"
                         else:
                             spread_display = "No spread"
-                
-                    except Exception:
-                        favored_display = "No moneyline"
-                        spread_display = "No spread"
 
                 rivalInfo = ""
                 try:
