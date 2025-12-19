@@ -95,8 +95,12 @@ def index():
 
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
+
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
+
+                if home_team["abbreviation"] == "TBD" or away_team["abbreviation"] == "TBD":
+                    continue
 
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
