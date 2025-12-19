@@ -109,11 +109,12 @@ def calculate_score(home, away):
 
 def rivalry(home, away):
     rating = 0
-    if team_conference.get(home) and team_conference.get(home) == team_conference.get(away):
+    if team_conference.get(home) == team_conference.get(away):
         rating += 5
-    for t1, t2, r in rivalries:
-        if (t1 == home and t2 == away) or (t2 == home and t1 == away):
-            rating += r
+    for team, rivals in rivalries.items():
+        for rival, r in rivals:
+            if (team == home and rival == away) or (team == away and rival == home):
+                rating += r
     return rating
   
 def marketability(home, away):
