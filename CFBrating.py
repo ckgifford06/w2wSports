@@ -3,7 +3,7 @@ url = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/s
 data = requests.get(url).json()
 
 season_length = 13
-playoffs = false
+playoffs = True
 
 team_marketability = {
     # SEC
