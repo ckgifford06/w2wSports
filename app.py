@@ -211,7 +211,6 @@ def index():
                 elif sport["name"] == "CFB" and odds_info:
                     try:
                         odds_item = odds_info[0]
-                
                         home_odds = odds_item.get("homeTeamOdds", {})
                         away_odds = odds_item.get("awayTeamOdds", {})
                 
@@ -220,33 +219,29 @@ def index():
                         spread_val = odds_item.get("spread")
                         details = odds_item.get("details")
                 
-
+                        # ----- Moneyline -----
                         if home_ml is not None and away_ml is not None:
-                            if home_ml < away_ml:
-                                favored_display = f"{home_name} {home_ml}"
-                            elif away_ml < home_ml:
-                                favored_display = f"{away_name} {away_ml}"
-                            else:
-                                favored_display = f"Even odds {home_ml}"
+                            favored_display = f"{home_name if home_ml < away_ml else away_name} {min(home_ml, away_ml)}"
                         elif details:
+                            # Try to use details string (usually "TEAM -X")
                             favored_display = details
                         else:
                             favored_display = "No moneyline"
                 
                         # ----- Spread -----
                         if spread_val is not None:
-                            # Spread is from favorite's POV
                             if home_ml is not None and away_ml is not None:
                                 favored_team = home_name if home_ml < away_ml else away_name
                                 spread_display = f"{favored_team} {spread_val:+}"
+                            elif details and "-" in details:
+                                # Parse team from details if moneyline missing
+                                spread_display = details
                             else:
                                 spread_display = f"{spread_val:+}"
-                        elif details:
-                            spread_display = details
                         else:
                             spread_display = "No spread"
                 
-                    except Exception as e:
+                    except Exception:
                         favored_display = "No moneyline"
                         spread_display = "No spread"
 
