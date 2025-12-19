@@ -118,7 +118,7 @@ def rivalry(home, away):
     return rating
   
 def marketability(home, away):
-    return team_marketability.get(home, 5) + team_marketability.get(away, 5)
+    return team_marketability.get(home, 2) + team_marketability.get(away, 2)
 
 def qualityOfPlay(home, away):
     seeds = buildSeeds()
@@ -143,7 +143,9 @@ def competitiveness(home, away):
     homeRecord = records.get(home, "0-0").split("-")
     awayRecord = records.get(away, "0-0").split("-")
     winDiff = abs(int(homeRecord[0]) - int(awayRecord[0]))
-    return max(1, 10 - winDiff)
+    comp = max(1, 10 - winDiff)
+    return round(comp * 0.7, 2)
+    
 
 def gameImportance(home, away):
     records = buildRecords()
