@@ -124,7 +124,7 @@ def qualityOfPlay(home, away):
     seeds = buildSeeds()
     records = buildRecords()
     homeRank = seeds.get(home, 0)
-    awayRank = seeds.get(home, 0)
+    awayRank = seeds.get(away, 0)
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
     combinedWins = float(homeRecord[0] + awayRecord[0])
