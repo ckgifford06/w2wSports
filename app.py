@@ -105,9 +105,13 @@ def index():
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
+
+                    if game_datetime_local.date() != datetime.now(local_tz).date():
+                        continue
+
                     game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except:
-                    game_time = "TBD"
+                    continue
 
                 status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
                 home_score = competitors[0].get("score", "0")
