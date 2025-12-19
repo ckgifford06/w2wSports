@@ -99,6 +99,9 @@ def index():
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
+                home_team = competitors[0]["team"]
+                away_team = competitors[1]["team"]
+
                 if home_team["abbreviation"] == "TBD" or away_team["abbreviation"] == "TBD":
                     continue
 
