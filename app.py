@@ -246,6 +246,10 @@ def index():
                                 spread_display = f"{home_name} {home_spread}"
                         else:
                             spread_display = "No spread"
+        except:
+            favored_display = "No moneyline"
+            spread_display = "No spread"
+            print(f"Error parsing CFB odds: {e}")
 
                 rivalInfo = ""
                 try:
