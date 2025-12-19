@@ -132,10 +132,10 @@ def qualityOfPlay(home, away):
     if gamesPlayed == 0:
         return 0
     quality = round(((combinedWins / gamesPlayed)*10), 3)
-    if homeRank != 0:
-      quality += (25 - homeRank) // 2
-    if awayRank != 0:
-      quality += (25 - awayRank) // 2
+    if homeRank and homeRank <= 25:
+        quality += (25 - homeRank) // 2
+    if awayRank and awayRank <= 25:
+        quality += (25 - awayRank) // 2
     return quality
 
 def competitiveness(home, away):
