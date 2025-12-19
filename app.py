@@ -254,7 +254,7 @@ def index():
                         rivalInfo = "Rivalry Matchup"
                 except:
                     score = 0
-
+                    rivalInfo = ""
                 try:
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
