@@ -161,7 +161,7 @@ def index():
                             favored_team = details.split(" ")[0]
                             spread_display = f"{favored_team} {spread:+}"
                             
-                    if status == "STATUS_IN_PROGRESS" or status = "STATUS_FINAL":
+                    if status == "STATUS_IN_PROGRESS" or status == "STATUS_FINAL":
                         favored_display = "No odds available - Game in Progress"
                         spread_display = "No odds available - Game in Progress"
                 
