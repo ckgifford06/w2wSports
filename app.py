@@ -189,19 +189,22 @@ def index():
                                 break
                 
                         # Determine moneyline favorite
-                        odds_item = odds_info[0]
-                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
-                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
-                
-                        if home_ml is not None and away_ml is not None:
-                            if home_ml < away_ml:
+                        moneyline_data = competition.get("odds", [{}])[0].get("moneyline", {})
+
+                        home_ml = moneyline_data.get("home", {}).get("close", {}).get("odds")
+                        away_ml = moneyline_data.get("away", {}).get("close", {}).get("odds")
+                        
+                        if home_ml and away_ml:
+                            # convert strings like "+124" to ints for comparison
+                            home_ml_val = int(home_ml)
+                            away_ml_val = int(away_ml)
+                        
+                            if home_ml_val < away_ml_val:
                                 favored_display = f"{home_name} {home_ml}"
-                            elif home_ml > away_ml:
-                                favored_display = f"{away_name} {away_ml}"
                             else:
-                                favored_display = f"Both teams are {away_ml}"
-                        elif odds_item.get("details"):
-                            favored_display = odds_item["details"]
+                                favored_display = f"{away_name} {away_ml}"
+                        else:
+                            favored_display = "No moneyline"
                 
                     except Exception:
                         favored_display = "No odds"
