@@ -199,13 +199,10 @@
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
-    function toggleDetails(detailsId) {
-      const box = document.getElementById(detailsId);
-      box.classList.toggle("open");
-    }
-  </script>
+    function toggleDetails(detailsId) { 
+      const box = document.getElementById(detailsId); 
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none"; }
 
-  <script>
     async function updateLiveScores() {
       try {
         const response = await fetch("/api/live");
