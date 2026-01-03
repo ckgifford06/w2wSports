@@ -23,6 +23,24 @@
       min-height: 80px;
     }
 
+    .details-box {
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+      margin-top: 10px;
+      background-color: #BC9B6A;
+      color: #000;
+      border: 2px solid #000;
+      border-radius: 8px;
+      padding: 0 15px;
+      font-size: 18px;
+      position: relative;
+      transition: 
+        max-height 0.4s ease,
+        opacity 0.3s ease,
+        padding 0.3s ease;
+    }
+
     .live-score {
       position: absolute;
       top: 10px;
@@ -126,6 +144,12 @@
       color: #ffffff;
       margin: 0 8px;
     }
+
+    .details-box.open {
+      max-height: 500px; 
+      opacity: 1;
+      padding: 10px 15px 50px 15px;
+    }
   </style>
 </head>
 <body>
@@ -175,10 +199,11 @@
   <p>Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
-    function toggleDetails(detailsId) { 
-      const box = document.getElementById(detailsId); 
-      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none"; 
+    function toggleDetails(detailsId) {
+      const box = document.getElementById(detailsId);
+      box.classList.toggle("open");
     }
+
 
     async function updateLiveScores() {
       try {
