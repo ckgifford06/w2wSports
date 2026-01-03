@@ -203,8 +203,9 @@
       const box = document.getElementById(detailsId);
       box.classList.toggle("open");
     }
+  </script>
 
-
+  <script>
     async function updateLiveScores() {
       try {
         const response = await fetch("/api/live");
@@ -232,6 +233,6 @@
     // Refresh every 30 seconds
     setInterval(updateLiveScores, 30000);
     updateLiveScores();
-  </script>
+</script>
 </body>
 </html>
