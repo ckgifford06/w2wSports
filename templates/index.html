@@ -163,8 +163,8 @@
         </span>
 
         <p><strong>Start Time:</strong> {{ game.time }}</p>
-        <p><strong>Moneyline (via ESPN Bet):</strong> {{ game.favored }}</p>
-        <p><strong>Spread (via ESPN Bet):</strong> {{ game.favored_spread }}</p>
+        <p><strong>Moneyline (via DraftKings Sportsbook):</strong> {{ game.favored }}</p>
+        <p><strong>Spread (via DraftKings Sportsbook):</strong> {{ game.favored_spread }}</p>
         <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
         <p><strong>Where to watch:</strong> {{ game.where_to_watch }}</p>
       </div>
@@ -192,10 +192,8 @@
 
           if (game.status.toLowerCase().includes("in progress") || game.status.toLowerCase().includes("live")) {
             el.textContent = `Live Score: ${game.score}`;
-            el.style.color = "green";
           } else if (game.status.toLowerCase().includes("final")) {
             el.textContent = `Final Score: ${game.score}`;
-            el.style.color = "red";
           } else {
             el.textContent = "Live Score: Has not started yet";
             el.style.color = "#000";
