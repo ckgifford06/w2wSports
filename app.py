@@ -160,6 +160,10 @@ def index():
                         elif details:
                             favored_team = details.split(" ")[0]
                             spread_display = f"{favored_team} {spread:+}"
+                            
+                    if status == "STATUS_IN_PROGRESS" or status = "STATUS_FINAL":
+                        favored_display = "No odds available - Game in Progress"
+                        spread_display = "No odds available - Game in Progress"
                 
                 # NBA & NFL
                 elif sport["name"] in ["NBA", "NFL"] and odds_info:
@@ -205,6 +209,10 @@ def index():
                                 favored_display = f"{away_name} {away_ml}"
                         else:
                             favored_display = "No moneyline"
+
+                        if status == "STATUS_IN_PROGRESS" or status == "STATUS_FINAL":
+                            favored_display = "No odds available - Game in Progress"
+                            spread_display = "No odds available - Game in Progress"
                 
                     except Exception:
                         favored_display = "No odds"
@@ -235,7 +243,6 @@ def index():
                         else:
                             favored_display = "No moneyline"
                         
-                        # ----- Spread -----
                         spread = competition.get("odds", [{}])[0].get("pointSpread", {})
                         home_spread = spread.get("home", {}).get("close", {}).get("line")
                         away_spread = spread.get("away", {}).get("close", {}).get("line")
@@ -249,6 +256,10 @@ def index():
                                 spread_display = f"{home_name} {home_spread}"
                         else:
                             spread_display = "No spread"
+
+                        if status == "STATUS_IN_PROGRESS" or status == "STATUS_FINAL":
+                            favored_display = "No odds available - Game in Progress"
+                            spread_display = "No odds available - Game in Progress"
                     except:
                         favored_display = "No moneyline"
                         spread_display = "No spread"
