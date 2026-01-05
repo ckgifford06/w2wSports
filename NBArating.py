@@ -77,7 +77,7 @@ def competitiveness(home, away):
         winDiff = abs(homeRecord[0] - awayRecord[0])
     except ValueError:
         winDiff = 0
-    compRank = (20 - winDiff) / 5
+    compRank = (20 - winDiff) / 3
     return compRank
 
 def qualityOfPlay(home, away):
