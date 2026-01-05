@@ -533,7 +533,8 @@
     async function loadGamesForDate(date) {
       isCalendarMode = true;
       const dateStr = formatDateForAPI(date);
-      console.log("Loading games for date:", dateStr);
+      console.log("Selected date object:", date);
+      console.log("Formatted date string:", dateStr);
       const pageTitle = document.getElementById('pageTitle');
       const gamesList = document.getElementById('gamesList');
       const gamesCount = document.getElementById('gamesCount');
