@@ -271,6 +271,13 @@ def index():
                 except:
                     score = 0
                     rivalInfo = ""
+                    
+                if status == "STATUS_FINAL":
+                    try:
+                        if game_datetime_local.date() < datetime.now(local_tz).date():
+                            continue 
+                    except:
+                        pass
                 try:
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
