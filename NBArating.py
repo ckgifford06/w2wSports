@@ -88,7 +88,7 @@ def qualityOfPlay(home, away):
     gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
     if gamesPlayed == 0:
         return 0
-    quality = round(((combinedWins / gamesPlayed)*10), 3)
+    quality = round(((combinedWins / gamesPlayed)*15), 3)
     return quality
     
 def gameImportance(home, away):
