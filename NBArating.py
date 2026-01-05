@@ -115,5 +115,9 @@ def gameImportance(home, away):
             importance += 3
         if away_seed is not None and 6 < away_seed < 11:
             importance += 3
+        if home_seed == 1 and away_seed == 2:
+            importance += 5
+        if away_seed == 1 and home_seed == 2:
+            importance += 5
     return importance
 
