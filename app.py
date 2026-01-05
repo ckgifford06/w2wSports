@@ -107,10 +107,12 @@ def index():
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
-
-                    if game_datetime_local.date() != datetime.now(local_tz).date():
-                        continue
-
+                    
+                    # STRICT DATE FILTER - Only include games that match the exact requested date
+                    requested_date = datetime.strptime(date, "%Y%m%d").date()
+                    if game_datetime_local.date() != requested_date:
+                        continue  # Skip games from different dates
+                    
                     game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except:
                     continue
