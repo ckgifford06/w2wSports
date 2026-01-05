@@ -5,7 +5,6 @@
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
-
     gtag('config', 'G-8TYYDCDNEH');
   </script>
   <title>W2W Sports — Top 10 Matchups</title>
@@ -22,7 +21,6 @@
       position: relative;
       min-height: 80px;
     }
-
 
     .live-score {
       position: absolute;
@@ -70,6 +68,193 @@
       transition: 0.25s;
     }
 
+    /* Calendar Button */
+    .calendar-btn {
+      position: absolute;
+      left: 25px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: #98002E;
+      color: #BC9B6A;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .calendar-btn:hover {
+      background: #7a0024;
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    /* Modal Styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1f1f1f;
+      border-radius: 16px;
+      padding: 30px;
+      max-width: 450px;
+      width: 90%;
+      max-height: 85vh;
+      overflow-y: auto;
+      border: 3px solid #98002E;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-header h2 {
+      color: #98002E;
+      margin: 0;
+      font-size: 28px;
+    }
+
+    .close-button {
+      background: none;
+      border: none;
+      color: #BC9B6A;
+      font-size: 32px;
+      cursor: pointer;
+      padding: 0;
+      width: 35px;
+      height: 35px;
+      line-height: 32px;
+    }
+
+    .close-button:hover {
+      color: #98002E;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .quick-button {
+      flex: 1;
+      background: #98002E;
+      border: none;
+      color: #BC9B6A;
+      padding: 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .quick-button:hover {
+      background: #7a0024;
+      transform: scale(1.05);
+    }
+
+    .calendar-nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .nav-button {
+      background: #2c2c2c;
+      border: 1px solid #98002E;
+      color: #BC9B6A;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      transition: 0.3s;
+    }
+
+    .nav-button:hover {
+      background: #98002E;
+    }
+
+    .month-year {
+      font-weight: 600;
+      font-size: 18px;
+      color: #BC9B6A;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .day-label {
+      text-align: center;
+      font-size: 13px;
+      color: #BC9B6A;
+      padding: 8px 0;
+      font-weight: 600;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      background: #2c2c2c;
+      border: 2px solid transparent;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 15px;
+      color: #BC9B6A;
+      transition: all 0.2s;
+      font-weight: 500;
+    }
+
+    .calendar-day:hover {
+      background: #3a3a3a;
+      border-color: #98002E;
+    }
+
+    .calendar-day.other-month {
+      color: #555;
+      background: #1a1a1a;
+    }
+
+    .calendar-day.today {
+      border-color: #98002E;
+      font-weight: 700;
+    }
+
+    .calendar-day.selected {
+      background: #98002E;
+      color: #BC9B6A;
+      font-weight: 700;
+    }
+
     nav a {
       color: #ffffff;
       text-decoration: none;
@@ -112,7 +297,6 @@
       transform: scale(1.03);
     }
 
-
     .arrow {
       position: absolute;
       right: 20px;
@@ -128,11 +312,25 @@
       margin: 0 8px;
     }
 
+    .loading-message {
+      color: #98002E;
+      font-size: 24px;
+      margin: 40px 0;
+    }
 
+    .no-games-message {
+      color: #98002E;
+      font-size: 20px;
+      margin: 40px 0;
+    }
   </style>
 </head>
 <body>
   <nav> 
+    <button class="calendar-btn" onclick="openCalendar()">
+      📅 Pick a Date
+    </button>
+
     <a href="/">Home</a>
     <span class="divider">|</span>
     <a href="/formula">Our Formula</a>
@@ -151,8 +349,32 @@
       </select>
     </form>
   </nav>
-  <h1>Top 10 Matchups Today</h1>
-  <ol>
+
+  <!-- Calendar Modal -->
+  <div class="modal" id="calendarModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Select Date</h2>
+        <button class="close-button" onclick="closeCalendar()">×</button>
+      </div>
+
+      <div class="quick-actions">
+        <button class="quick-button" onclick="selectToday()">Today</button>
+        <button class="quick-button" onclick="selectTomorrow()">Tomorrow</button>
+      </div>
+
+      <div class="calendar-nav">
+        <button class="nav-button" onclick="previousMonth()">← Prev</button>
+        <div class="month-year" id="monthYear"></div>
+        <button class="nav-button" onclick="nextMonth()">Next →</button>
+      </div>
+
+      <div class="calendar-grid" id="calendarGrid"></div>
+    </div>
+  </div>
+
+  <h1 id="pageTitle">Top 10 Matchups Today</h1>
+  <ol id="gamesList">
     {% for game in matchups %}
     <li onclick="toggleDetails('details-{{ loop.index }}')">
       <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
@@ -175,14 +397,198 @@
     {% endfor %}
   </ol>
 
-  <p>Currently showing {{ matchups|length }} games for today.</p>
+  <p id="gamesCount">Currently showing {{ matchups|length }} games for today.</p>
 
   <script>
+    let currentMonth = new Date();
+    let selectedDate = new Date();
+    let isCalendarMode = false;
+
     function toggleDetails(detailsId) { 
       const box = document.getElementById(detailsId); 
-      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none"; }
+      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none";
+    }
+
+    function openCalendar() {
+      document.getElementById('calendarModal').classList.add('active');
+      renderCalendar();
+    }
+
+    function closeCalendar() {
+      document.getElementById('calendarModal').classList.remove('active');
+    }
+
+    function selectToday() {
+      selectedDate = new Date();
+      currentMonth = new Date();
+      isCalendarMode = false;
+      closeCalendar();
+      // Reload page to show today's games
+      window.location.href = '/';
+    }
+
+    function selectTomorrow() {
+      selectedDate = new Date();
+      selectedDate.setDate(selectedDate.getDate() + 1);
+      currentMonth = new Date(selectedDate);
+      closeCalendar();
+      loadGamesForDate(selectedDate);
+    }
+
+    function previousMonth() {
+      currentMonth.setMonth(currentMonth.getMonth() - 1);
+      renderCalendar();
+    }
+
+    function nextMonth() {
+      currentMonth.setMonth(currentMonth.getMonth() + 1);
+      renderCalendar();
+    }
+
+    function renderCalendar() {
+      const monthYear = document.getElementById('monthYear');
+      const calendarGrid = document.getElementById('calendarGrid');
+      
+      monthYear.textContent = currentMonth.toLocaleDateString('en-US', { 
+        month: 'long', 
+        year: 'numeric' 
+      });
+
+      const year = currentMonth.getFullYear();
+      const month = currentMonth.getMonth();
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+      let html = '';
+      const dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayLabels.forEach(day => {
+        html += `<div class="day-label">${day}</div>`;
+      });
+
+      for (let i = firstDay - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        html += `<div class="calendar-day other-month">${day}</div>`;
+      }
+
+      const today = new Date();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const isToday = date.toDateString() === today.toDateString();
+        const isSelected = date.toDateString() === selectedDate.toDateString();
+        
+        let classes = 'calendar-day';
+        if (isToday) classes += ' today';
+        if (isSelected) classes += ' selected';
+        
+        html += `<div class="${classes}" onclick="selectDate(${year}, ${month}, ${day})">${day}</div>`;
+      }
+
+      const totalCells = firstDay + daysInMonth;
+      const remainingCells = 42 - totalCells;
+      for (let i = 1; i <= remainingCells; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+      }
+
+      calendarGrid.innerHTML = html;
+    }
+
+    function selectDate(year, month, day) {
+      selectedDate = new Date(year, month, day);
+      closeCalendar();
+      loadGamesForDate(selectedDate);
+    }
+
+    function formatDateForAPI(date) {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, '0');
+      const day = String(date.getDate()).padStart(2, '0');
+      return `${year}${month}${day}`;
+    }
+
+    function formatDateForDisplay(date) {
+      const today = new Date();
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      today.setHours(0, 0, 0, 0);
+      tomorrow.setHours(0, 0, 0, 0);
+      const compareDate = new Date(date);
+      compareDate.setHours(0, 0, 0, 0);
+
+      if (compareDate.getTime() === today.getTime()) {
+        return "Top 10 Matchups Today";
+      } else if (compareDate.getTime() === tomorrow.getTime()) {
+        return "Top 10 Matchups Tomorrow";
+      } else {
+        return "Top 10 Matchups - " + date.toLocaleDateString('en-US', { 
+          weekday: 'long',
+          month: 'long', 
+          day: 'numeric',
+          year: 'numeric'
+        });
+      }
+    }
+
+    async function loadGamesForDate(date) {
+      isCalendarMode = true;
+      const dateStr = formatDateForAPI(date);
+      const pageTitle = document.getElementById('pageTitle');
+      const gamesList = document.getElementById('gamesList');
+      const gamesCount = document.getElementById('gamesCount');
+      
+      pageTitle.textContent = formatDateForDisplay(date);
+      gamesList.innerHTML = '<li class="loading-message">Loading games...</li>';
+      gamesCount.textContent = '';
+
+      try {
+        const response = await fetch(`/api/games/${dateStr}`);
+        const data = await response.json();
+        
+        if (data.games.length === 0) {
+          gamesList.innerHTML = '<li class="no-games-message">No games scheduled for this date.</li>';
+          gamesCount.textContent = 'No games found.';
+          return;
+        }
+
+        let html = '';
+        data.games.forEach((game, index) => {
+          html += `
+            <li onclick="toggleDetails('details-${index + 1}')">
+              <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">${index + 1}.</span>
+              [${game.league}] ${game.matchup} — Score: ${game.score}
+              
+              <span class="arrow">▼</span>
+              
+              <div id="details-${index + 1}" class="details-box">
+                <span id="live-score-${index + 1}" class="live-score">
+                  ${game.live_score}
+                </span>
+                
+                <p><strong>Start Time:</strong> ${game.time}</p>
+                <p><strong>Moneyline (via DraftKings Sportsbook):</strong> ${game.favored}</p>
+                <p><strong>Spread (via DraftKings Sportsbook):</strong> ${game.favored_spread}</p>
+                <p><strong>Additional Info:</strong> ${game.description || "No extra info available."}</p>
+                <p><strong>Where to watch:</strong> ${game.where_to_watch}</p>
+              </div>
+            </li>
+          `;
+        });
+
+        gamesList.innerHTML = html;
+        gamesCount.textContent = `Currently showing ${data.games.length} games for ${date.toLocaleDateString('en-US')}.`;
+
+      } catch (error) {
+        console.error('Error loading games:', error);
+        gamesList.innerHTML = '<li class="no-games-message">Error loading games. Please try again.</li>';
+        gamesCount.textContent = 'Error occurred.';
+      }
+    }
 
     async function updateLiveScores() {
+      // Only update if we're on today's games page
+      if (isCalendarMode) return;
+
       try {
         const response = await fetch("/api/live");
         if (!response.ok) return;
@@ -206,9 +612,9 @@
       }
     }
 
-    // Refresh every 30 seconds
+    // Refresh every 30 seconds (only for today's games)
     setInterval(updateLiveScores, 30000);
     updateLiveScores();
-</script>
+  </script>
 </body>
 </html>
