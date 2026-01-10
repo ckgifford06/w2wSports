@@ -50,7 +50,7 @@ def calculate_score(home, away, league):
     elif league == "CFB":
         return CFBrating.calculate_score(home, away)
     else:
-        return 0
+        return 15
 
 def rivalryMatchup(home, away, league):
     if league == "NBA":
