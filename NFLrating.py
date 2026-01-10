@@ -11,7 +11,10 @@ logging.basicConfig(
     format="%(asctime)s | %(levelname)s | %(message)s"
 )
 
-logger = logging.getLogger(__name__)
+logging.getLogger("urllib3").setLevel(logging.WARNING)
+logging.getLogger("requests").setLevel(logging.WARNING)
+
+logger = logging.getLogger("scoring_engine")
 
 team_marketability = {
     "ARI_NFL": 6, "ATL_NFL": 6.5, "BAL_NFL": 8, "BUF_NFL": 8, "CAR_NFL": 5,
@@ -71,7 +74,9 @@ def calculate_score(home, away):
     g = gameImportance(home, away)
 
     logger.debug(
-    f"{home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
+    f"[SCORE DEBUG] {home} vs {away} → "
+    f"R:{r} M:{m} C:{c} Q:{q} G:{g}"
+    )
     return round((r + m + c + q + g), 2)
 
 def rivalry(home, away):
