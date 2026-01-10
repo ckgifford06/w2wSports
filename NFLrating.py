@@ -6,16 +6,6 @@ data = requests.get(url).json()
 season_length = 17
 playoffs = True
 
-logging.basicConfig(
-    level=logging.DEBUG,
-    format="%(asctime)s | %(levelname)s | %(message)s"
-)
-
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("requests").setLevel(logging.WARNING)
-
-logger = logging.getLogger("scoring_engine")
-
 team_marketability = {
     "ARI_NFL": 6, "ATL_NFL": 6.5, "BAL_NFL": 8, "BUF_NFL": 8, "CAR_NFL": 5,
     "CHI_NFL": 9, "CIN_NFL": 8, "CLE_NFL": 7, "DAL_NFL": 10, "DEN_NFL": 8,
@@ -73,10 +63,7 @@ def calculate_score(home, away):
     q = qualityOfPlay(home, away)
     g = gameImportance(home, away)
 
-    logger.debug(
-    f"[SCORE DEBUG] {home} vs {away} → "
-    f"R:{r} M:{m} C:{c} Q:{q} G:{g}"
-    )
+    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
     return round((r + m + c + q + g), 2)
 
 def rivalry(home, away):
