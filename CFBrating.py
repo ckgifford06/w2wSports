@@ -25,7 +25,7 @@ team_marketability = {
     "KU_CFB": 6.5, "UTSA_CFB": 6,
 
     # ACC
-    "CLEM_CFB": 9, "FSU_CFB": 9, "MIA_CFB": 8.5, "ND_CFB": 9.5,   # Notre Dame partial ACC member
+    "CLEM_CFB": 9, "FSU_CFB": 9, "MIA_CFB": 8.5, "ND_CFB": 9.5,   
     "UNC_CFB": 8, "VT_CFB": 8, "NCST_CFB": 7.5, "LOU_CFB": 7.5,
     "PITT_CFB": 7, "GT_CFB": 7, "WAKE_CFB": 6.5, "BC_CFB": 6.5,
     "DUKE_CFB": 7, "SYR_CFB": 7, "UVA_CFB": 7
@@ -47,6 +47,8 @@ rivalries = {
     
     "FLA_CFB": [("GA_CFB", 9), ("FSU_CFB", 8)],
     "FSU_CFB": [("FLA_CFB", 8)]
+
+    #adding more soon
 }
 team_conference = {
     # SEC
@@ -169,4 +171,6 @@ def gameImportance(home, away):
         importance += 2
     if away_seed and away_seed <= 10:
         importance += 2
+    if playoffs:
+        importance += 5
     return importance
