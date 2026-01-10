@@ -15,7 +15,7 @@ team_marketability = {
     "TEN_NFL": 6.5, "WAS_NFL": 7
 }
     
-}
+
 team_division = {
     "BUF_NFL": "AFC East", "MIA_NFL": "AFC East", "NE_NFL": "AFC East", "NYJ_NFL": "AFC East",
     "BAL_NFL": "AFC North", "CIN_NFL": "AFC North", "CLE_NFL": "AFC North", "PIT_NFL": "AFC North",
