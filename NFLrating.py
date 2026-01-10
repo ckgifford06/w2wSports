@@ -1,9 +1,17 @@
 import requests
+import logging
 url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 data = requests.get(url).json()
 
 season_length = 17
 playoffs = True
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 team_marketability = {
     "ARI_NFL": 6, "ATL_NFL": 6.5, "BAL_NFL": 8, "BUF_NFL": 8, "CAR_NFL": 5,
@@ -62,7 +70,8 @@ def calculate_score(home, away):
     q = qualityOfPlay(home, away)
     g = gameImportance(home, away)
 
-    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
+    logger.debug(
+    f"{home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
     return round((r + m + c + q + g), 2)
 
 def rivalry(home, away):
