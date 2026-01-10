@@ -35,7 +35,14 @@ def buildSeeds():
     return seeds
 
 def calculateScore(home, away):
-    return 0
+    r = rivalry(home, away)
+    m = marketability(home, away)
+    c = competitiveness(home, away)
+    q = qualityOfPlay(home, away)
+    g = gameImportance(home, away)
+
+    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
+    return round((r + m + c + q + g), 2)
 
 
 def rivalry(home,away):
