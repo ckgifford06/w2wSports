@@ -199,7 +199,6 @@ def index():
                         away_ml = moneyline_data.get("away", {}).get("close", {}).get("odds")
                         
                         if home_ml and away_ml:
-                            # convert strings like "+124" to ints for comparison
                             home_ml_val = int(home_ml)
                             away_ml_val = int(away_ml)
                         
@@ -230,7 +229,6 @@ def index():
                         spread_val = odds_item.get("spread")
                         details = odds_item.get("details")
                 
-                        # ----- Moneyline -----
                         moneyline = competition.get("odds", [{}])[0].get("moneyline", {})
                         home_ml = moneyline.get("home", {}).get("close", {}).get("odds")
                         away_ml = moneyline.get("away", {}).get("close", {}).get("odds")
