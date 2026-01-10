@@ -3,7 +3,7 @@ url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 data = requests.get(url).json()
 
 season_length = 17
-playoffs = False
+playoffs = True
 
 team_marketability = {
     "ARI_NFL": 6, "ATL_NFL": 6.5, "BAL_NFL": 8, "BUF_NFL": 8, "CAR_NFL": 5,
@@ -98,8 +98,7 @@ def gameImportance(home, away):
     away_seed = seeds.get(away)
     gamesLeft = 17 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
-        # not yet
-        pass
+        importance += 15
     else:
         if gamesLeft > 12:
             return importance
