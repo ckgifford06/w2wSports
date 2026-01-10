@@ -15,6 +15,9 @@ team_marketability = {
     "PHI_NFL": 9.5, "PIT_NFL": 9, "SF_NFL": 10, "SEA_NFL": 8, "TB_NFL": 8,
     "TEN_NFL": 6.5, "WAS_NFL": 7
 }
+
+rivalries = {
+}
     
 
 team_division = {
