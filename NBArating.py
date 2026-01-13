@@ -15,6 +15,7 @@ team_marketability = {
     "DAL_NBA": 8, "HOU_NBA": 8, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 8
 }
 rivalries = [
+    ("OKC_NBA", "SAS_NBA", 11),
     ("LAL_NBA", "BOS_NBA", 8),
     ("NY_NBA", "BOS_NBA", 8),
     ("NY_NBA", "IND_NBA", 5),
