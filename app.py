@@ -7,6 +7,7 @@ import NFLrating
 import NHLrating
 import MLBrating
 import CFBrating
+import CBBrating
 import smtplib
 from email.mime.text import MIMEText
 import sqlite3
@@ -35,7 +36,8 @@ sports = {
     "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"},
     "nhl": {"name": "NHL", "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"},
     "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"},
-    "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"}
+    "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"},
+    "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard"}
 }
 
 def calculate_score(home, away, league):
@@ -49,6 +51,8 @@ def calculate_score(home, away, league):
         return MLBrating.calculate_score(home, away)
     elif league == "CFB":
         return CFBrating.calculate_score(home, away)
+    elif league == "CBB":
+        return CBBrating.calculate_score(home, away)
     else:
         return 15
 
@@ -63,6 +67,8 @@ def rivalryMatchup(home, away, league):
         return (MLBrating.rivalry(home, away) > 5)
     elif league == "CFB":
         return (CFBrating.rivalry(home, away) > 5)
+    elif league == "CBB":
+        return (CBBrating.rivalry(home, away) > 5)
     else:
         return False
 
@@ -137,17 +143,17 @@ def index():
                     details = odds_item.get("details", "")
                     spread = odds_item.get("spread", None)
                 
-                    away_team = odds_item.get("awayTeamOdds", {}).get("team", {}).get("displayName", "Away")
-                    home_team = odds_item.get("homeTeamOdds", {}).get("team", {}).get("displayName", "Home")
+                    away_team_odds = odds_item.get("awayTeamOdds", {}).get("team", {}).get("displayName", "Away")
+                    home_team_odds = odds_item.get("homeTeamOdds", {}).get("team", {}).get("displayName", "Home")
                 
                     home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
                     away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
                 
                     if home_ml is not None and away_ml is not None:
                         if home_ml < away_ml:
-                            favored_display = f"{home_team} {home_ml}"
+                            favored_display = f"{home_team_odds} {home_ml}"
                         else:
-                            favored_display = f"{away_team} {away_ml}"
+                            favored_display = f"{away_team_odds} {away_ml}"
                     elif details:
                         favored_display = details
                 
@@ -155,7 +161,7 @@ def index():
                         if spread > 0:
                             spread = -abs(spread)
                         if home_ml is not None and away_ml is not None:
-                            favored_team = home_team if home_ml < away_ml else away_team
+                            favored_team = home_team_odds if home_ml < away_ml else away_team_odds
                             spread_display = f"{favored_team} {spread:+}"
                         elif details:
                             favored_team = details.split(" ")[0]
@@ -165,8 +171,8 @@ def index():
                         favored_display = "No odds available - Game in Progress"
                         spread_display = "No odds available - Game in Progress"
                 
-                # NBA & NFL
-                elif sport["name"] in ["NBA", "NFL"] and odds_info:
+                # NBA, NFL, and CBB (College Basketball)
+                elif sport["name"] in ["NBA", "NFL", "CBB"] and odds_info:
                     try:
                         spread_display = "No spread"
                 
@@ -349,7 +355,7 @@ def verify():
     c.execute("UPDATE subscribers SET verified = 1 WHERE email = ?", (email,))
     conn.commit()
     conn.close()
-    return f"Thanks {email}, you’re verified!"
+    return f"Thanks {email}, you're verified!"
 
 if __name__ == '__main__':
     import os
