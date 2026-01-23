@@ -104,12 +104,12 @@ def rivalry(home, away):
         return 0
 
 def marketability(home, away):
-    """Returns 2-20 based on team popularity (multiplied by 2 for more weight)"""
+    """Returns 2-20 based on team popularity"""
     base = team_marketability.get(home, 5) + team_marketability.get(away, 5)
-    return base * 1.5  # Multiply by 1.5 to increase weight (15-30 range now)
+    return base  # Keep it simple, 10-20 range
 
 def competitiveness(home, away):
-    """Returns 0-10 based on how close teams are in record"""
+    """Returns 0-6.67 based on how close teams are in record"""
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
@@ -117,12 +117,12 @@ def competitiveness(home, away):
         winDiff = abs(homeRecord[0] - awayRecord[0])
     except ValueError:
         winDiff = 0
-    # Change formula to give more points (0-10 range)
-    compRank = max(0, (10 - (winDiff * 0.5)))
+    # Use original formula from NBA (20-winDiff)/3
+    compRank = (20 - winDiff) / 3
     return compRank
 
 def qualityOfPlay(home, away):
-    """Returns 0-15 based on combined team quality"""
+    """Returns 0-8.5 based on combined team quality"""
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
@@ -130,12 +130,12 @@ def qualityOfPlay(home, away):
     gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
     if gamesPlayed == 0:
         return 0
-    # Increase multiplier from 17 to 25 for higher scores
-    quality = round(((combinedWins / gamesPlayed) * 25), 3)
+    # Reduce multiplier to 8.5 for lower scores
+    quality = round(((combinedWins / gamesPlayed) * 8.5), 3)
     return quality
 
 def gameImportance(home, away):
-    """Returns 0-25 for regular season, up to 35 for tournaments"""
+    """Returns 0-14 for regular season, up to 24 for tournaments"""
     importance = 0
     seeds = buildSeeds()
     records = buildRecords()
@@ -148,40 +148,40 @@ def gameImportance(home, away):
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     
     if march_madness:
-        # March Madness games get massive boost (20-35 points)
-        importance += 20  # Base tournament bonus
-        # Additional points for later rounds (you can adjust this based on round)
+        # March Madness games get massive boost (15-24 points)
+        importance += 15  # Base tournament bonus
+        # Additional points for elite matchups
         if home_rank is not None and away_rank is not None:
             if home_rank <= 8 and away_rank <= 8:  # Elite Eight caliber
-                importance += 10
-            elif home_rank <= 16 and away_rank <= 16:  # Sweet Sixteen caliber
-                importance += 5
-    elif conference_tournament:
-        # Conference tournament games (10-20 points)
-        importance += 10
-        if home_rank is not None and away_rank is not None:
-            if home_rank <= 10 and away_rank <= 10:
                 importance += 7
-    else:
-        # Regular season importance (0-25 range)
-        if gamesLeft <= 20:
-            importance += 2
-        if gamesLeft <= 10:
-            importance += 3
-        if gamesLeft <= 5:
-            importance += 4
-        
-        # Ranked team bonuses (increased)
-        if home_rank is not None and home_rank <= 25:
-            importance += 3
-        if away_rank is not None and away_rank <= 25:
-            importance += 3
-        
-        # Top matchup bonuses (increased)
+            elif home_rank <= 16 and away_rank <= 16:  # Sweet Sixteen caliber
+                importance += 4
+    elif conference_tournament:
+        # Conference tournament games (8-15 points)
+        importance += 8
         if home_rank is not None and away_rank is not None:
             if home_rank <= 10 and away_rank <= 10:
-                importance += 6
-            if home_rank <= 5 and away_rank <= 5:
+                importance += 5
+    else:
+        # Regular season importance (0-14 range)
+        if gamesLeft <= 20:
+            importance += 1
+        if gamesLeft <= 10:
+            importance += 1
+        if gamesLeft <= 5:
+            importance += 2
+        
+        # Ranked team bonuses
+        if home_rank is not None and home_rank <= 25:
+            importance += 2
+        if away_rank is not None and away_rank <= 25:
+            importance += 2
+        
+        # Top matchup bonuses
+        if home_rank is not None and away_rank is not None:
+            if home_rank <= 10 and away_rank <= 10:
                 importance += 4
+            if home_rank <= 5 and away_rank <= 5:
+                importance += 2
     
     return importance
