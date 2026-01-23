@@ -5,7 +5,9 @@ data = requests.get(url).json()
 
 season_length = 30 
 march_madness = False
+conference_tournament = False
 
+# Marketability scores for major college basketball programs (1-10 scale)
 team_marketability = {
     "UK_CBB": 9, "UNC_CBB": 9, "DUKE_CBB": 10, "KU_CBB": 9, "UCLA_CBB": 8,
     "UL_CBB": 8, "IU_CBB": 8, "MICH_CBB": 8, "MSU_CBB": 8, "OSU_CBB": 7,
@@ -33,6 +35,7 @@ team_marketability = {
     "DRAKE_CBB": 6, "UNI_CBB": 6, "ILL_CBB": 6, "BYU_CBB": 7, "UNM_CBB": 6
 }
 
+# Major college basketball rivalries with intensity scores
 rivalries = [
     ("DUKE_CBB", "UNC_CBB", 12),  
     ("UK_CBB", "UL_CBB", 10),  
@@ -40,7 +43,7 @@ rivalries = [
     ("UK_CBB", "IND_CBB", 8), 
     ("DUKE_CBB", "NCST_CBB", 7), 
     ("UNC_CBB", "NCST_CBB", 7),  
-    ("OSU_CBB", "MICH_CBB", 11),  
+    ("OSU_CBB", "MICH_CBB", 9),  
     ("UCLA_CBB", "USC_CBB", 9),  
     ("GONZ_CBB", "SMC_CBB", 7),  
     ("VILL_CBB", "GTOWN_CBB", 8),  
@@ -93,6 +96,7 @@ def calculate_score(home, away):
     return round((r + m + c + q + g), 2)
 
 def rivalry(home, away):
+    """Returns 0-12 for rivalry intensity"""
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
             return r
@@ -100,9 +104,12 @@ def rivalry(home, away):
         return 0
 
 def marketability(home, away):
-    return team_marketability.get(home, 5) + team_marketability.get(away, 5)
+    """Returns 2-20 based on team popularity (multiplied by 2 for more weight)"""
+    base = team_marketability.get(home, 5) + team_marketability.get(away, 5)
+    return base * 1.5  # Multiply by 1.5 to increase weight (15-30 range now)
 
 def competitiveness(home, away):
+    """Returns 0-10 based on how close teams are in record"""
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
@@ -110,10 +117,12 @@ def competitiveness(home, away):
         winDiff = abs(homeRecord[0] - awayRecord[0])
     except ValueError:
         winDiff = 0
-    compRank = (20 - winDiff) / 3
+    # Change formula to give more points (0-10 range)
+    compRank = max(0, (10 - (winDiff * 0.5)))
     return compRank
 
 def qualityOfPlay(home, away):
+    """Returns 0-15 based on combined team quality"""
     records = buildRecords()
     homeRecord = list(map(int, records.get(home, "0-0").split("-")))
     awayRecord = list(map(int, records.get(away, "0-0").split("-")))
@@ -121,10 +130,12 @@ def qualityOfPlay(home, away):
     gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
     if gamesPlayed == 0:
         return 0
-    quality = round(((combinedWins / gamesPlayed) * 17), 3)
+    # Increase multiplier from 17 to 25 for higher scores
+    quality = round(((combinedWins / gamesPlayed) * 25), 3)
     return quality
 
 def gameImportance(home, away):
+    """Returns 0-25 for regular season, up to 35 for tournaments"""
     importance = 0
     seeds = buildSeeds()
     records = buildRecords()
@@ -137,22 +148,40 @@ def gameImportance(home, away):
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     
     if march_madness:
-        importance += 10  
-    else:
-        if gamesLeft <= 20:
-            importance += 1
-        if gamesLeft <= 10:
-            importance += 1
-        if gamesLeft <= 5:
-            importance += 2
-        if home_rank is not None and home_rank <= 25:
-            importance += 2
-        if away_rank is not None and away_rank <= 25:
-            importance += 2
+        # March Madness games get massive boost (20-35 points)
+        importance += 20  # Base tournament bonus
+        # Additional points for later rounds (you can adjust this based on round)
+        if home_rank is not None and away_rank is not None:
+            if home_rank <= 8 and away_rank <= 8:  # Elite Eight caliber
+                importance += 10
+            elif home_rank <= 16 and away_rank <= 16:  # Sweet Sixteen caliber
+                importance += 5
+    elif conference_tournament:
+        # Conference tournament games (10-20 points)
+        importance += 10
         if home_rank is not None and away_rank is not None:
             if home_rank <= 10 and away_rank <= 10:
-                importance += 4
+                importance += 7
+    else:
+        # Regular season importance (0-25 range)
+        if gamesLeft <= 20:
+            importance += 2
+        if gamesLeft <= 10:
+            importance += 3
+        if gamesLeft <= 5:
+            importance += 4
+        
+        # Ranked team bonuses (increased)
+        if home_rank is not None and home_rank <= 25:
+            importance += 3
+        if away_rank is not None and away_rank <= 25:
+            importance += 3
+        
+        # Top matchup bonuses (increased)
+        if home_rank is not None and away_rank is not None:
+            if home_rank <= 10 and away_rank <= 10:
+                importance += 6
             if home_rank <= 5 and away_rank <= 5:
-                importance += 3
+                importance += 4
     
     return importance
