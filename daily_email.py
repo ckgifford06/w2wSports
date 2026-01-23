@@ -13,8 +13,8 @@ def send_daily_email():
     if not subscribers:
         return
 
-    msg = MIMEText("Good morning Eagles! Here’s your daily update.")
-    msg["Subject"] = "Daily W2W Sports / BC Textbook Update"
+    msg = MIMEText("Here’s your daily update.")
+    msg["Subject"] = "Daily W2W Sports"
     msg["From"] = "you@yourdomain.com"
 
     with smtplib.SMTP("smtp.gmail.com", 587) as server:
