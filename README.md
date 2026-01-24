@@ -69,7 +69,7 @@ The system caches blurbs in a JSON file so each game only needs one API call per
 - League Filter: Users can filter by specific leagues using the dropdown menu or by passing ?league=NBA in the URL.
 - Rivalry Scores: Edit the rivalries list in each rating file to add or modify rivalries.
 - Marketability Scores: Team popularity scores are defined in the team_marketability dictionary in each rating file.
-- Tournament Modes: Set march_madness = True or conference_tournament = True in CBBrating.py to boost importance scores during tournament season.
+- Tournament Modes: Set march_madness = True, conference_tournament = True, and playoffs = True in NHL, NBA, NFL, CFB in their respective rating files to boost importance scores during tournament season.
 
 ## Cost Considerations
 With the current caching setup, the Anthropic API costs are minimal:
