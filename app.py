@@ -115,7 +115,7 @@ def get_rivalry_score(home, away, league):
         return CBBrating.rivalry(home, away)
     return 0
 
-def generate_game_blurb(game_info):
+def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
     """Use Claude AI to generate an exciting game blurb with caching"""
     
     # Create a unique cache key for this game (includes today's date)
@@ -126,6 +126,10 @@ def generate_game_blurb(game_info):
     if cache_key in blurb_cache:
         print(f"Using cached blurb for {game_info['home_team']} vs {game_info['away_team']}")
         return blurb_cache[cache_key]
+    
+    # If we want fast loading, return fallback immediately and generate later
+    if use_fallback_if_not_cached:
+        return generate_fallback_blurb(game_info)
     
     try:
         prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
@@ -184,6 +188,44 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
         if game_info.get('is_rivalry'):
             return "Rivalry matchup"
         return "No extra info available."
+
+def generate_fallback_blurb(game_info):
+    """Generate a quick rule-based blurb when AI isn't cached yet"""
+    parts = []
+    
+    # Add rankings if both teams are ranked
+    if game_info.get('home_rank') and game_info['home_rank'] != "Unranked":
+        if game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
+            parts.append(f"{game_info['home_rank']} {game_info['home_team']} hosts {game_info['away_rank']} {game_info['away_team']}")
+        else:
+            parts.append(f"{game_info['home_rank']} {game_info['home_team']} faces {game_info['away_team']}")
+    elif game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
+        parts.append(f"{game_info['away_rank']} {game_info['away_team']} visits {game_info['home_team']}")
+    
+    # Add rivalry info
+    if game_info.get('is_rivalry'):
+        if parts:
+            parts.append("in rivalry matchup")
+        else:
+            parts.append(f"{game_info['home_team']} vs {game_info['away_team']} rivalry")
+    
+    # Add conference
+    if game_info.get('conference') and game_info['conference'] != "N/A":
+        if parts:
+            parts.append(f"in {game_info['conference']}")
+        else:
+            parts.append(f"{game_info['conference']} matchup")
+    
+    # Add record highlights
+    if not parts:
+        home_rec = game_info.get('home_record', '')
+        away_rec = game_info.get('away_record', '')
+        if '18-' in home_rec or '17-' in home_rec or '-0' in home_rec:
+            parts.append(f"{home_rec} {game_info['home_team']} hosts {game_info['away_team']}")
+        elif '18-' in away_rec or '17-' in away_rec or '-0' in away_rec:
+            parts.append(f"{away_rec} {game_info['away_team']} visits {game_info['home_team']}")
+    
+    return " ".join(parts) if parts else f"{game_info['home_team']} vs {game_info['away_team']}"
 
 
 @app.route('/')
@@ -381,13 +423,13 @@ def index():
                         favored_display = "No moneyline"
                         spread_display = "No spread"
 
-                # Get game info for AI blurb generation
+                # Get game info for blurb generation
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
                     is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
                     rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
                     
-                    # Gather additional info
+                    # Gather additional info for blurb (but don't generate yet)
                     home_record = competitors[0].get("records", [{}])[0].get("summary", "N/A")
                     away_record = competitors[1].get("records", [{}])[0].get("summary", "N/A")
                     home_rank = competitors[0].get("curatedRank", {}).get("current")
@@ -398,8 +440,8 @@ def index():
                     home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
                     away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
                     
-                    # Generate AI blurb
-                    game_info = {
+                    # Store game info for later blurb generation
+                    game_blurb_info = {
                         'league': sport['name'],
                         'home_team': home_name,
                         'away_team': away_name,
@@ -412,12 +454,10 @@ def index():
                         'is_rivalry': is_rivalry
                     }
                     
-                    rivalInfo = generate_game_blurb(game_info)
-                    
                 except Exception as e:
                     print(f"Error generating game info: {e}")
                     score = 0
-                    rivalInfo = "No extra info available."
+                    game_blurb_info = None
                 
                 try:
                     broadcasts = competition.get("broadcasts", [])
@@ -438,7 +478,8 @@ def index():
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
                     "score": score,
-                    "description": rivalInfo,
+                    "description": None,  # Will be filled in later for top 10
+                    "game_blurb_info": game_blurb_info,  # Store info for later
                     "time": game_time,
                     "favored": favored_display,
                     "favored_spread": spread_display,
@@ -450,7 +491,24 @@ def index():
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
+    # Sort and get top 10 games
     filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
+
+    # NOW generate AI blurbs ONLY for the top 10 games
+    for game in filtered_ranked:
+        if game.get("game_blurb_info"):
+            try:
+                # Generate AI blurb (or use fallback if not cached)
+                game["description"] = generate_game_blurb(game["game_blurb_info"], use_fallback_if_not_cached=True)
+            except Exception as e:
+                print(f"Error generating blurb: {e}")
+                game["description"] = "No extra info available."
+        else:
+            game["description"] = "No extra info available."
+        
+        # Remove the temp blurb info
+        if "game_blurb_info" in game:
+            del game["game_blurb_info"]
 
     return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league)
 
