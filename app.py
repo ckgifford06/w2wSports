@@ -20,10 +20,8 @@ app = Flask(__name__)
 DB_PATH = "emails.db"
 BLURB_CACHE_FILE = "blurb_cache.json"
 
-# Initialize Anthropic client (you'll need to set ANTHROPIC_API_KEY environment variable)
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-# Load blurb cache from file
 def load_blurb_cache():
     """Load cached blurbs from file"""
     try:
@@ -42,7 +40,6 @@ def save_blurb_cache(cache):
     except Exception as e:
         print(f"Error saving blurb cache: {e}")
 
-# Initialize cache
 blurb_cache = load_blurb_cache()
 
 def init_db():
@@ -132,7 +129,7 @@ def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
         return generate_fallback_blurb(game_info)
     
     try:
-        prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
+        prompt = f"""Generate a brief, exciting 1-sentence description (max 20 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
 
 League: {game_info['league']}
 Matchup: {game_info['home_team']} vs {game_info['away_team']}
@@ -150,6 +147,7 @@ IMPORTANT RULES:
 3. NAME THE CONFERENCE specifically (e.g., "Big Ten", "A-10", "ACC")
 4. If it's a rivalry (score > 7), mention that it's a rivalry
 5. Highlight what makes THIS specific matchup interesting TODAY
+6. Use a variety of words. Don't just use "clash" or battle. You can use them, but you do not have to.
 
 Good Examples:
 - "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
@@ -174,7 +172,7 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
         )
         
         blurb = message.content[0].text.strip()
-        # Remove any quotes that might be added
+
         blurb = blurb.strip('"').strip("'")
         
         # Cache the result
