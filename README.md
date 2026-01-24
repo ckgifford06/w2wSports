@@ -56,7 +56,7 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 - Competitiveness (0-6.67 points): How evenly matched the teams are based on their win-loss records. Closer records mean higher scores.
 - Quality of Play (0-8.5 points): Combined win percentage of both teams. Two good teams playing each other scores higher.
 - Game Importance (0-14 points regular season, up to 24 for tournaments): Late season games, ranked matchups, playoff implications, and tournament games all increase this score.
-- 
+
 The formula varies slightly by sport but follows the same general structure. Each league has its own rating module (NBArating.py, CBBrating.py, etc.) with sport-specific rivalries and adjustments.
 
 AI Blurb Generation
