@@ -6,6 +6,9 @@ A web application that ranks and displays the top 10 most exciting sports matchu
 ## What It Does
 The site pulls daily game schedules from ESPN's APIs and calculates a score for each matchup. Games are ranked by their entertainment value, helping users find the best games to watch on any given day. The top 10 games are displayed with betting odds, broadcast information, and AI-generated descriptions.
 
+<img width="1512" height="856" alt="Screenshot 2026-01-24 at 2 55 36 PM" src="https://github.com/user-attachments/assets/6c3a940d-96c4-40e1-9f7f-a8bdad13a9da" />
+
+
 **Supported Leagues**
 
 - NBA (National Basketball Association)
