@@ -17,13 +17,12 @@ import json
 
 app = Flask(__name__)
 
-DB_PATH = "emails.db"
 BLURB_CACHE_FILE = "blurb_cache.json"
 
-# Initialize Anthropic client (you'll need to set ANTHROPIC_API_KEY environment variable)
+# initializing Anthropic (Claude AI) here
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-# Load blurb cache from file
+# load blurb cache from file (saves me money, is better for the environment, and saves memory)
 def load_blurb_cache():
     """Load cached blurbs from file"""
     try:
@@ -42,22 +41,10 @@ def save_blurb_cache(cache):
     except Exception as e:
         print(f"Error saving blurb cache: {e}")
 
-# Initialize cache
+# initializing cache
 blurb_cache = load_blurb_cache()
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS subscribers (
-                    email TEXT PRIMARY KEY,
-                    verified INTEGER DEFAULT 0
-                )''')
-    conn.commit()
-    conn.close()
-
-init_db()
-
-# Define sports and API endpoints
+# define sports and API endpoints
 sports = {
     "nba": {"name": "NBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"},
     "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"},
@@ -115,24 +102,26 @@ def get_rivalry_score(home, away, league):
         return CBBrating.rivalry(home, away)
     return 0
 
+# blurb function using Claude AI
 def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
     """Use Claude AI to generate an exciting game blurb with caching"""
     
-    # Create a unique cache key for this game (includes today's date)
+    # create a unique cache key for this game (includes today's date)
     today = datetime.now().strftime('%Y%m%d')
     cache_key = f"{today}_{game_info['league']}_{game_info['home_team']}_{game_info['away_team']}"
     
-    # Check if we already generated this blurb today
+    # check if we already generated this blurb today
     if cache_key in blurb_cache:
         print(f"Using cached blurb for {game_info['home_team']} vs {game_info['away_team']}")
         return blurb_cache[cache_key]
     
-    # If we want fast loading, return fallback immediately and generate later
+    # since I want the website to actually load fast and so people don't have to wait a while, I chose to use a fallback if it is taking a while
     if use_fallback_if_not_cached:
         print(f"Using fallback for {game_info['home_team']} vs {game_info['away_team']}")
         return generate_fallback_blurb(game_info)
     
     try:
+        # generating the prompt here (prompt rules, good examples, and bad examples for Anthropic to use)
         prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
 
 League: {game_info['league']}
@@ -175,10 +164,10 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
         )
         
         blurb = message.content[0].text.strip()
-        # Remove any quotes that might be added
+        # remove any quotes that might be added
         blurb = blurb.strip('"').strip("'")
         
-        # Cache the result
+        # cache the result for future use
         blurb_cache[cache_key] = blurb
         save_blurb_cache(blurb_cache)
         
@@ -187,7 +176,8 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
     except Exception as e:
         print(f"Error generating blurb: {e}")
         print(f"API Key present: {bool(os.environ.get('ANTHROPIC_API_KEY'))}")
-        # Fallback to simple description
+        
+        # fallback to simple description
         if game_info.get('is_rivalry'):
             return "Rivalry matchup"
         return generate_fallback_blurb(game_info)
@@ -196,7 +186,7 @@ def generate_fallback_blurb(game_info):
     """Generate a quick rule-based blurb when AI isn't cached yet"""
     parts = []
     
-    # Add rankings if both teams are ranked
+    # add rankings if both teams are ranked
     if game_info.get('home_rank') and game_info['home_rank'] != "Unranked":
         if game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
             parts.append(f"{game_info['home_rank']} {game_info['home_team']} hosts {game_info['away_rank']} {game_info['away_team']}")
@@ -205,21 +195,21 @@ def generate_fallback_blurb(game_info):
     elif game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
         parts.append(f"{game_info['away_rank']} {game_info['away_team']} visits {game_info['home_team']}")
     
-    # Add rivalry info
+    # add rivalry info
     if game_info.get('is_rivalry'):
         if parts:
             parts.append("in rivalry matchup")
         else:
             parts.append(f"{game_info['home_team']} vs {game_info['away_team']} rivalry")
     
-    # Add conference
+    # add conference
     if game_info.get('conference') and game_info['conference'] != "N/A":
         if parts:
             parts.append(f"in {game_info['conference']}")
         else:
             parts.append(f"{game_info['conference']} matchup")
     
-    # Add record highlights
+    # add record highlights
     if not parts:
         home_rec = game_info.get('home_record', '')
         away_rec = game_info.get('away_record', '')
@@ -235,6 +225,7 @@ def generate_fallback_blurb(game_info):
 def index():
     selected_league = request.args.get("league", "all")
 
+    #gets whatever timezone you are in, trying to figure out how to cater the time it shoes you to your time zone still
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
@@ -244,6 +235,7 @@ def index():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     all_games = []
 
+    # now is the good part, going through each matchup finally
     for key, sport in sports.items():
 
         if selected_league != "all" and sport["name"].lower() != selected_league.lower():
@@ -253,13 +245,16 @@ def index():
             response = requests.get(sport["url"], params={"dates": today})
             data = response.json()
 
+            # getting every event that day
             for event in data.get("events", []):
                 competition = event["competitions"][0]
                 competitors = competition["competitors"]
 
+                # home and away abbreviations
                 home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
                 away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
 
+                #home and away team names
                 home_name = competitors[0]['team']['displayName']
                 away_name = competitors[1]['team']['displayName']
 
@@ -270,6 +265,7 @@ def index():
                     continue
 
                 try:
+                    #getting gametime
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
 
@@ -280,10 +276,12 @@ def index():
                 except:
                     continue
 
+                #getting live scores here
                 status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
                 home_score = competitors[0].get("score", "0")
                 away_score = competitors[1].get("score", "0")
 
+                # live scores
                 if status == "STATUS_IN_PROGRESS":
                     live_score = f"Live score: {home_score} - {away_score}"
                 elif status == "STATUS_FINAL":
@@ -291,22 +289,27 @@ def index():
                 else:
                     live_score = "Live score: Not Started"
 
+                # now getting the betting odds
+                # !!!!NOTE!!!!! - ESPN weirdly puts different variables for each of the sports (I am not sure why, but I want to find out)
+                # because of this, I have to split the odds parsing logic into three different parts. Each one does the same with different variables.
                 odds_info = competition.get("odds", [])
                 favored_display = "No moneyline"
                 spread_display = "No spread"
 
                 # NHL
                 if sport["name"] == "NHL" and odds_info:
+                    #getting spread and moneyline
                     odds_item = odds_info[0]  
                     details = odds_item.get("details", "")
                     spread = odds_item.get("spread", None)
-                
+
                     away_team_odds = odds_item.get("awayTeamOdds", {}).get("team", {}).get("displayName", "Away")
                     home_team_odds = odds_item.get("homeTeamOdds", {}).get("team", {}).get("displayName", "Home")
                 
                     home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
                     away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
-                
+
+                    # determining what moneyline to send out (ie. whos favored)
                     if home_ml is not None and away_ml is not None:
                         if home_ml < away_ml:
                             favored_display = f"{home_team_odds} {home_ml}"
@@ -314,7 +317,8 @@ def index():
                             favored_display = f"{away_team_odds} {away_ml}"
                     elif details:
                         favored_display = details
-                
+                        
+                    # determining what spread to send out (ie. whos favored)
                     if spread is not None:
                         if spread > 0:
                             spread = -abs(spread)
@@ -329,11 +333,14 @@ def index():
                         favored_display = "No odds available - Game in Progress"
                         spread_display = "No odds available - Game in Progress"
                 
-                # NBA, NFL, and CBB (College Basketball)
+                # NBA, NFL, and CBB
                 elif sport["name"] in ["NBA", "NFL", "CBB"] and odds_info:
+                    # getting spread
                     try:
                         spread_display = "No spread"
-                
+
+                        # different from NHL logic in the face that it labels the team as favorite, so I just made it so that if "x" team is
+                        # the favorite, then it just gets the odds off of that
                         for odds_item in odds_info:
                             away_odds = odds_item.get("awayTeamOdds", {})
                             home_odds = odds_item.get("homeTeamOdds", {})
@@ -356,7 +363,7 @@ def index():
                                 spread_display = odds_item["details"]
                                 break
                 
-                        # Determine moneyline favorite
+                        # determining moneyline
                         moneyline_data = competition.get("odds", [{}])[0].get("moneyline", {})
 
                         home_ml = moneyline_data.get("home", {}).get("close", {}).get("odds")
@@ -373,6 +380,7 @@ def index():
                         else:
                             favored_display = "No moneyline"
 
+                        # Not working right now, but I want it to say "No odds available - Game in Progress" instead of "No odds available"
                         if status == "STATUS_IN_PROGRESS" or status == "STATUS_FINAL":
                             favored_display = "No odds available - Game in Progress"
                             spread_display = "No odds available - Game in Progress"
@@ -381,9 +389,10 @@ def index():
                         favored_display = "No odds"
                         spread_display = "No spread"
 
-                # CFB (College Football)
+                # CFB
                 elif sport["name"] == "CFB" and odds_info:
                     try:
+                        # gets the spread and moneyline for both teams
                         odds_item = odds_info[0]
                         home_odds = odds_item.get("homeTeamOdds", {})
                         away_odds = odds_item.get("awayTeamOdds", {})
@@ -396,7 +405,8 @@ def index():
                         moneyline = competition.get("odds", [{}])[0].get("moneyline", {})
                         home_ml = moneyline.get("home", {}).get("close", {}).get("odds")
                         away_ml = moneyline.get("away", {}).get("close", {}).get("odds")
-                        
+
+                        # sees which moneyline to send out
                         if home_ml and away_ml:
                             if int(home_ml) < int(away_ml):
                                 favored_display = f"{home_name} {home_ml}"
@@ -404,17 +414,18 @@ def index():
                                 favored_display = f"{away_name} {away_ml}"
                         else:
                             favored_display = "No moneyline"
+
                         
                         spread = competition.get("odds", [{}])[0].get("pointSpread", {})
                         home_spread = spread.get("home", {}).get("close", {}).get("line")
                         away_spread = spread.get("away", {}).get("close", {}).get("line")
-                        
+
+                        # Sees which spread to send out
                         if home_spread and away_spread:
                             if home_ml and away_ml:
                                 favored_team = home_name if int(home_ml) < int(away_ml) else away_name
                                 spread_display = f"{favored_team} {home_spread}"
                             else:
-                                # fallback to home spread if no moneyline
                                 spread_display = f"{home_name} {home_spread}"
                         else:
                             spread_display = "No spread"
@@ -426,24 +437,24 @@ def index():
                         favored_display = "No moneyline"
                         spread_display = "No spread"
 
-                # Get game info for blurb generation
+                # get game info for blurb generation
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
                     is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
                     rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
                     
-                    # Gather additional info for blurb (but don't generate yet)
+                    # gather additional info for blurb (but don't generate yet)
                     home_record = competitors[0].get("records", [{}])[0].get("summary", "N/A")
                     away_record = competitors[1].get("records", [{}])[0].get("summary", "N/A")
                     home_rank = competitors[0].get("curatedRank", {}).get("current")
                     away_rank = competitors[1].get("curatedRank", {}).get("current")
                     conference = competition.get("groups", {}).get("shortName", "N/A")
                     
-                    # Format ranks
+                    # format ranks
                     home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
                     away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
                     
-                    # Store game info for later blurb generation
+                    # store game info for later blurb generation
                     game_blurb_info = {
                         'league': sport['name'],
                         'home_team': home_name,
@@ -463,6 +474,7 @@ def index():
                     game_blurb_info = None
                 
                 try:
+                    # gets the network where each game is being broadcasted
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
                     networks = []
@@ -473,16 +485,16 @@ def index():
                     for gb in geo_broadcasts:
                         if gb.get("media") and gb["media"].get("shortName"):
                             networks.append(gb["media"]["shortName"])
-                    where_to_watch = ", ".join(sorted(set(networks))) if networks else "Coming soon..."
+                    where_to_watch = ", ".join(sorted(set(networks))) if networks else "No networks..."
                 except:
-                    where_to_watch = "Coming soon..."
+                    where_to_watch = "No networks..."
 
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
                     "score": score,
-                    "description": None,  # Will be filled in later for top 10
-                    "game_blurb_info": game_blurb_info,  # Store info for later
+                    "description": None,  # sill be filled in later for top 10
+                    "game_blurb_info": game_blurb_info,  # store info for later
                     "time": game_time,
                     "favored": favored_display,
                     "favored_spread": spread_display,
@@ -494,18 +506,18 @@ def index():
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
-    # Sort and get top 10 games
+    # sort and get top 10 games
     filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
-    # NOW generate AI blurbs ONLY for the top 10 games
+    # NOW generate AI blurbs ONLY for the top 10 games to save data, memory, and better for environment
     for game in filtered_ranked:
         if game.get("game_blurb_info"):
             try:
-                # Always try AI first, use cached if available
+                # always try AI first, use cached if available
                 game["description"] = generate_game_blurb(game["game_blurb_info"], use_fallback_if_not_cached=False)
             except Exception as e:
                 print(f"Error generating blurb for {game['matchup']}: {e}")
-                # Use fallback only on error
+                # use fallback only on error
                 if game.get("game_blurb_info"):
                     game["description"] = generate_fallback_blurb(game["game_blurb_info"])
                 else:
@@ -513,12 +525,13 @@ def index():
         else:
             game["description"] = "Exciting matchup"
         
-        # Remove the temp blurb info
+        # remove the temp blurb info
         if "game_blurb_info" in game:
             del game["game_blurb_info"]
 
     return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league)
 
+# routes for each page
 @app.route('/about')
 def about():
     return render_template('about.html')
@@ -527,6 +540,7 @@ def about():
 def formula():
     return render_template("formula.html")
 
+# email stuff (coming soon...)
 @app.route("/subscribe", methods=["POST"])
 def subscribe():
     email = request.form.get("email")
