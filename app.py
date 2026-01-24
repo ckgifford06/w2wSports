@@ -20,8 +20,10 @@ app = Flask(__name__)
 DB_PATH = "emails.db"
 BLURB_CACHE_FILE = "blurb_cache.json"
 
+# Initialize Anthropic client (you'll need to set ANTHROPIC_API_KEY environment variable)
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
+# Load blurb cache from file
 def load_blurb_cache():
     """Load cached blurbs from file"""
     try:
@@ -40,6 +42,7 @@ def save_blurb_cache(cache):
     except Exception as e:
         print(f"Error saving blurb cache: {e}")
 
+# Initialize cache
 blurb_cache = load_blurb_cache()
 
 def init_db():
@@ -126,10 +129,11 @@ def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
     
     # If we want fast loading, return fallback immediately and generate later
     if use_fallback_if_not_cached:
+        print(f"Using fallback for {game_info['home_team']} vs {game_info['away_team']}")
         return generate_fallback_blurb(game_info)
     
     try:
-        prompt = f"""Generate a brief, exciting 1-sentence description (max 20 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
+        prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
 
 League: {game_info['league']}
 Matchup: {game_info['home_team']} vs {game_info['away_team']}
@@ -147,7 +151,6 @@ IMPORTANT RULES:
 3. NAME THE CONFERENCE specifically (e.g., "Big Ten", "A-10", "ACC")
 4. If it's a rivalry (score > 7), mention that it's a rivalry
 5. Highlight what makes THIS specific matchup interesting TODAY
-6. Use a variety of words. Don't just use "clash" or battle. You can use them, but you do not have to.
 
 Good Examples:
 - "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
@@ -162,7 +165,7 @@ Bad Examples (too generic):
 
 Only return the blurb, nothing else. Be specific with numbers, names, and details."""
 
-        print(f"Generating NEW blurb for {game_info['home_team']} vs {game_info['away_team']}")
+        print(f"Generating NEW AI blurb for {game_info['home_team']} vs {game_info['away_team']}")
         message = client.messages.create(
             model="claude-sonnet-4-20250514",
             max_tokens=100,
@@ -172,20 +175,22 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
         )
         
         blurb = message.content[0].text.strip()
-
+        # Remove any quotes that might be added
         blurb = blurb.strip('"').strip("'")
         
         # Cache the result
         blurb_cache[cache_key] = blurb
         save_blurb_cache(blurb_cache)
         
+        print(f"Generated: {blurb}")
         return blurb
     except Exception as e:
         print(f"Error generating blurb: {e}")
+        print(f"API Key present: {bool(os.environ.get('ANTHROPIC_API_KEY'))}")
         # Fallback to simple description
         if game_info.get('is_rivalry'):
             return "Rivalry matchup"
-        return "No extra info available."
+        return generate_fallback_blurb(game_info)
 
 def generate_fallback_blurb(game_info):
     """Generate a quick rule-based blurb when AI isn't cached yet"""
@@ -496,13 +501,17 @@ def index():
     for game in filtered_ranked:
         if game.get("game_blurb_info"):
             try:
-                # Generate AI blurb (or use fallback if not cached)
-                game["description"] = generate_game_blurb(game["game_blurb_info"], use_fallback_if_not_cached=True)
+                # Always try AI first, use cached if available
+                game["description"] = generate_game_blurb(game["game_blurb_info"], use_fallback_if_not_cached=False)
             except Exception as e:
-                print(f"Error generating blurb: {e}")
-                game["description"] = "No extra info available."
+                print(f"Error generating blurb for {game['matchup']}: {e}")
+                # Use fallback only on error
+                if game.get("game_blurb_info"):
+                    game["description"] = generate_fallback_blurb(game["game_blurb_info"])
+                else:
+                    game["description"] = "Exciting matchup"
         else:
-            game["description"] = "No extra info available."
+            game["description"] = "Exciting matchup"
         
         # Remove the temp blurb info
         if "game_blurb_info" in game:
