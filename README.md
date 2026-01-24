@@ -8,12 +8,12 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 
 **Supported Leagues**
 
-NBA (National Basketball Association)
-NFL (National Football League)
-NHL (National Hockey League)
-MLB (Major League Baseball)
-CFB (College Football)
-CBB (College Basketball)
+- NBA (National Basketball Association)
+- NFL (National Football League)
+- NHL (National Hockey League)
+- MLB (Major League Baseball)
+- CFB (NCAA College Football)
+- CBB (NCAA College Basketball)
 
 Tech Stack
 Backend:
