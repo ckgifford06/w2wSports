@@ -12,12 +12,39 @@ import smtplib
 from email.mime.text import MIMEText
 import sqlite3
 import os
+import anthropic
+import json
 
 app = Flask(__name__)
 
 DB_PATH = "emails.db"
+BLURB_CACHE_FILE = "blurb_cache.json"
 
-# In progress...
+# Initialize Anthropic client (you'll need to set ANTHROPIC_API_KEY environment variable)
+client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+# Load blurb cache from file
+def load_blurb_cache():
+    """Load cached blurbs from file"""
+    try:
+        if os.path.exists(BLURB_CACHE_FILE):
+            with open(BLURB_CACHE_FILE, 'r') as f:
+                return json.load(f)
+    except Exception as e:
+        print(f"Error loading blurb cache: {e}")
+    return {}
+
+def save_blurb_cache(cache):
+    """Save blurb cache to file"""
+    try:
+        with open(BLURB_CACHE_FILE, 'w') as f:
+            json.dump(cache, f)
+    except Exception as e:
+        print(f"Error saving blurb cache: {e}")
+
+# Initialize cache
+blurb_cache = load_blurb_cache()
+
 def init_db():
     conn = sqlite3.connect(DB_PATH)
     c = conn.cursor()
@@ -71,6 +98,92 @@ def rivalryMatchup(home, away, league):
         return (CBBrating.rivalry(home, away) > 5)
     else:
         return False
+
+def get_rivalry_score(home, away, league):
+    """Get the actual rivalry score value"""
+    if league == "NBA":
+        return NBArating.rivalry(home, away)
+    elif league == "NFL":
+        return NFLrating.rivalry(home, away)
+    elif league == "NHL":
+        return NHLrating.rivalry(home, away)
+    elif league == "MLB":
+        return MLBrating.rivalry(home, away)
+    elif league == "CFB":
+        return CFBrating.rivalry(home, away)
+    elif league == "CBB":
+        return CBBrating.rivalry(home, away)
+    return 0
+
+def generate_game_blurb(game_info):
+    """Use Claude AI to generate an exciting game blurb with caching"""
+    
+    # Create a unique cache key for this game (includes today's date)
+    today = datetime.now().strftime('%Y%m%d')
+    cache_key = f"{today}_{game_info['league']}_{game_info['home_team']}_{game_info['away_team']}"
+    
+    # Check if we already generated this blurb today
+    if cache_key in blurb_cache:
+        print(f"Using cached blurb for {game_info['home_team']} vs {game_info['away_team']}")
+        return blurb_cache[cache_key]
+    
+    try:
+        prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
+
+League: {game_info['league']}
+Matchup: {game_info['home_team']} vs {game_info['away_team']}
+Home Record: {game_info.get('home_record', 'N/A')}
+Away Record: {game_info.get('away_record', 'N/A')}
+Home Rank: {game_info.get('home_rank', 'Unranked')}
+Away Rank: {game_info.get('away_rank', 'Unranked')}
+Conference: {game_info.get('conference', 'N/A')}
+Rivalry Score: {game_info.get('rivalry_score', 0)} out of 12
+Is Rivalry: {game_info.get('is_rivalry', False)}
+
+IMPORTANT RULES:
+1. USE SPECIFIC RANKINGS when available (e.g., "#3 Michigan" not just "top-ranked")
+2. MENTION EXACT RECORDS when they tell a story (e.g., "18-1 Saint Louis" or "undefeated in conference")
+3. NAME THE CONFERENCE specifically (e.g., "Big Ten", "A-10", "ACC")
+4. If it's a rivalry (score > 7), mention that it's a rivalry
+5. Highlight what makes THIS specific matchup interesting TODAY
+
+Good Examples:
+- "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
+- "18-1 Saint Louis defends perfect A-10 record at St. Bonaventure"
+- "#1 Duke faces #5 UNC in college basketball's fiercest rivalry"
+- "Undefeated Gonzaga visits conference rival Saint Mary's in WCC showdown"
+
+Bad Examples (too generic):
+- "Top teams clash in important game"
+- "Conference matchup features ranked opponents"
+- "Rivals meet in exciting contest"
+
+Only return the blurb, nothing else. Be specific with numbers, names, and details."""
+
+        print(f"Generating NEW blurb for {game_info['home_team']} vs {game_info['away_team']}")
+        message = client.messages.create(
+            model="claude-sonnet-4-20250514",
+            max_tokens=100,
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        
+        blurb = message.content[0].text.strip()
+        # Remove any quotes that might be added
+        blurb = blurb.strip('"').strip("'")
+        
+        # Cache the result
+        blurb_cache[cache_key] = blurb
+        save_blurb_cache(blurb_cache)
+        
+        return blurb
+    except Exception as e:
+        print(f"Error generating blurb: {e}")
+        # Fallback to simple description
+        if game_info.get('is_rivalry'):
+            return "Rivalry matchup"
+        return "No extra info available."
 
 
 @app.route('/')
@@ -267,16 +380,45 @@ def index():
                     except:
                         favored_display = "No moneyline"
                         spread_display = "No spread"
-                        print(f"Error parsing CFB odds: {e}")
 
-                rivalInfo = ""
+                # Get game info for AI blurb generation
                 try:
                     score = calculate_score(home_abbr, away_abbr, sport["name"])
-                    if rivalryMatchup(home_abbr, away_abbr, sport["name"]):
-                        rivalInfo = "Rivalry Matchup"
-                except:
+                    is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
+                    rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
+                    
+                    # Gather additional info
+                    home_record = competitors[0].get("records", [{}])[0].get("summary", "N/A")
+                    away_record = competitors[1].get("records", [{}])[0].get("summary", "N/A")
+                    home_rank = competitors[0].get("curatedRank", {}).get("current")
+                    away_rank = competitors[1].get("curatedRank", {}).get("current")
+                    conference = competition.get("groups", {}).get("shortName", "N/A")
+                    
+                    # Format ranks
+                    home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
+                    away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
+                    
+                    # Generate AI blurb
+                    game_info = {
+                        'league': sport['name'],
+                        'home_team': home_name,
+                        'away_team': away_name,
+                        'home_record': home_record,
+                        'away_record': away_record,
+                        'home_rank': home_rank_str,
+                        'away_rank': away_rank_str,
+                        'conference': conference,
+                        'rivalry_score': rivalry_score,
+                        'is_rivalry': is_rivalry
+                    }
+                    
+                    rivalInfo = generate_game_blurb(game_info)
+                    
+                except Exception as e:
+                    print(f"Error generating game info: {e}")
                     score = 0
-                    rivalInfo = ""
+                    rivalInfo = "No extra info available."
+                
                 try:
                     broadcasts = competition.get("broadcasts", [])
                     geo_broadcasts = competition.get("geoBroadcasts", [])
