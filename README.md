@@ -60,53 +60,35 @@ AI Blurb Generation
 Game descriptions are generated using Claude AI for the top 10 ranked games only. This keeps API costs low (around $0.10/month) while still providing quality descriptions for the games that matter.
 The system caches blurbs in a JSON file so each game only needs one API call per day, regardless of how many visitors the site gets. If the cache is empty or the API fails, a rule-based fallback generates descriptions using team rankings, records, and conference information.
 
-Project Structure
-/
-├── app.py                 # Main Flask application
-├── NBArating.py          # NBA game scoring logic
-├── NFLrating.py          # NFL game scoring logic
-├── NHLrating.py          # NHL game scoring logic
-├── MLBrating.py          # MLB game scoring logic
-├── CFBrating.py          # College football scoring logic
-├── CBBrating.py          # College basketball scoring logic
-├── templates/
-│   ├── index.html        # Main page template
-│   ├── about.html        # About page
-│   └── formula.html      # Scoring methodology explanation
-├── emails.db             # SQLite database
-├── blurb_cache.json      # Cached AI descriptions
-├── requirements.txt      # Python dependencies
-└── README.md            # This file
+## Configuration
 
+- Timezone: The site defaults to US/Eastern but can be changed via the tz query parameter.
+- League Filter: Users can filter by specific leagues using the dropdown menu or by passing ?league=NBA in the URL.
+- Rivalry Scores: Edit the rivalries list in each rating file to add or modify rivalries.
+- Marketability Scores: Team popularity scores are defined in the team_marketability dictionary in each rating file.
+- Tournament Modes: Set march_madness = True or conference_tournament = True in CBBrating.py to boost importance scores during tournament season.
 
-Configuration
-
-Timezone: The site defaults to US/Eastern but can be changed via the tz query parameter.
-League Filter: Users can filter by specific leagues using the dropdown menu or by passing ?league=NBA in the URL.
-Rivalry Scores: Edit the rivalries list in each rating file to add or modify rivalries.
-Marketability Scores: Team popularity scores are defined in the team_marketability dictionary in each rating file.
-Tournament Modes: Set march_madness = True or conference_tournament = True in CBBrating.py to boost importance scores during tournament season.
-Cost Considerations
+## Cost Considerations
 With the current caching setup, the Anthropic API costs are minimal:
 
 10 games per day = $0.003/day
 Monthly cost: ~$0.10
 
 The site generates AI blurbs only for the top 10 games and caches them. Subsequent visitors see cached blurbs at no additional cost.
-Future Features
 
-Email subscription system with daily game recommendations
-User preference saving for favorite teams and leagues
-Historical game data and trending analysis
-Mobile app version
-Live score updates via WebSocket
+## Future Features
 
-Credits
+- Email subscription system with daily game recommendations
+- User preference saving for favorite teams and leagues
+- Historical game data and trending analysis
+- Mobile app version
+
+## Credits
 Game data provided by ESPN's public APIs. Betting odds via DraftKings Sportsbook. AI descriptions powered by Anthropic Claude.
 
-License
+## License
 This is a personal project. Feel free to fork and modify for your own use.
 
-Contact Info:
-Charles Gifford (giffor@bc.edu)
-Vic Ganson (gansonv@bc.edu)
+## Contact Info:
+- Charles Gifford (giffor@bc.edu)
+- Vic Ganson (gansonv@bc.edu)
