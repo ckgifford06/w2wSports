@@ -19,9 +19,9 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 **Tech Stack**
 Backend:
 
-Python 3.x
-Flask - web framework for handling routes and rendering templates
-Requests - making HTTP calls to ESPN APIs
+- Python 3.x
+- Flask - web framework for handling routes and rendering templates
+- Requests - making HTTP calls to ESPN APIs
 
 Frontend:
 
