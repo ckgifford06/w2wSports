@@ -16,43 +16,44 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 - CBB (NCAA College Basketball)
 
 ## How it's made
-**Tech Stack**
-*Backend:*
+
+**Backend:**
 
 - Python 3.x
 - Flask - web framework for handling routes and rendering templates
 - Requests - making HTTP calls to ESPN APIs
 
-Frontend:
+**Frontend:**
 
-HTML/CSS with Jinja2 templating
-Vanilla JavaScript for interactivity
-Google Analytics for traffic tracking
+- HTML/CSS with Jinja2 templating
+- Vanilla JavaScript for interactivity
+- Google Analytics for traffic tracking
 
-APIs:
+**APIs:**
 
-ESPN Scoreboard APIs - game data, scores, odds, and broadcast info
-Anthropic Claude API - generating contextual game descriptions
+- ESPN Scoreboard APIs - game data, scores, odds, and broadcast info
+- Anthropic Claude API - generating contextual game descriptions
 
-Hosting:
+**Hosting:**
 
-Render - deployment platform
-SQLite - database for email subscriptions and blurb caching
+- Render - deployment platform
+- SQLite - database for email subscriptions and blurb caching
 
-Other:
+**Other:**
 
-PyTZ - timezone handling for displaying games in user's local time
-SMTP - email verification system (in progress)
+- PyTZ - timezone handling for displaying games in user's local time
+- SMTP - email verification system (in progress)
 
-How the Scoring Works
+## How the Scoring Works
 
-Each game gets a score based on five components:
+**Each game gets a score based on five components:**
 
-Rivalry (0-12 points): Historical matchups between teams. Duke vs UNC gets 12 points, while non-rivalry games get 0.
-Marketability (10-20 points): Team popularity and media market size. Lakers, Celtics, and Duke are high value.
-Competitiveness (0-6.67 points): How evenly matched the teams are based on their win-loss records. Closer records mean higher scores.
-Quality of Play (0-8.5 points): Combined win percentage of both teams. Two good teams playing each other scores higher.
-Game Importance (0-14 points regular season, up to 24 for tournaments): Late season games, ranked matchups, playoff implications, and tournament games all increase this score.
+- Rivalry (0-12 points): Historical matchups between teams. Duke vs UNC gets 12 points, while non-rivalry games get 0.
+- Marketability (10-20 points): Team popularity and media market size. Lakers, Celtics, and Duke are high value.
+- Competitiveness (0-6.67 points): How evenly matched the teams are based on their win-loss records. Closer records mean higher scores.
+- Quality of Play (0-8.5 points): Combined win percentage of both teams. Two good teams playing each other scores higher.
+- Game Importance (0-14 points regular season, up to 24 for tournaments): Late season games, ranked matchups, playoff implications, and tournament games all increase this score.
+- 
 The formula varies slightly by sport but follows the same general structure. Each league has its own rating module (NBArating.py, CBBrating.py, etc.) with sport-specific rivalries and adjustments.
 
 AI Blurb Generation
