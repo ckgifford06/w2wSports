@@ -15,7 +15,8 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 - CFB (NCAA College Football)
 - CBB (NCAA College Basketball)
 
-Tech Stack
+## How it's made
+**Tech Stack**
 Backend:
 
 Python 3.x
