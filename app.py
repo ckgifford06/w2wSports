@@ -10,59 +10,120 @@ import CFBrating
 import CBBrating
 import smtplib
 from email.mime.text import MIMEText
-import sqlite3
 import os
 import anthropic
+import psycopg2
+from psycopg2 import pool
+from urllib.parse import urlparse
 
 app = Flask(__name__)
 
-DB_PATH = "emails.db"
+# Get database URL from environment (Render provides this automatically)
+DATABASE_URL = os.environ.get('DATABASE_URL')
+
+# Parse the database URL
+if DATABASE_URL:
+    # Render PostgreSQL URLs start with postgres://, but psycopg2 needs postgresql://
+    if DATABASE_URL.startswith('postgres://'):
+        DATABASE_URL = DATABASE_URL.replace('postgres://', 'postgresql://', 1)
+
+# Create connection pool for PostgreSQL
+db_pool = None
+if DATABASE_URL:
+    try:
+        db_pool = psycopg2.pool.SimpleConnectionPool(1, 10, DATABASE_URL)
+        print("PostgreSQL connection pool created successfully")
+    except Exception as e:
+        print(f"Error creating database pool: {e}")
 
 # initializing Anthropic (Claude AI) here
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
+def get_db_connection():
+    """Get a connection from the pool"""
+    if db_pool:
+        return db_pool.getconn()
+    return None
+
+def release_db_connection(conn):
+    """Return connection to the pool"""
+    if db_pool and conn:
+        db_pool.putconn(conn)
+
 def init_db():
     """Initialize database with subscribers and blurb cache tables"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS subscribers (
-                    email TEXT PRIMARY KEY,
-                    verified INTEGER DEFAULT 0
-                )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS blurb_cache (
-                    cache_key TEXT PRIMARY KEY,
-                    blurb TEXT,
-                    created_at TEXT
-                )''')
-    conn.commit()
-    conn.close()
+    conn = get_db_connection()
+    if not conn:
+        print("No database connection available")
+        return
+    
+    try:
+        cur = conn.cursor()
+        
+        # Create subscribers table
+        cur.execute('''CREATE TABLE IF NOT EXISTS subscribers (
+                        email VARCHAR(255) PRIMARY KEY,
+                        verified INTEGER DEFAULT 0
+                    )''')
+        
+        # Create blurb_cache table
+        cur.execute('''CREATE TABLE IF NOT EXISTS blurb_cache (
+                        cache_key VARCHAR(500) PRIMARY KEY,
+                        blurb TEXT,
+                        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    )''')
+        
+        conn.commit()
+        cur.close()
+        print("Database tables initialized successfully")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+        conn.rollback()
+    finally:
+        release_db_connection(conn)
 
 init_db()
 
 def get_cached_blurb(cache_key):
     """Retrieve a cached blurb from database"""
+    conn = get_db_connection()
+    if not conn:
+        return None
+    
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("SELECT blurb FROM blurb_cache WHERE cache_key = ?", (cache_key,))
-        result = c.fetchone()
-        conn.close()
+        cur = conn.cursor()
+        cur.execute("SELECT blurb FROM blurb_cache WHERE cache_key = %s", (cache_key,))
+        result = cur.fetchone()
+        cur.close()
         return result[0] if result else None
     except Exception as e:
         print(f"Error retrieving cached blurb: {e}")
         return None
+    finally:
+        release_db_connection(conn)
 
 def save_cached_blurb(cache_key, blurb):
     """Save a blurb to database cache"""
+    conn = get_db_connection()
+    if not conn:
+        print("No database connection available for saving blurb")
+        return
+    
     try:
-        conn = sqlite3.connect(DB_PATH)
-        c = conn.cursor()
-        c.execute("INSERT OR REPLACE INTO blurb_cache (cache_key, blurb, created_at) VALUES (?, ?, ?)",
-                  (cache_key, blurb, datetime.now().isoformat()))
+        cur = conn.cursor()
+        cur.execute("""
+            INSERT INTO blurb_cache (cache_key, blurb, created_at) 
+            VALUES (%s, %s, %s)
+            ON CONFLICT (cache_key) 
+            DO UPDATE SET blurb = EXCLUDED.blurb, created_at = EXCLUDED.created_at
+        """, (cache_key, blurb, datetime.now()))
         conn.commit()
-        conn.close()
+        cur.close()
     except Exception as e:
         print(f"Error saving cached blurb: {e}")
+        conn.rollback()
+    finally:
+        release_db_connection(conn)
 
 # define sports and API endpoints
 sports = {
@@ -581,14 +642,23 @@ def subscribe():
     if not email:
         return jsonify({"error": "Email required"}), 400
 
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT OR IGNORE INTO subscribers (email) VALUES (?)", (email,))
-    conn.commit()
-    conn.close()
-
-    send_verification_email(email)
-    return "Verification email sent! Please check your inbox."
+    conn = get_db_connection()
+    if not conn:
+        return jsonify({"error": "Database unavailable"}), 500
+    
+    try:
+        cur = conn.cursor()
+        cur.execute("INSERT INTO subscribers (email) VALUES (%s) ON CONFLICT (email) DO NOTHING", (email,))
+        conn.commit()
+        cur.close()
+        send_verification_email(email)
+        return "Verification email sent! Please check your inbox."
+    except Exception as e:
+        print(f"Error subscribing: {e}")
+        conn.rollback()
+        return jsonify({"error": "Subscription failed"}), 500
+    finally:
+        release_db_connection(conn)
 
 def send_verification_email(email):
     verify_link = f"https://yourdomain.com/verify?email={email}"
@@ -605,12 +675,22 @@ def send_verification_email(email):
 @app.route("/verify")
 def verify():
     email = request.args.get("email")
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("UPDATE subscribers SET verified = 1 WHERE email = ?", (email,))
-    conn.commit()
-    conn.close()
-    return f"Thanks {email}, you're verified!"
+    conn = get_db_connection()
+    if not conn:
+        return "Database unavailable", 500
+    
+    try:
+        cur = conn.cursor()
+        cur.execute("UPDATE subscribers SET verified = 1 WHERE email = %s", (email,))
+        conn.commit()
+        cur.close()
+        return f"Thanks {email}, you're verified!"
+    except Exception as e:
+        print(f"Error verifying: {e}")
+        conn.rollback()
+        return "Verification failed", 500
+    finally:
+        release_db_connection(conn)
 
 if __name__ == '__main__':
     import os
