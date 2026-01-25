@@ -161,6 +161,7 @@ IMPORTANT RULES:
 3. NAME THE CONFERENCE specifically (e.g., "Big Ten", "A-10", "ACC")
 4. If it's a rivalry (score > 7), mention that it's a rivalry
 5. Highlight what makes THIS specific matchup interesting TODAY
+6. Make sure the home and away teams are correct. 
 
 Good Examples:
 - "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
