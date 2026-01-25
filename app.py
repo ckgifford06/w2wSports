@@ -270,16 +270,30 @@ def index():
                 competition = event["competitions"][0]
                 competitors = competition["competitors"]
 
+                # determine which team is home and which is away based on homeAway field
+                home_competitor = None
+                away_competitor = None
+                for comp in competitors:
+                    if comp.get("homeAway") == "home":
+                        home_competitor = comp
+                    elif comp.get("homeAway") == "away":
+                        away_competitor = comp
+                
+                # fallback to index-based if homeAway not found
+                if not home_competitor or not away_competitor:
+                    home_competitor = competitors[0]
+                    away_competitor = competitors[1]
+
                 # home and away abbreviations
-                home_abbr = f"{competitors[0]['team']['abbreviation']}_{sport['name']}"
-                away_abbr = f"{competitors[1]['team']['abbreviation']}_{sport['name']}"
+                home_abbr = f"{home_competitor['team']['abbreviation']}_{sport['name']}"
+                away_abbr = f"{away_competitor['team']['abbreviation']}_{sport['name']}"
 
                 #home and away team names
-                home_name = competitors[0]['team']['displayName']
-                away_name = competitors[1]['team']['displayName']
+                home_name = home_competitor['team']['displayName']
+                away_name = away_competitor['team']['displayName']
 
-                home_team = competitors[0]["team"]
-                away_team = competitors[1]["team"]
+                home_team = home_competitor["team"]
+                away_team = away_competitor["team"]
 
                 if home_team["abbreviation"] == "TBD" or away_team["abbreviation"] == "TBD":
                     continue
@@ -298,8 +312,8 @@ def index():
 
                 #getting live scores here
                 status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
-                home_score = competitors[0].get("score", "0")
-                away_score = competitors[1].get("score", "0")
+                home_score = home_competitor.get("score", "0")
+                away_score = away_competitor.get("score", "0")
 
                 # live scores
                 if status == "STATUS_IN_PROGRESS":
@@ -464,10 +478,10 @@ def index():
                     rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
                     
                     # gather additional info for blurb (but don't generate yet)
-                    home_record = competitors[0].get("records", [{}])[0].get("summary", "N/A")
-                    away_record = competitors[1].get("records", [{}])[0].get("summary", "N/A")
-                    home_rank = competitors[0].get("curatedRank", {}).get("current")
-                    away_rank = competitors[1].get("curatedRank", {}).get("current")
+                    home_record = home_competitor.get("records", [{}])[0].get("summary", "N/A")
+                    away_record = away_competitor.get("records", [{}])[0].get("summary", "N/A")
+                    home_rank = home_competitor.get("curatedRank", {}).get("current")
+                    away_rank = away_competitor.get("curatedRank", {}).get("current")
                     conference = competition.get("groups", {}).get("shortName", "N/A")
                     
                     # format ranks
