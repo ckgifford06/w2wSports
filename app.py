@@ -13,36 +13,56 @@ from email.mime.text import MIMEText
 import sqlite3
 import os
 import anthropic
-import json
 
 app = Flask(__name__)
 
-BLURB_CACHE_FILE = "blurb_cache.json"
+DB_PATH = "emails.db"
 
 # initializing Anthropic (Claude AI) here
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
 
-# load blurb cache from file (saves me money, is better for the environment, and saves memory)
-def load_blurb_cache():
-    """Load cached blurbs from file"""
-    try:
-        if os.path.exists(BLURB_CACHE_FILE):
-            with open(BLURB_CACHE_FILE, 'r') as f:
-                return json.load(f)
-    except Exception as e:
-        print(f"Error loading blurb cache: {e}")
-    return {}
+def init_db():
+    """Initialize database with subscribers and blurb cache tables"""
+    conn = sqlite3.connect(DB_PATH)
+    c = conn.cursor()
+    c.execute('''CREATE TABLE IF NOT EXISTS subscribers (
+                    email TEXT PRIMARY KEY,
+                    verified INTEGER DEFAULT 0
+                )''')
+    c.execute('''CREATE TABLE IF NOT EXISTS blurb_cache (
+                    cache_key TEXT PRIMARY KEY,
+                    blurb TEXT,
+                    created_at TEXT
+                )''')
+    conn.commit()
+    conn.close()
 
-def save_blurb_cache(cache):
-    """Save blurb cache to file"""
-    try:
-        with open(BLURB_CACHE_FILE, 'w') as f:
-            json.dump(cache, f)
-    except Exception as e:
-        print(f"Error saving blurb cache: {e}")
+init_db()
 
-# initializing cache
-blurb_cache = load_blurb_cache()
+def get_cached_blurb(cache_key):
+    """Retrieve a cached blurb from database"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("SELECT blurb FROM blurb_cache WHERE cache_key = ?", (cache_key,))
+        result = c.fetchone()
+        conn.close()
+        return result[0] if result else None
+    except Exception as e:
+        print(f"Error retrieving cached blurb: {e}")
+        return None
+
+def save_cached_blurb(cache_key, blurb):
+    """Save a blurb to database cache"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute("INSERT OR REPLACE INTO blurb_cache (cache_key, blurb, created_at) VALUES (?, ?, ?)",
+                  (cache_key, blurb, datetime.now().isoformat()))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error saving cached blurb: {e}")
 
 # define sports and API endpoints
 sports = {
@@ -104,16 +124,17 @@ def get_rivalry_score(home, away, league):
 
 # blurb function using Claude AI
 def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
-    """Use Claude AI to generate an exciting game blurb with caching"""
+    """Use Claude AI to generate an exciting game blurb with database caching"""
     
     # create a unique cache key for this game (includes today's date)
     today = datetime.now().strftime('%Y%m%d')
     cache_key = f"{today}_{game_info['league']}_{game_info['home_team']}_{game_info['away_team']}"
     
-    # check if we already generated this blurb today
-    if cache_key in blurb_cache:
+    # check if we already generated this blurb today (from database)
+    cached_blurb = get_cached_blurb(cache_key)
+    if cached_blurb:
         print(f"Using cached blurb for {game_info['home_team']} vs {game_info['away_team']}")
-        return blurb_cache[cache_key]
+        return cached_blurb
     
     # since I want the website to actually load fast and so people don't have to wait a while, I chose to use a fallback if it is taking a while
     if use_fallback_if_not_cached:
@@ -167,9 +188,8 @@ Only return the blurb, nothing else. Be specific with numbers, names, and detail
         # remove any quotes that might be added
         blurb = blurb.strip('"').strip("'")
         
-        # cache the result for future use
-        blurb_cache[cache_key] = blurb
-        save_blurb_cache(blurb_cache)
+        # cache the result in database for future use
+        save_cached_blurb(cache_key, blurb)
         
         print(f"Generated: {blurb}")
         return blurb
@@ -493,7 +513,7 @@ def index():
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
                     "score": score,
-                    "description": None,  # sill be filled in later for top 10
+                    "description": None,  # will be filled in later for top 10
                     "game_blurb_info": game_blurb_info,  # store info for later
                     "time": game_time,
                     "favored": favored_display,
