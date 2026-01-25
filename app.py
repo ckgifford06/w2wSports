@@ -162,6 +162,7 @@ IMPORTANT RULES:
 4. If it's a rivalry (score > 7), mention that it's a rivalry
 5. Highlight what makes THIS specific matchup interesting TODAY
 6. Make sure the home and away teams are correct. 
+7. Do NOT use the phrase "home record" at all.
 
 Good Examples:
 - "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
