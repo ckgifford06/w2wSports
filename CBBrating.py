@@ -80,6 +80,11 @@ def buildRecords():
     """Build records dictionary from API data"""
     data = getData()
     records = {}
+    
+    if not data.get("events"):
+        print("WARNING: No events found in CBB API data")
+        return records
+    
     for event in data.get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_CBB"
@@ -89,6 +94,13 @@ def buildRecords():
             else:
                 record = "0-0"
             records[team_abbr] = record
+    
+    print(f"DEBUG buildRecords: Found {len(records)} teams with records")
+    if len(records) > 0:
+        # Show first few records as example
+        sample = list(records.items())[:3]
+        print(f"DEBUG Sample records: {sample}")
+    
     return records
 
 def buildSeeds():
@@ -147,6 +159,8 @@ def qualityOfPlay(home, away):
     homeRecord = records.get(home, "0-0")
     awayRecord = records.get(away, "0-0")
     
+    print(f"DEBUG qualityOfPlay lookup: {home} -> {homeRecord}, {away} -> {awayRecord}")
+    
     try:
         home_parts = homeRecord.split("-")
         away_parts = awayRecord.split("-")
@@ -160,9 +174,11 @@ def qualityOfPlay(home, away):
         gamesPlayed = float(home_wins + home_losses + away_wins + away_losses)
         
         if gamesPlayed == 0:
+            print(f"DEBUG qualityOfPlay: gamesPlayed = 0")
             return 0
         
         quality = round(((combinedWins / gamesPlayed) * 10), 3)
+        print(f"DEBUG qualityOfPlay result: {quality}")
         return quality
     except (ValueError, IndexError) as e:
         print(f"Error calculating quality for {home} ({homeRecord}) vs {away} ({awayRecord}): {e}")
