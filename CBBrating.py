@@ -95,13 +95,6 @@ def buildRecords():
             else:
                 record = "0-0"
             records[team_abbr] = record
-    
-    print(f"DEBUG buildRecords: Found {len(records)} teams with records")
-    if len(records) > 0:
-        # Show first few records as example
-        sample = list(records.items())[:3]
-        print(f"DEBUG Sample records: {sample}")
-    
     return records
 
 def buildSeeds():
@@ -159,8 +152,6 @@ def qualityOfPlay(home, away):
     records = buildRecords()
     homeRecord = records.get(home, "0-0")
     awayRecord = records.get(away, "0-0")
-    
-    print(f"DEBUG qualityOfPlay lookup: {home} -> {homeRecord}, {away} -> {awayRecord}")
     
     try:
         home_parts = homeRecord.split("-")
