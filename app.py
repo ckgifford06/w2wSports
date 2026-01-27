@@ -9,35 +9,15 @@ import MLBrating
 import CFBrating
 import CBBrating
 import smtplib
-from email.mime.text import MIMEText
 import sqlite3
 import os
 import anthropic
 
 app = Flask(__name__)
 
-DB_PATH = "emails.db"
 
 # initializing Anthropic (Claude AI) here
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
-
-def init_db():
-    """Initialize database with subscribers and blurb cache tables"""
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute('''CREATE TABLE IF NOT EXISTS subscribers (
-                    email TEXT PRIMARY KEY,
-                    verified INTEGER DEFAULT 0
-                )''')
-    c.execute('''CREATE TABLE IF NOT EXISTS blurb_cache (
-                    cache_key TEXT PRIMARY KEY,
-                    blurb TEXT,
-                    created_at TEXT
-                )''')
-    conn.commit()
-    conn.close()
-
-init_db()
 
 def get_cached_blurb(cache_key):
     """Retrieve a cached blurb from database"""
@@ -575,44 +555,6 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html")
-
-# email stuff (coming soon...)
-@app.route("/subscribe", methods=["POST"])
-def subscribe():
-    email = request.form.get("email")
-    if not email:
-        return jsonify({"error": "Email required"}), 400
-
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT OR IGNORE INTO subscribers (email) VALUES (?)", (email,))
-    conn.commit()
-    conn.close()
-
-    send_verification_email(email)
-    return "Verification email sent! Please check your inbox."
-
-def send_verification_email(email):
-    verify_link = f"https://yourdomain.com/verify?email={email}"
-    msg = MIMEText(f"Click this link to verify your subscription:\n\n{verify_link}")
-    msg["Subject"] = "Confirm your subscription"
-    msg["From"] = "you@yourdomain.com"
-    msg["To"] = email
-
-    with smtplib.SMTP("smtp.gmail.com", 587) as server:
-        server.starttls()
-        server.login(os.getenv("GMAIL_USER"), os.getenv("GMAIL_APP_PASSWORD"))
-        server.send_message(msg)
-
-@app.route("/verify")
-def verify():
-    email = request.args.get("email")
-    conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("UPDATE subscribers SET verified = 1 WHERE email = ?", (email,))
-    conn.commit()
-    conn.close()
-    return f"Thanks {email}, you're verified!"
 
 if __name__ == '__main__':
     import os
