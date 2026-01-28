@@ -149,73 +149,9 @@ def generate_game_blurb(game_info, use_fallback_if_not_cached=False):
         print(f"Using cached blurb for {game_info['home_team']} vs {game_info['away_team']}")
         return cached_blurb
     
-    # since I want the website to actually load fast and so people don't have to wait a while, I chose to use a fallback if it is taking a while
-    if use_fallback_if_not_cached:
-        print(f"Using fallback for {game_info['home_team']} vs {game_info['away_team']}")
-        return generate_fallback_blurb(game_info)
-    
-    try:
-        # generating the prompt here (prompt rules, good examples, and bad examples for Anthropic to use)
-        prompt = f"""Generate a brief, exciting 1-sentence description (max 15 words) for this sports matchup. Be VERY SPECIFIC using the exact data provided.
-
-League: {game_info['league']}
-Matchup: {game_info['home_team']} vs {game_info['away_team']}
-Home Record: {game_info.get('home_record', 'N/A')}
-Away Record: {game_info.get('away_record', 'N/A')}
-Home Rank: {game_info.get('home_rank', 'Unranked')}
-Away Rank: {game_info.get('away_rank', 'Unranked')}
-Conference: {game_info.get('conference', 'N/A')}
-Rivalry Score: {game_info.get('rivalry_score', 0)} out of 12
-Is Rivalry: {game_info.get('is_rivalry', False)}
-
-IMPORTANT RULES:
-1. USE SPECIFIC RANKINGS when available (e.g., "#3 Michigan" not just "top-ranked")
-2. MENTION EXACT RECORDS when they tell a story (e.g., "18-1 Saint Louis" or "undefeated in conference")
-3. NAME THE CONFERENCE specifically (e.g., "Big Ten", "A-10", "ACC")
-4. If it's a rivalry (score > 7), mention that it's a rivalry
-5. Highlight what makes THIS specific matchup interesting TODAY
-6. Make sure the home and away teams are correct. 
-7. Do NOT use the phrase "home record" at all.
-
-Good Examples:
-- "#3 Michigan hosts rival Ohio State in crucial Big Ten battle"
-- "18-1 Saint Louis defends perfect A-10 record at St. Bonaventure"
-- "#1 Duke faces #5 UNC in college basketball's fiercest rivalry"
-- "Undefeated Gonzaga visits conference rival Saint Mary's in WCC showdown"
-
-Bad Examples (too generic):
-- "Top teams clash in important game"
-- "Conference matchup features ranked opponents"
-- "Rivals meet in exciting contest"
-
-Only return the blurb, nothing else. Be specific with numbers, names, and details."""
-
-        print(f"Generating NEW AI blurb for {game_info['home_team']} vs {game_info['away_team']}")
-        message = client.messages.create(
-            model="claude-sonnet-4-20250514",
-            max_tokens=100,
-            messages=[
-                {"role": "user", "content": prompt}
-            ]
-        )
-        
-        blurb = message.content[0].text.strip()
-        # remove any quotes that might be added
-        blurb = blurb.strip('"').strip("'")
-        
-        # cache the result in database for future use
-        save_cached_blurb(cache_key, blurb)
-        
-        print(f"Generated: {blurb}")
-        return blurb
-    except Exception as e:
-        print(f"Error generating blurb: {e}")
-        print(f"API Key present: {bool(os.environ.get('ANTHROPIC_API_KEY'))}")
-        
-        # fallback to simple description
-        if game_info.get('is_rivalry'):
-            return "Rivalry matchup"
-        return generate_fallback_blurb(game_info)
+    # ALWAYS use fallback during page load - never make API calls
+    print(f"Using fallback for {game_info['home_team']} vs {game_info['away_team']}")
+    return generate_fallback_blurb(game_info)
 
 def generate_fallback_blurb(game_info):
     """Generate a quick rule-based blurb when AI isn't cached yet"""
@@ -561,11 +497,11 @@ def index():
     # sort and get top 10 games
     filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
-    # NOW generate AI blurbs ONLY for the top 10 games to save data, memory, and better for environment
+    # NOW generate blurbs ONLY for the top 10 games (will use cached or fallback, NO API calls during page load)
     for game in filtered_ranked:
         if game.get("game_blurb_info"):
             try:
-                # always try AI first, use cached if available
+                # This will ONLY use cached blurbs or fallback - no API calls
                 game["description"] = generate_game_blurb(game["game_blurb_info"], use_fallback_if_not_cached=False)
             except Exception as e:
                 print(f"Error generating blurb for {game['matchup']}: {e}")
