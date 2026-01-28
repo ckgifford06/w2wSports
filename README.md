@@ -35,7 +35,6 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 **APIs:**
 
 - ESPN Scoreboard APIs - game data, scores, odds, and broadcast info
-- Anthropic Claude API - generating contextual game descriptions
 
 **Hosting:**
 
@@ -59,9 +58,6 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 
 The formula varies slightly by sport but follows the same general structure. Each league has its own rating module (NBArating.py, CBBrating.py, etc.) with sport-specific rivalries and adjustments.
 
-AI Blurb Generation
-Game descriptions are generated using Claude AI for the top 10 ranked games only. This keeps API costs low (around $0.10/month) while still providing quality descriptions for the games that matter.
-The system caches blurbs in a JSON file so each game only needs one API call per day, regardless of how many visitors the site gets. If the cache is empty or the API fails, a rule-based fallback generates descriptions using team rankings, records, and conference information.
 
 ## Configuration
 
@@ -71,13 +67,6 @@ The system caches blurbs in a JSON file so each game only needs one API call per
 - Marketability Scores: Team popularity scores are defined in the team_marketability dictionary in each rating file.
 - Tournament Modes: Set march_madness = True, conference_tournament = True, and playoffs = True in NHL, NBA, NFL, CFB in their respective rating files to boost importance scores during tournament season.
 
-## Cost Considerations
-With the current caching setup, the Anthropic API costs are minimal:
-
-10 games per day = $0.003/day
-Monthly cost: ~$0.10
-
-The site generates AI blurbs only for the top 10 games and caches them. Subsequent visitors see cached blurbs at no additional cost.
 
 ## Future Features
 
