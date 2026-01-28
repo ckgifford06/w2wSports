@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify
 import requests
-from datetime import datetime
+from datetime import datetime, timedelta
 import pytz
 import NBArating
 import NFLrating
@@ -18,6 +18,39 @@ app = Flask(__name__)
 
 # initializing Anthropic (Claude AI) here
 client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY"))
+
+# Add database path
+DB_PATH = os.path.join(os.path.dirname(__file__), 'blurb_cache.db')
+
+def init_db():
+    """Initialize the database with required tables"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        c.execute('''
+            CREATE TABLE IF NOT EXISTS blurb_cache (
+                cache_key TEXT PRIMARY KEY,
+                blurb TEXT NOT NULL,
+                created_at TEXT NOT NULL
+            )
+        ''')
+        conn.commit()
+        conn.close()
+        print(f"Database initialized at {DB_PATH}")
+    except Exception as e:
+        print(f"Error initializing database: {e}")
+
+def cleanup_old_cache():
+    """Remove cache entries older than 24 hours"""
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        yesterday = (datetime.now() - timedelta(days=1)).isoformat()
+        c.execute("DELETE FROM blurb_cache WHERE created_at < ?", (yesterday,))
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"Error cleaning cache: {e}")
 
 def get_cached_blurb(cache_key):
     """Retrieve a cached blurb from database"""
@@ -225,6 +258,9 @@ def generate_fallback_blurb(game_info):
 
 @app.route('/')
 def index():
+    # Clean up old cache entries
+    cleanup_old_cache()
+    
     selected_league = request.args.get("league", "all")
 
     #gets whatever timezone you are in, trying to figure out how to cater the time it shoes you to your time zone still
@@ -555,6 +591,9 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html")
+
+# Initialize database on startup
+init_db()
 
 if __name__ == '__main__':
     import os
