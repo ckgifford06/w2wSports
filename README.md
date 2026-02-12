@@ -76,7 +76,7 @@ The formula varies slightly by sport but follows the same general structure. Eac
 - Mobile app version
 
 ## Credits
-Game data provided by ESPN's public APIs. Betting odds via DraftKings Sportsbook. AI descriptions powered by Anthropic Claude.
+Game data provided by ESPN's public APIs. Betting odds via DraftKings Sportsbook. 
 
 ## License
 This is a personal project. Feel free to fork and modify for your own use.
