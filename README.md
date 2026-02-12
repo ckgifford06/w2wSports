@@ -38,7 +38,7 @@ The site pulls daily game schedules from ESPN's APIs and calculates a score for 
 
 **Hosting:**
 
-- Render - deployment platform
+- Vercel - deployment platform
 - SQLite - database for email subscriptions and blurb caching
 
 **Other:**
