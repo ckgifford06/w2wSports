@@ -6,9 +6,8 @@ import os
 
 app = Flask(__name__)
 
-# Lazy load rating modules only when needed to save memory
+# load rating modules only when needed to save memory
 def get_rating_module(league):
-    """Lazy load rating modules to reduce memory usage"""
     if league == "NBA":
         import NBArating
         return NBArating
@@ -59,7 +58,6 @@ def get_rivalry_score(home, away, league):
     return 0
 
 def generate_fallback_blurb(game_info):
-    """Generate a quick rule-based blurb"""
     parts = []
     
     # add rankings if both teams are ranked
