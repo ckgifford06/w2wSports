@@ -89,7 +89,7 @@ def buildRecords():
     for event in data.get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_CBB"
-            # Handle different record formats
+            # handle different record formats
             if competitor.get("records") and len(competitor["records"]) > 0:
                 record = competitor["records"][0].get("summary", "0-0")
             else:
@@ -126,12 +126,10 @@ def rivalry(home, away):
     return 0
 
 def marketability(home, away):
-    """Returns 10-20 based on team popularity"""
     base = team_marketability.get(home, 5) + team_marketability.get(away, 5)
     return base
 
 def competitiveness(home, away):
-    """Returns 0-6.67 based on how close teams are in record"""
     records = buildRecords()
     homeRecord = records.get(home, "0-0")
     awayRecord = records.get(away, "0-0")
@@ -148,7 +146,6 @@ def competitiveness(home, away):
     return compRank
 
 def qualityOfPlay(home, away):
-    """Returns 0-10 based on combined team quality"""
     records = buildRecords()
     homeRecord = records.get(home, "0-0")
     awayRecord = records.get(away, "0-0")
@@ -177,7 +174,6 @@ def qualityOfPlay(home, away):
         return 0
 
 def gameImportance(home, away):
-    """Returns 0-14 for regular season, up to 24 for tournaments"""
     importance = 0
     seeds = buildSeeds()
     records = buildRecords()
