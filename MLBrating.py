@@ -14,9 +14,11 @@ team_marketability = {
     "PHI_MLB": 8.5, "PIT_MLB": 6.5, "SD_MLB": 8, "SF_MLB": 9, "SEA_MLB": 7.5,
     "STL_MLB": 9, "TB_MLB": 7, "TEX_MLB": 8, "TOR_MLB": 8, "WSH_MLB": 7
 }
+# need to add more rivalries here
 rivalries = [
     ("BOS_MLB", "NYY_MLB", 10)
 ]
+
 def buildRecords():
     records = {}
     for event in data["events"]:
