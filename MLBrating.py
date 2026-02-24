@@ -21,7 +21,7 @@ def buildRecords():
     records = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
+            team_abbr = competitor["team"]["abbreviation"] + "_MLB"
             record = competitor["records"][0]["summary"]
             records[team_abbr] = record
     return records
@@ -29,7 +29,7 @@ def buildSeeds():
     seeds = {}
     for event in data["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
+            team_abbr = competitor["team"]["abbreviation"] + "_MLB"
             seed = competitor.get("seed", {}).get("rank", None)
             seeds[team_abbr] = int(seed) if seed else None
     return seeds
@@ -86,7 +86,7 @@ def gameImportance(home, away):
     awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
     home_seed = seeds.get(home)
     away_seed = seeds.get(away)
-    gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
+    gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
         importance += 30
     else:
