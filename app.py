@@ -118,7 +118,7 @@ def index():
     # now is the good part, going through each matchup finally
     for key, sport in sports.items():
 
-        if selected_league != "all" and sport["name"].lower() != selected_league.lower():
+        if True:  # all leagues always fetched — filtering handled client-side
             continue
 
         try:
@@ -401,9 +401,9 @@ def index():
             continue
 
     # sort and get top 10 games
-    filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
+    all_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)
 
-    return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league)
+    return render_template("index.html", matchups=all_ranked, selected_league=selected_league, active_page="home")
 
 # routes for each page
 @app.route('/about')
