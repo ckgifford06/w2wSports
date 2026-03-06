@@ -395,13 +395,13 @@ def index():
     # sort and get top 10 games
     filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
 
-    return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league)
+    return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league, active_page="home")
 
 # routes for each page
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', active_page='about')
 
 @app.route("/formula")
 def formula():
-    return render_template("formula.html")
+    return render_template("formula.html", active_page="formula")
