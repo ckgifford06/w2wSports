@@ -392,10 +392,9 @@ def index():
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
-    # sort and get top 10 games
-    filtered_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)[:10]
+    all_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)
 
-    return render_template("index.html", matchups=filtered_ranked, selected_league=selected_league, active_page="home")
+    return render_template("index.html", matchups=all_ranked, selected_league=selected_league, active_page="home")
 
 # routes for each page
 @app.route('/about')
