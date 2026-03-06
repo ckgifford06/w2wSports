@@ -1,213 +1,530 @@
-<html>
-<head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TYYDCDNEH"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+{% extends "base.html" %}
 
-    gtag('config', 'G-8TYYDCDNEH');
-  </script>
-  <title>W2W Sports — Top 10 Matchups</title>
-  <style>
-    .details-box {
-      display: none;
-      margin-top: 10px;
-      background-color: #BC9B6A;
-      color: #000;
-      border: 2px solid #000;
-      border-radius: 8px;
-      padding: 10px 15px 50px 15px;
-      font-size: 18px;
-      position: relative;
-      min-height: 80px;
-    }
+{% block title %}W2W Sports — Top Matchups Today{% endblock %}
 
+{% block extra_styles %}
+<style>
+  .filter-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
 
-    .live-score {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      font-size: 26px;
-      font-weight: bold;
-      color: #000;
-    }
+  .league-pills {
+    display: flex;
+    gap: 4px;
+  }
 
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #BC9B6A;
-      color: #ffffff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-    }
+  .pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+  }
 
-    nav {
-      background-color: #1f1f1f;
-      padding: 15px;
-      position: relative;
-      text-align: center;
-    }
+  .pill:hover {
+    border-color: var(--gold-muted);
+    color: var(--gold);
+  }
 
-    .filter-container {
-      position: absolute;
-      right: 25px;
-      top: 50%;
-      transform: translateY(-50%);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .filter-container select {
-      padding: 6px 10px;
-      border-radius: 6px;
-      background: #2c2c2c;
-      color: #ffffff;
-      border: 1px solid #444;
-      cursor: pointer;
-      font-size: 15px;
-      transition: 0.25s;
-    }
+  .pill.active {
+    background: var(--crimson);
+    border-color: var(--crimson);
+    color: white;
+  }
 
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      margin: 0 20px;
-      font-weight: bold;
-      font-size: 18px;
-      transition: color 0.3s;
-    }
+  /* ——— PAGE HEADER ——— */
+  .page-header {
+    position: relative;
+    z-index: 1;
+    padding: 48px 40px 32px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border);
+  }
 
-    nav a:hover {
-      color: #98002E;
-    }
+  .header-left h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 4px;
+    line-height: 1;
+    color: var(--text);
+  }
 
-    h1 {
-      margin-top: 40px;
-      font-size: 36px;
-      color: #98002E;
-    }
+  .header-left h1 span { color: var(--crimson); }
 
-    ol {
-      margin: 30px auto;
-      padding: 0;
-      width: 60%;
-      text-align: left;
-    }
+  .header-sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
 
-    ol li {
-      background-color: #98002E;
-      margin: 10px 0;
-      padding: 15px 15px 15px 50px;
-      border-radius: 8px;
-      color: #BC9B6A;
-      font-size: 20px;
-      position: relative;
-      transition: transform 0.2s;
-      cursor: pointer;
-    }
+  .live-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(152,0,46,0.15);
+    border: 1px solid rgba(152,0,46,0.4);
+    color: #ff3060;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
 
-    ol li:hover {
-      transform: scale(1.03);
-    }
+  .live-badge::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #ff3060;
+    animation: pulseDot 1.2s ease-in-out infinite;
+  }
 
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
 
-    .arrow {
-      position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 22px;
-      color: #BC9B6A;
-      pointer-events: none;
-    }
+  .header-right { text-align: right; }
 
-    nav .divider {
-      color: #ffffff;
-      margin: 0 8px;
-    }
+  .todays-date {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text-dim);
+  }
 
+  .game-count {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
 
-  </style>
-</head>
-<body>
-  <nav> 
-    <a href="/">Home</a>
-    <span class="divider">|</span>
-    <a href="/formula">Our Formula</a>
-    <span class="divider">|</span>
-    <a href="/about">About Us</a>
-  
-    <form method="GET" action="/" class="filter-container">
-      <label for="league">Filter leagues:</label>
-      <select name="league" id="league" onchange="this.form.submit()">
-        <option value="all" {% if selected_league=='all' %}selected{% endif %}>All</option>
-        <option value="NBA" {% if selected_league=='NBA' %}selected{% endif %}>NBA</option>
-        <option value="NFL" {% if selected_league=='NFL' %}selected{% endif %}>NFL</option>
-        <option value="NHL" {% if selected_league=='NHL' %}selected{% endif %}>NHL</option>
-        <option value="MLB" {% if selected_league=='MLB' %}selected{% endif %}>MLB</option>
-        <option value="CFB" {% if selected_league=='CFB' %}selected{% endif %}>CFB</option>
-        <option value="CBB" {% if selected_league=='CBB' %}selected{% endif %}>CBB</option>
-      </select>
-    </form>
-  </nav>
-  <h1>Top 10 Matchups Today</h1>
-  <ol>
-    {% for game in matchups %}
-    <li onclick="toggleDetails('details-{{ loop.index }}')">
-      <span style="position:absolute; left:15px; font-weight:bold; color:#BC9B6A;">{{ loop.index }}.</span>
-      [{{ game.league }}] {{ game.matchup }} — Score: {{ game.score }}
+  /* ——— GAMES LIST ——— */
+  .games-container {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 60px;
+  }
 
-      <span class="arrow">▼</span>
+  .col-headers {
+    display: grid;
+    grid-template-columns: 52px 80px 1fr auto 120px;
+    gap: 20px;
+    padding: 16px 0 8px;
+    border-bottom: 1px solid var(--border);
+  }
 
-      <div id="details-{{ loop.index }}" class="details-box">
-        <span id="live-score-{{ loop.index }}" class="live-score">
-          {{ game.live_score }}
-        </span>
+  .col-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
 
-        <p><strong>Start Time:</strong> {{ game.time }}</p>
-        <p><strong>Moneyline (via DraftKings Sportsbook):</strong> {{ game.favored }}</p>
-        <p><strong>Spread (via DraftKings Sportsbook):</strong> {{ game.favored_spread }}</p>
-        <p><strong>Additional Info:</strong> {{ game.description or "No extra info available." }}</p>
-        <p><strong>Where to watch:</strong> {{ game.where_to_watch }}</p>
+  .col-header:nth-child(4),
+  .col-header:nth-child(5) { text-align: right; }
+
+  .game-item {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+    animation: slideUp 0.4s ease both;
+  }
+
+  {% for i in range(1, 11) %}
+  .game-item:nth-child({{ i }}) { animation-delay: {{ (i * 0.05)|round(2) }}s; }
+  {% endfor %}
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .game-item:hover  { background: rgba(255,255,255,0.02); }
+  .game-item.open   { background: rgba(255,255,255,0.025); }
+
+  .game-row {
+    display: grid;
+    grid-template-columns: 52px 80px 1fr auto 120px;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 0;
+  }
+
+  .game-rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--text-dim);
+    text-align: right;
+    line-height: 1;
+  }
+
+  .game-rank.top3 { color: var(--gold-muted); }
+
+  .league-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 1.5px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    text-align: center;
+    border: 1px solid;
+  }
+
+  .badge-NBA { color: #c9a227; border-color: rgba(201,162,39,0.3); background: rgba(201,162,39,0.07); }
+  .badge-NFL { color: #5aa1e0; border-color: rgba(90,161,224,0.3); background: rgba(90,161,224,0.07); }
+  .badge-NHL { color: #70c8f0; border-color: rgba(112,200,240,0.3); background: rgba(112,200,240,0.07); }
+  .badge-MLB { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.07); }
+  .badge-CFB { color: #a07ad0; border-color: rgba(160,122,208,0.3); background: rgba(160,122,208,0.07); }
+  .badge-CBB { color: #60c890; border-color: rgba(96,200,144,0.3); background: rgba(96,200,144,0.07); }
+
+  .game-teams { min-width: 0; }
+
+  .matchup-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    letter-spacing: 0.2px;
+  }
+
+  .matchup-meta {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .game-time-col { text-align: right; white-space: nowrap; }
+
+  .game-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .game-network {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .score-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .w2w-score {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+
+  .score-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .score-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .expand-icon {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-left: 8px;
+    transition: transform 0.25s ease;
+    display: inline-block;
+  }
+
+  .game-item.open .expand-icon { transform: rotate(180deg); }
+
+  .score-bar {
+    width: 80px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--gold));
+  }
+
+  /* ——— EXPANDED DETAILS ——— */
+  .game-details {
+    display: none;
+    padding: 0 0 24px 152px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .game-item.open .game-details { display: grid; }
+
+  .detail-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .detail-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .detail-card-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .detail-card-value.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  .live-score-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #ff3060;
+  }
+
+  .blurb-card {
+    grid-column: span 4;
+    background: rgba(152,0,46,0.07);
+    border: 1px solid rgba(152,0,46,0.2);
+  }
+
+  .blurb-card .detail-card-value {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+  .no-games {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-dim);
+  }
+
+  .no-games h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+  }
+</style>
+{% endblock %}
+
+{% block nav_right %}
+<span class="filter-label">Filter</span>
+<div class="league-pills">
+  <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('all', this)">All</button>
+  <button class="pill {% if selected_league == 'NBA' %}active{% endif %}" onclick="filterLeague('NBA', this)">NBA</button>
+  <button class="pill {% if selected_league == 'NFL' %}active{% endif %}" onclick="filterLeague('NFL', this)">NFL</button>
+  <button class="pill {% if selected_league == 'NHL' %}active{% endif %}" onclick="filterLeague('NHL', this)">NHL</button>
+  <button class="pill {% if selected_league == 'MLB' %}active{% endif %}" onclick="filterLeague('MLB', this)">MLB</button>
+  <button class="pill {% if selected_league == 'CFB' %}active{% endif %}" onclick="filterLeague('CFB', this)">CFB</button>
+  <button class="pill {% if selected_league == 'CBB' %}active{% endif %}" onclick="filterLeague('CBB', this)">CBB</button>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="header-left">
+    <h1>Top <span>10</span> Matchups Today</h1>
+    <div class="header-sub">
+      <span class="live-badge">Live Updates</span>
+      <span>Scores refresh every 30 seconds</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="todays-date" id="today-date"></div>
+    <div class="game-count">{{ matchups|length }} game{{ 's' if matchups|length != 1 else '' }} shown</div>
+  </div>
+</div>
+
+<div class="games-container">
+  {% if matchups %}
+  <div class="col-headers">
+    <div class="col-header">#</div>
+    <div class="col-header">League</div>
+    <div class="col-header">Matchup</div>
+    <div class="col-header">Time</div>
+    <div class="col-header">W2W Score</div>
+  </div>
+
+  {% for game in matchups %}
+  {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
+  <div class="game-item" data-league="{{ game.league }}" onclick="toggleGame(this)">
+    <div class="game-row">
+
+      <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
+
+      <div class="league-badge badge-{{ game.league }}">{{ game.league }}</div>
+
+      <div class="game-teams">
+        <div class="matchup-name">{{ game.matchup }}</div>
+        <div class="matchup-meta">
+          <span>{{ game.where_to_watch }}</span>
+        </div>
       </div>
-    </li>
-    {% endfor %}
-  </ol>
 
-  <p>Currently showing {{ matchups|length }} games for today.</p>
+      <div class="game-time-col">
+        <div class="game-time">{{ game.time }}</div>
+        <div class="game-network" id="live-score-{{ loop.index }}">
+          {% if 'Live' in game.live_score %}
+            <span style="color:#ff3060; font-weight:600;">{{ game.live_score }}</span>
+          {% elif 'Final' in game.live_score %}
+            <span style="color:var(--text-muted);">{{ game.live_score }}</span>
+          {% else %}
+            <span style="color:var(--text-dim);">Not started</span>
+          {% endif %}
+        </div>
+      </div>
 
-  <script>
-    function toggleDetails(detailsId) { 
-      const box = document.getElementById(detailsId); 
-      box.style.display = (box.style.display === "none" || box.style.display === "") ? "block" : "none"; }
+      <div class="score-col">
+        <div class="w2w-score">
+          <span class="score-number">{{ game.score }}</span>
+          <span class="score-label">pts</span>
+          <span class="expand-icon">▾</span>
+        </div>
+        <div class="score-bar">
+          <div class="score-bar-fill" style="width: {{ pct }}%"></div>
+        </div>
+      </div>
 
-    async function updateLiveScores() {
-      try {
-        const response = await fetch("/api/live");
-        if (!response.ok) return;
-        const data = await response.json();
+    </div>
 
-        data.forEach((game, index) => {
-          const el = document.getElementById(`live-score-${index + 1}`);
-          if (!el) return;
+    <div class="game-details">
+      <div class="detail-card">
+        <div class="detail-card-label">Moneyline</div>
+        <div class="detail-card-value mono">{{ game.favored }}</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-label">Spread</div>
+        <div class="detail-card-value mono">{{ game.favored_spread }}</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-label">Start Time</div>
+        <div class="detail-card-value">{{ game.time }} ET</div>
+      </div>
+      <div class="detail-card">
+        <div class="detail-card-label">Where to Watch</div>
+        <div class="detail-card-value">{{ game.where_to_watch }}</div>
+      </div>
+      {% if game.description %}
+      <div class="detail-card blurb-card">
+        <div class="detail-card-label">Why Watch</div>
+        <div class="detail-card-value">{{ game.description }}</div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
 
-          if (game.status.toLowerCase().includes("in progress") || game.status.toLowerCase().includes("live")) {
-            el.textContent = `Live Score: ${game.score}`;
-          } else if (game.status.toLowerCase().includes("final")) {
-            el.textContent = `Final Score: ${game.score}`;
-          } else {
-            el.textContent = "Live Score: Has not started yet";
-            el.style.color = "#000";
-          }
-        });
-      } catch (e) {
-        console.error("Error updating live scores:", e);
-      }
+  {% else %}
+  <div class="no-games">
+    <h3>No Games Today</h3>
+    <p>Check back later or try a different league filter.</p>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+  // Set today's date in header
+  const now = new Date();
+  document.getElementById('today-date').textContent =
+    now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
+
+  // Toggle expanded game details
+  function toggleGame(el) {
+    el.classList.toggle('open');
+  }
+
+  // Client-side league filter (instant, no page reload)
+  function filterLeague(league, btn) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+
+    document.querySelectorAll('.game-item').forEach(item => {
+      const match = league === 'all' || item.dataset.league === league;
+      item.style.display = match ? '' : 'none';
+    });
+  }
+
+  // Live score polling — updates every 30s via existing /api/live endpoint
+  async function updateLiveScores() {
+    try {
+      const response = await fetch('/api/live');
+      if (!response.ok) return;
+      const data = await response.json();
+
+      data.forEach((game, index) => {
+        const el = document.getElementById(`live-score-${index + 1}`);
+        if (!el) return;
+
+        const status = game.status.toLowerCase();
+        if (status.includes('in progress') || status.includes('live')) {
+          el.innerHTML = `<span style="color:#ff3060; font-weight:600;">Live: ${game.score}</span>`;
+        } else if (status.includes('final')) {
+          el.innerHTML = `<span style="color:var(--text-muted);">Final: ${game.score}</span>`;
+        } else {
+          el.innerHTML = `<span style="color:var(--text-dim);">Not started</span>`;
+        }
+      });
+    } catch (e) {
+      console.error('Live score update failed:', e);
     }
-    setInterval(updateLiveScores, 30000);
-    updateLiveScores();
+  }
+
+  setInterval(updateLiveScores, 30000);
 </script>
-</body>
-</html>
+
+{% endblock %}
