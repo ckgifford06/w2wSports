@@ -109,11 +109,8 @@ def index():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     all_games = []
 
-    # now is the good part, going through each matchup finally
+    # fetch all leagues every time — filtering is handled client-side in JS
     for key, sport in sports.items():
-
-        if selected_league != "all" and sport["name"].lower() != selected_league.lower():
-            continue
 
         try:
             response = requests.get(sport["url"], params={"dates": today})
@@ -392,6 +389,7 @@ def index():
             print(f"Error fetching {sport['name']}: {e}", flush=True)
             continue
 
+    # sort all games by score — top 10 cutoff is handled in the template/JS
     all_ranked = sorted(all_games, key=lambda x: x["score"], reverse=True)
 
     return render_template("index.html", matchups=all_ranked, selected_league=selected_league, active_page="home")
@@ -404,3 +402,53 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html", active_page="formula")
+
+
+@app.route("/api/live")
+def api_live():
+    """Returns current scores for today's top-ranked games. Called by frontend every 30s."""
+    timezone_str = request.args.get("tz", "US/Eastern")
+    try:
+        local_tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        local_tz = pytz.timezone("US/Eastern")
+
+    today = datetime.now(local_tz).strftime("%Y%m%d")
+    live_data = []
+
+    for key, sport in sports.items():
+        try:
+            response = requests.get(sport["url"], params={"dates": today}, timeout=5)
+            if not response.ok:
+                continue
+            data = response.json()
+
+            for event in data.get("events", []):
+                competition = event["competitions"][0]
+                competitors = competition["competitors"]
+
+                home_competitor = next((c for c in competitors if c.get("homeAway") == "home"), competitors[0])
+                away_competitor = next((c for c in competitors if c.get("homeAway") == "away"), competitors[1])
+
+                home_name = home_competitor["team"]["displayName"]
+                away_name = away_competitor["team"]["displayName"]
+                home_score = home_competitor.get("score", "0")
+                away_score = away_competitor.get("score", "0")
+
+                status_obj = competition.get("status", {}).get("type", {})
+                status_name = status_obj.get("name", "STATUS_SCHEDULED")
+                status_detail = status_obj.get("shortDetail", "")
+
+                live_data.append({
+                    "matchup": f"{home_name} vs {away_name}",
+                    "league": sport["name"],
+                    "score": f"{home_score} - {away_score}",
+                    "status": status_name,
+                    "detail": status_detail
+                })
+
+        except Exception as e:
+            print(f"Live score error for {sport['name']}: {e}", flush=True)
+            continue
+
+    return jsonify(live_data)
