@@ -386,7 +386,7 @@
   </div>
   <div class="header-right">
     <div class="todays-date" id="today-date"></div>
-    <div class="game-count">{{ matchups|length }} game{{ 's' if matchups|length != 1 else '' }} shown</div>
+    <div class="game-count" id="game-count"></div>
   </div>
 </div>
 
@@ -402,7 +402,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
@@ -488,16 +488,46 @@
     el.classList.toggle('open');
   }
 
-  // Client-side league filter (instant, no page reload)
+  // Filter logic:
+  // "All" → show only the overall top 10 (rank 1–10)
+  // Any league → show all games in that league, ranked by their overall W2W score
   function filterLeague(league, btn) {
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
 
-    document.querySelectorAll('.game-item').forEach(item => {
-      const match = league === 'all' || item.dataset.league === league;
-      item.style.display = match ? '' : 'none';
+    const items = document.querySelectorAll('.game-item');
+    let shown = 0;
+
+    items.forEach(item => {
+      const itemLeague = item.dataset.league;
+      const overallRank = parseInt(item.dataset.overallRank, 10);
+      let visible = false;
+
+      if (league === 'all') {
+        visible = overallRank <= 10;
+      } else {
+        visible = itemLeague === league;
+      }
+
+      item.style.display = visible ? '' : 'none';
+      if (visible) shown++;
     });
+
+    // Update header title and count
+    const title = document.querySelector('.header-left h1');
+    const countEl = document.getElementById('game-count');
+
+    if (league === 'all') {
+      title.innerHTML = 'Top <span>10</span> Matchups Today';
+      countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} shown`;
+    } else {
+      title.innerHTML = `All <span>${league}</span> Games Today`;
+      countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} · sorted by W2W score`;
+    }
   }
+
+  // Initialize with "All" view (top 10 only) on page load
+  filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
   // Live score polling — updates every 30s via existing /api/live endpoint
   async function updateLiveScores() {
