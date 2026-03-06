@@ -2,7 +2,7 @@
 
 **Live site: [w2w-sports.com](https://w2w-sports.com)**
 
-W2W stands for Worth 2 Watch. The idea is simple: instead of scrolling through a full day of sports schedules trying to figure out what to actually watch, this site does that math for you and spits out the top 10 games of the day ranked by how good they are likely to be.
+W2W stands for What 2 Watch. The idea is simple: instead of scrolling through a full day of sports schedules trying to figure out what to actually watch, this site does that math for you and spits out the top 10 games of the day ranked by how good they are likely to be.
 
 We built this in October 2025 because we kept having the same problem as sports fans. Too many games, not enough time, and no good way to know which ones were actually worth sitting down for.
 
