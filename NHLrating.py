@@ -59,6 +59,16 @@ def calculate_score(home, away):
     return round((r + m + c + q + g), 2)
 
 
+
+def calculate_score_breakdown(home, away):
+    return {
+        "rivalry":        round(rivalry(home, away), 2),
+        "marketability":  round(marketability(home, away), 2),
+        "competitiveness":round(competitiveness(home, away), 2),
+        "quality":        round(qualityOfPlay(home, away), 2),
+        "importance":     round(gameImportance(home, away), 2),
+    }
+
 def rivalry(home, away):
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
@@ -115,4 +125,3 @@ def gameImportance(home, away):
         if away_seed is not None and 6 < away_seed < 11:
             importance += 3
     return importance
-
