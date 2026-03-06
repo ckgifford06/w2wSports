@@ -359,6 +359,75 @@
     margin-bottom: 8px;
   }
 
+  /* ——— SCORE BREAKDOWN CHART ——— */
+  .breakdown-card {
+    grid-column: span 4;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+  }
+
+  .breakdown-rows {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 40px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .breakdown-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .breakdown-track {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  .breakdown-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0%;
+  }
+
+  .fill-rivalry     { background: linear-gradient(90deg, #c0003a, #e8004a); }
+  .fill-market      { background: linear-gradient(90deg, #bc9b6a, #d4af82); }
+  .fill-compete     { background: linear-gradient(90deg, #5aa1e0, #7bbcf5); }
+  .fill-quality     { background: linear-gradient(90deg, #60c890, #80e0aa); }
+  .fill-importance  { background: linear-gradient(90deg, #a07ad0, #be98f0); }
+
+  .breakdown-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-align: right;
+  }
+
+  @media (max-width: 768px) {
+    .breakdown-card { grid-column: span 2; }
+    .breakdown-row { grid-template-columns: 100px 1fr 36px; gap: 8px; }
+  }
+
+  @media (max-width: 480px) {
+    .breakdown-card { grid-column: span 1; }
+  }
+
   /* ——— ERROR BANNER ——— */
   .error-banner {
     display: none;
@@ -550,6 +619,7 @@
 
 {% block content %}
 
+<!-- Error banner: shown by JS if ESPN API fails -->
 <div class="error-banner" id="error-banner">
   Having trouble loading today's games. Data may be delayed — check back in a few minutes.
 </div>
@@ -653,6 +723,57 @@
         <div class="detail-card-value">{{ game.description }}</div>
       </div>
       {% endif %}
+
+      {% if game.breakdown %}
+      {% set bd = game.breakdown %}
+      {% set max_score = 55 %}
+      <div class="breakdown-card">
+        <div class="detail-card-label">Score Breakdown</div>
+        <div class="breakdown-rows">
+
+          <div class="breakdown-row">
+            <div class="breakdown-label">Rivalry</div>
+            <div class="breakdown-track">
+              <div class="breakdown-fill fill-rivalry" data-pct="{{ [(bd.rivalry / max_score * 100)|int, 100]|min }}"></div>
+            </div>
+            <div class="breakdown-val">{{ bd.rivalry }}</div>
+          </div>
+
+          <div class="breakdown-row">
+            <div class="breakdown-label">Marketability</div>
+            <div class="breakdown-track">
+              <div class="breakdown-fill fill-market" data-pct="{{ [(bd.marketability / max_score * 100)|int, 100]|min }}"></div>
+            </div>
+            <div class="breakdown-val">{{ bd.marketability }}</div>
+          </div>
+
+          <div class="breakdown-row">
+            <div class="breakdown-label">Competitive</div>
+            <div class="breakdown-track">
+              <div class="breakdown-fill fill-compete" data-pct="{{ [(bd.competitiveness / max_score * 100)|int, 100]|min }}"></div>
+            </div>
+            <div class="breakdown-val">{{ bd.competitiveness }}</div>
+          </div>
+
+          <div class="breakdown-row">
+            <div class="breakdown-label">Quality</div>
+            <div class="breakdown-track">
+              <div class="breakdown-fill fill-quality" data-pct="{{ [(bd.quality / max_score * 100)|int, 100]|min }}"></div>
+            </div>
+            <div class="breakdown-val">{{ bd.quality }}</div>
+          </div>
+
+          <div class="breakdown-row">
+            <div class="breakdown-label">Importance</div>
+            <div class="breakdown-track">
+              <div class="breakdown-fill fill-importance" data-pct="{{ [(bd.importance / max_score * 100)|int, 100]|min }}"></div>
+            </div>
+            <div class="breakdown-val">{{ bd.importance }}</div>
+          </div>
+
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
   {% endfor %}
@@ -666,26 +787,42 @@
 </div>
 
 <script>
+  // ——— TIMEZONE: detect user's local timezone and pass to server on next load ———
   (function() {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const url = new URL(window.location.href);
     if (!url.searchParams.get('tz') && tz) {
       url.searchParams.set('tz', tz);
+      // Replace state silently so it's used on next full navigation without forcing a reload now
       window.history.replaceState({}, '', url.toString());
     }
   })();
 
-
+  // ——— DATE HEADER ———
   const now = new Date();
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
-
+  // ——— TOGGLE EXPANDED GAME DETAILS ———
+  // Also triggers the breakdown bar animation on open
   function toggleGame(el) {
     el.classList.toggle('open');
+    if (el.classList.contains('open')) {
+      // Small delay so the display:grid transition completes first
+      setTimeout(() => {
+        el.querySelectorAll('.breakdown-fill').forEach(bar => {
+          bar.style.width = (bar.dataset.pct || 0) + '%';
+        });
+      }, 40);
+    } else {
+      el.querySelectorAll('.breakdown-fill').forEach(bar => {
+        bar.style.width = '0%';
+      });
+    }
   }
 
-
+  // ——— LEAGUE FILTER ———
+  // "All" shows only overall top 10. Any league shows all games in that league.
   function filterLeague(league, btn) {
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -712,9 +849,10 @@
     }
   }
 
-  // initialize on page load
+  // Initialize on page load
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
+  // ——— SCROLL TO LIVE GAME (for the Live Now banner) ———
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
     if (liveItem) {
@@ -723,6 +861,9 @@
     }
   }
 
+  // ——— LIVE SCORE POLLING ———
+  // Matches by matchup name rather than index position so it stays accurate
+  // even if game order ever shifts. Also drives the Live Now banner.
   async function updateLiveScores() {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -774,7 +915,7 @@
         }
       });
 
-      // update the Live Now banner with the highest-ranked live game
+      // Update the Live Now banner with the highest-ranked live game
       const banner = document.getElementById('live-now-banner');
       if (bestLiveGame) {
         document.getElementById('live-now-matchup').textContent = bestLiveGame.matchup;
@@ -791,7 +932,7 @@
     }
   }
 
-  // poll immediately then every 30s
+  // Poll immediately then every 30s
   updateLiveScores();
   setInterval(updateLiveScores, 30000);
 </script>
