@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TYYDCDNEH"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-8TYYDCDNEH');
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}W2W Sports{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --crimson: #98002E;
+      --crimson-bright: #C0003A;
+      --gold: #BC9B6A;
+      --gold-muted: #9a7d52;
+      --bg: #0d0d0d;
+      --surface: #161616;
+      --surface2: #1e1e1e;
+      --border: #2a2a2a;
+      --text: #f0ece4;
+      --text-muted: #7a7670;
+      --text-dim: #4a4742;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(152,0,46,0.12) 0%, transparent 60%),
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230d0d0d'/%3E%3Crect width='1' height='1' x='0' y='0' fill='%23ffffff' opacity='0.018'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ——— NAV ——— */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      height: 60px;
+      background: rgba(13,13,13,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .nav-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      letter-spacing: 3px;
+      color: var(--text);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-logo .logo-accent { color: var(--crimson); }
+
+    .nav-logo .logo-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--crimson);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+
+    .nav-center {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+
+    .nav-center a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+
+    .nav-center a:hover { color: var(--text); }
+    .nav-center a.active { color: var(--gold); }
+
+    .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 260px;
+      justify-content: flex-end;
+    }
+
+    /* ——— FOOTER ——— */
+    footer {
+      position: relative;
+      z-index: 1;
+      border-top: 1px solid var(--border);
+      padding: 24px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: auto;
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      letter-spacing: 3px;
+      color: var(--text-dim);
+    }
+
+    .footer-logo span { color: var(--crimson); }
+
+    .footer-note {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    /* ——— SHARED CONTENT STYLES ——— */
+    .page-container {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      margin: 60px auto;
+      padding: 0 40px 80px;
+    }
+
+    .page-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 52px;
+      letter-spacing: 4px;
+      color: var(--text);
+      margin-bottom: 4px;
+    }
+
+    .page-title span { color: var(--crimson); }
+
+    .page-divider {
+      height: 2px;
+      background: linear-gradient(90deg, var(--crimson), transparent);
+      margin: 16px 0 40px;
+      border: none;
+    }
+
+    .section-heading {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      letter-spacing: 3px;
+      color: var(--text);
+      margin: 48px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-heading::before {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 20px;
+      background: var(--crimson);
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    .prose {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+    }
+
+    .prose strong {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    .highlight { color: var(--gold); font-weight: 600; }
+
+    .styled-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .styled-list li {
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 14px 18px;
+      font-size: 15px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      border-left: 3px solid var(--crimson);
+    }
+
+    .styled-list li strong {
+      color: var(--text);
+      display: block;
+      margin-bottom: 2px;
+    }
+  </style>
+  {% block extra_styles %}{% endblock %}
+</head>
+<body>
+
+  <nav>
+    <a href="/" class="nav-logo">
+      <span>W2W</span><span class="logo-accent">SPORTS</span>
+      <span class="logo-dot"></span>
+    </a>
+    <div class="nav-center">
+      <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Today</a>
+      <a href="/formula" {% if active_page == 'formula' %}class="active"{% endif %}>Our Formula</a>
+      <a href="/about" {% if active_page == 'about' %}class="active"{% endif %}>About</a>
+    </div>
+    <div class="nav-right">
+      {% block nav_right %}{% endblock %}
+    </div>
+  </nav>
+
+  {% block content %}{% endblock %}
+
+  <footer>
+    <div class="footer-logo">W2W<span>SPORTS</span></div>
+    <div class="footer-note">Odds via DraftKings Sportsbook &middot; Data via ESPN API &middot; Rankings updated daily</div>
+  </footer>
+
+</body>
+</html>
