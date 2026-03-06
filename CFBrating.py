@@ -109,6 +109,16 @@ def calculate_score(home, away):
     print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
     return max(0, round((r + m + c + q + g), 2))
 
+
+def calculate_score_breakdown(home, away):
+    return {
+        "rivalry":        round(rivalry(home, away), 2),
+        "marketability":  round(marketability(home, away), 2),
+        "competitiveness":round(competitiveness(home, away), 2),
+        "quality":        round(qualityOfPlay(home, away), 2),
+        "importance":     round(gameImportance(home, away), 2),
+    }
+
 def rivalry(home, away):
     rating = 0
     if team_conference.get(home) == team_conference.get(away):
