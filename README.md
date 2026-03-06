@@ -8,7 +8,6 @@ We built this in October 2025 because we kept having the same problem as sports 
 
 ---
 
-## Screenshot
 
 <img width="1512" height="858" alt="Screenshot 2026-03-06 at 2 38 55 PM" src="https://github.com/user-attachments/assets/53a477b6-4725-4ffa-95e9-37ac3ac35e80" />
 
