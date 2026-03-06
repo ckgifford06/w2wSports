@@ -1,0 +1,719 @@
+{% extends "base.html" %}
+
+{% block title %}7-Day Calendar — W2W Sports{% endblock %}
+
+{% block extra_styles %}
+<style>
+
+  .page-header {
+    position: relative;
+    z-index: 1;
+    padding: 48px 40px 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .page-header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 52px;
+    letter-spacing: 4px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .page-header h1 span { color: var(--crimson); }
+
+  .page-header-sub {
+    margin-top: 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+
+  .date-tabs-container {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 0;
+    overflow-x: auto;
+  }
+
+  .date-tab {
+    padding: 16px 24px;
+    cursor: pointer;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    color: var(--text-muted);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .date-tab:hover {
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+
+  .date-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--crimson);
+  }
+
+  .date-tab.today .tab-day {
+    color: var(--gold);
+  }
+
+  .tab-day {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+
+  .tab-date {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.5px;
+    color: var(--text-dim);
+  }
+
+  .tab-count {
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .tab-count.has-games { color: var(--crimson); }
+
+
+  .calendar-container {
+    position: relative;
+    z-index: 1;
+    padding: 0 40px 60px;
+  }
+
+  
+  .cal-filter-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 0 8px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .filter-label {
+    font-size: 10px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'DM Mono', monospace;
+    margin-right: 4px;
+  }
+
+  .pill {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    background: transparent;
+    transition: all 0.2s;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .pill:hover { border-color: var(--gold-muted); color: var(--gold); }
+  .pill.active { background: var(--crimson); border-color: var(--crimson); color: white; }
+
+
+  .loading-state {
+    display: none;
+    padding: 60px 0;
+    text-align: center;
+  }
+
+  .loading-state.visible { display: block; }
+
+  .skeleton-row {
+    height: 64px;
+    background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: 4px;
+    margin-bottom: 1px;
+  }
+
+  @keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+
+  .col-headers {
+    display: grid;
+    grid-template-columns: 52px 80px 1fr auto 120px;
+    gap: 20px;
+    padding: 12px 0 8px;
+  }
+
+  .col-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .col-header:nth-child(4),
+  .col-header:nth-child(5) { text-align: right; }
+
+  .game-item {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s;
+    cursor: pointer;
+  }
+
+  .game-item:hover  { background: rgba(255,255,255,0.02); }
+  .game-item.open   { background: rgba(255,255,255,0.025); }
+
+  .game-row {
+    display: grid;
+    grid-template-columns: 52px 80px 1fr auto 120px;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 0;
+  }
+
+  .game-rank {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--text-dim);
+    text-align: right;
+    line-height: 1;
+  }
+
+  .game-rank.top3 { color: var(--gold-muted); }
+
+  .league-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 4px 8px;
+    border-radius: 3px;
+    text-align: center;
+    border: 1px solid;
+  }
+
+  .badge-NBA { color: #c9a227; border-color: rgba(201,162,39,0.3); background: rgba(201,162,39,0.07); }
+  .badge-NFL { color: #5aa1e0; border-color: rgba(90,161,224,0.3); background: rgba(90,161,224,0.07); }
+  .badge-NHL { color: #70c8f0; border-color: rgba(112,200,240,0.3); background: rgba(112,200,240,0.07); }
+  .badge-MLB { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.07); }
+  .badge-CFB { color: #a07ad0; border-color: rgba(160,122,208,0.3); background: rgba(160,122,208,0.07); }
+  .badge-CBB { color: #60c890; border-color: rgba(96,200,144,0.3); background: rgba(96,200,144,0.07); }
+
+  .game-teams { min-width: 0; }
+
+  .matchup-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .matchup-meta {
+    margin-top: 3px;
+    font-size: 12px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .rivalry-tag {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .game-time-col { text-align: right; white-space: nowrap; }
+
+  .game-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .score-col {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+
+  .w2w-score {
+    display: flex;
+    align-items: baseline;
+    gap: 3px;
+  }
+
+  .score-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .score-label {
+    font-size: 9px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .expand-icon {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 6px;
+    transition: transform 0.25s ease;
+    display: inline-block;
+  }
+
+  .game-item.open .expand-icon { transform: rotate(180deg); }
+
+  .score-bar {
+    width: 80px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--crimson), var(--gold));
+  }
+
+
+  .game-details {
+    display: none;
+    padding: 0 0 20px 152px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .game-item.open .game-details { display: grid; }
+
+  .detail-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+  }
+
+  .detail-card-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  .detail-card-value {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  .detail-card-value.mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+  }
+
+  .blurb-card {
+    grid-column: span 4;
+    background: rgba(152,0,46,0.07);
+    border: 1px solid rgba(152,0,46,0.2);
+  }
+
+  .blurb-card .detail-card-value {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-style: italic;
+    line-height: 1.6;
+    font-weight: 400;
+  }
+
+
+  .breakdown-card {
+    grid-column: span 4;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px 20px;
+  }
+
+  .breakdown-rows { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+
+  .breakdown-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 40px;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .breakdown-label {
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    text-align: right;
+  }
+
+  .breakdown-track { height: 8px; background: var(--border); border-radius: 4px; overflow: hidden; }
+
+  .breakdown-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    width: 0%;
+  }
+
+  .fill-rivalry    { background: linear-gradient(90deg, #c0003a, #e8004a); }
+  .fill-market     { background: linear-gradient(90deg, #bc9b6a, #d4af82); }
+  .fill-compete    { background: linear-gradient(90deg, #5aa1e0, #7bbcf5); }
+  .fill-quality    { background: linear-gradient(90deg, #60c890, #80e0aa); }
+  .fill-importance { background: linear-gradient(90deg, #a07ad0, #be98f0); }
+
+  .breakdown-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-align: right;
+  }
+
+
+  .empty-state {
+    text-align: center;
+    padding: 80px 0;
+    color: var(--text-dim);
+  }
+
+  .empty-state h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 3px;
+    margin-bottom: 8px;
+    color: var(--text-dim);
+  }
+
+
+  @media (max-width: 768px) {
+    .page-header { padding: 24px 16px 20px; }
+    .page-header h1 { font-size: 36px; }
+    .date-tabs-container { padding: 0 16px; }
+    .date-tab { padding: 12px 16px; }
+    .calendar-container { padding: 0 16px 40px; }
+    .col-headers { display: none; }
+    .game-row { grid-template-columns: 36px 60px 1fr; grid-template-rows: auto auto; gap: 8px 10px; }
+    .game-time-col { grid-column: 2 / 4; text-align: left; }
+    .score-col { grid-column: 3; grid-row: 1; }
+    .game-details { padding: 0 0 16px 0; grid-template-columns: 1fr 1fr; }
+    .blurb-card, .breakdown-card { grid-column: span 2; }
+  }
+
+  @media (max-width: 480px) {
+    .game-row { grid-template-columns: 32px 1fr; }
+    .league-badge { display: none; }
+    .score-col, .game-time-col { grid-column: 2; }
+    .game-details { grid-template-columns: 1fr; }
+    .blurb-card, .breakdown-card { grid-column: span 1; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>7-Day <span>Rivalry</span> Calendar</h1>
+  <div class="page-header-sub">Click any day to load its top matchups, ranked by W2W Score</div>
+</div>
+
+<div class="date-tabs-container" id="date-tabs"></div>
+
+<div class="calendar-container">
+  <div class="cal-filter-row">
+    <span class="filter-label">Filter</span>
+    <button class="pill active" onclick="filterLeague('all', this)">All</button>
+    <button class="pill" onclick="filterLeague('NBA', this)">NBA</button>
+    <button class="pill" onclick="filterLeague('NFL', this)">NFL</button>
+    <button class="pill" onclick="filterLeague('NHL', this)">NHL</button>
+    <button class="pill" onclick="filterLeague('MLB', this)">MLB</button>
+    <button class="pill" onclick="filterLeague('CFB', this)">CFB</button>
+    <button class="pill" onclick="filterLeague('CBB', this)">CBB</button>
+  </div>
+
+  <div class="loading-state" id="loading-state">
+    <div class="skeleton-row"></div>
+    <div class="skeleton-row" style="opacity:0.7"></div>
+    <div class="skeleton-row" style="opacity:0.5"></div>
+    <div class="skeleton-row" style="opacity:0.35"></div>
+    <div class="skeleton-row" style="opacity:0.2"></div>
+  </div>
+
+  <div id="games-panel"></div>
+</div>
+
+<script>
+  const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  let activeLeague = 'all';
+  let currentGames = [];
+
+
+  function buildTabs() {
+    const container = document.getElementById('date-tabs');
+    const today = new Date();
+    const tabs = [];
+
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(today);
+      d.setDate(today.getDate() + i);
+
+      const dateStr = d.toISOString().slice(0, 10).replace(/-/g, '');
+      const dayName = i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
+      const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+
+      const btn = document.createElement('button');
+      btn.className = 'date-tab' + (i === 0 ? ' today active' : '');
+      btn.dataset.date = dateStr;
+      btn.innerHTML = `
+        <span class="tab-day">${dayName}</span>
+        <span class="tab-date">${dateLabel}</span>
+        <span class="tab-count" id="count-${dateStr}">...</span>
+      `;
+      btn.addEventListener('click', () => selectTab(btn, dateStr));
+      container.appendChild(btn);
+      tabs.push({ btn, dateStr });
+    }
+
+
+    selectTab(tabs[0].btn, tabs[0].dateStr);
+    tabs.slice(1).forEach(({ dateStr }) => prefetchCount(dateStr));
+  }
+
+
+  async function prefetchCount(dateStr) {
+    try {
+      const res = await fetch(`/api/games?date=${dateStr}&tz=${encodeURIComponent(tz)}`);
+      if (!res.ok) return;
+      const games = await res.json();
+      const el = document.getElementById(`count-${dateStr}`);
+      if (el) {
+        el.textContent = games.length > 0 ? `${games.length} games` : 'No games';
+        if (games.length > 0) el.classList.add('has-games');
+      }
+    } catch (e) { }
+  }
+
+
+  async function selectTab(btn, dateStr) {
+    document.querySelectorAll('.date-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    await loadGames(dateStr);
+  }
+
+
+  async function loadGames(dateStr) {
+    const panel = document.getElementById('games-panel');
+    const loader = document.getElementById('loading-state');
+
+    panel.innerHTML = '';
+    loader.classList.add('visible');
+
+    try {
+      const res = await fetch(`/api/games?date=${dateStr}&tz=${encodeURIComponent(tz)}`);
+      loader.classList.remove('visible');
+
+      if (!res.ok) {
+        panel.innerHTML = `<div class="empty-state"><h3>Error Loading Games</h3><p>Could not reach ESPN. Try again in a moment.</p></div>`;
+        return;
+      }
+
+      const games = await res.json();
+      currentGames = games;
+
+
+      const countEl = document.getElementById(`count-${dateStr}`);
+      if (countEl) {
+        countEl.textContent = games.length > 0 ? `${games.length} games` : 'No games';
+        if (games.length > 0) countEl.classList.add('has-games');
+      }
+
+      renderGames(games);
+
+    } catch (e) {
+      loader.classList.remove('visible');
+      panel.innerHTML = `<div class="empty-state"><h3>Error Loading Games</h3><p>Something went wrong. Please try again.</p></div>`;
+    }
+  }
+
+
+  function renderGames(games) {
+    const panel = document.getElementById('games-panel');
+
+    const filtered = activeLeague === 'all'
+      ? games.slice(0, 10)
+      : games.filter(g => g.league === activeLeague);
+
+    if (filtered.length === 0) {
+      panel.innerHTML = `<div class="empty-state"><h3>No Games</h3><p>${activeLeague === 'all' ? 'No games scheduled for this day.' : `No ${activeLeague} games scheduled.`}</p></div>`;
+      return;
+    }
+
+    const headers = `
+      <div class="col-headers">
+        <div class="col-header">#</div>
+        <div class="col-header">League</div>
+        <div class="col-header">Matchup</div>
+        <div class="col-header" style="text-align:right">Time</div>
+        <div class="col-header" style="text-align:right">W2W Score</div>
+      </div>`;
+
+    const rows = filtered.map((game, i) => {
+      const rank = activeLeague === 'all' ? (i + 1) : (games.indexOf(game) + 1);
+      const pct = Math.min(100, Math.round((game.score / 55) * 100));
+      const bd = game.breakdown || {};
+      const maxPct = (v) => Math.min(100, Math.round((v / 55) * 100));
+
+      const liveHtml = game.live_score && game.live_score.includes('Final')
+        ? `<span style="color:var(--text-muted);font-size:11px;">${game.live_score}</span>`
+        : `<span style="color:var(--text-dim);font-size:11px;">${game.time}</span>`;
+
+      return `
+        <div class="game-item" data-league="${game.league}" onclick="toggleGame(this)">
+          <div class="game-row">
+            <div class="game-rank ${rank <= 3 ? 'top3' : ''}">${rank}</div>
+            <div class="league-badge badge-${game.league}">${game.league}</div>
+            <div class="game-teams">
+              <div class="matchup-name">${game.matchup}</div>
+              <div class="matchup-meta">
+                ${game.is_rivalry ? '<span class="rivalry-tag">🔥 Rivalry</span>' : ''}
+                <span>${game.where_to_watch}</span>
+              </div>
+            </div>
+            <div class="game-time-col">
+              <div class="game-time">${game.time}</div>
+              <div style="font-size:11px;color:var(--text-dim);margin-top:2px;">${
+                game.live_score && game.live_score.includes('Final')
+                  ? `<span style="color:var(--text-muted)">${game.live_score}</span>`
+                  : ''
+              }</div>
+            </div>
+            <div class="score-col">
+              <div class="w2w-score">
+                <span class="score-number">${game.score}</span>
+                <span class="score-label">pts</span>
+                <span class="expand-icon">▾</span>
+              </div>
+              <div class="score-bar">
+                <div class="score-bar-fill" style="width:${pct}%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="game-details">
+            <div class="detail-card">
+              <div class="detail-card-label">Moneyline</div>
+              <div class="detail-card-value mono">${game.favored}</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-card-label">Spread</div>
+              <div class="detail-card-value mono">${game.favored_spread}</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-card-label">Start Time</div>
+              <div class="detail-card-value">${game.time} ET</div>
+            </div>
+            <div class="detail-card">
+              <div class="detail-card-label">Where to Watch</div>
+              <div class="detail-card-value">${game.where_to_watch}</div>
+            </div>
+            ${game.description ? `
+            <div class="detail-card blurb-card">
+              <div class="detail-card-label">Why Watch</div>
+              <div class="detail-card-value">${game.description}</div>
+            </div>` : ''}
+            <div class="breakdown-card">
+              <div class="detail-card-label">Score Breakdown</div>
+              <div class="breakdown-rows">
+                ${[
+                  ['Rivalry',      'fill-rivalry',    bd.rivalry        || 0],
+                  ['Marketability','fill-market',     bd.marketability  || 0],
+                  ['Competitive',  'fill-compete',    bd.competitiveness|| 0],
+                  ['Quality',      'fill-quality',    bd.quality        || 0],
+                  ['Importance',   'fill-importance', bd.importance     || 0],
+                ].map(([label, cls, val]) => `
+                  <div class="breakdown-row">
+                    <div class="breakdown-label">${label}</div>
+                    <div class="breakdown-track">
+                      <div class="breakdown-fill ${cls}" data-pct="${maxPct(val)}"></div>
+                    </div>
+                    <div class="breakdown-val">${val}</div>
+                  </div>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+
+    panel.innerHTML = headers + rows;
+  }
+
+
+  function toggleGame(el) {
+    el.classList.toggle('open');
+    if (el.classList.contains('open')) {
+      setTimeout(() => {
+        el.querySelectorAll('.breakdown-fill').forEach(bar => {
+          bar.style.width = (bar.dataset.pct || 0) + '%';
+        });
+      }, 40);
+    } else {
+      el.querySelectorAll('.breakdown-fill').forEach(bar => { bar.style.width = '0%'; });
+    }
+  }
+
+
+  function filterLeague(league, btn) {
+    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    activeLeague = league;
+    renderGames(currentGames);
+  }
+
+
+  buildTabs();
+</script>
+
+{% endblock %}
