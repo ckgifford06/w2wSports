@@ -49,6 +49,7 @@
       z-index: 0;
     }
 
+    /* ——— NAV ——— */
     nav {
       position: sticky;
       top: 0;
@@ -240,6 +241,7 @@
     </a>
     <div class="nav-center">
       <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Today</a>
+      <a href="/calendar" {% if active_page == 'calendar' %}class="active"{% endif %}>Calendar</a>
       <a href="/formula" {% if active_page == 'formula' %}class="active"{% endif %}>Our Formula</a>
       <a href="/about" {% if active_page == 'about' %}class="active"{% endif %}>About</a>
     </div>
