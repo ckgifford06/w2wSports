@@ -364,7 +364,7 @@
 {% block nav_right %}
 <span class="filter-label">Filter</span>
 <div class="league-pills">
-  <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('Top 10', this)">All</button>
+  <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('all', this)">All</button>
   <button class="pill {% if selected_league == 'NBA' %}active{% endif %}" onclick="filterLeague('NBA', this)">NBA</button>
   <button class="pill {% if selected_league == 'NFL' %}active{% endif %}" onclick="filterLeague('NFL', this)">NFL</button>
   <button class="pill {% if selected_league == 'NHL' %}active{% endif %}" onclick="filterLeague('NHL', this)">NHL</button>
