@@ -286,7 +286,6 @@
     background: linear-gradient(90deg, var(--crimson), var(--gold));
   }
 
-  /* ——— EXPANDED DETAILS ——— */
   .game-details {
     display: none;
     padding: 0 0 24px 152px;
@@ -513,7 +512,6 @@
       if (visible) shown++;
     });
 
-    // Update header title and count
     const title = document.querySelector('.header-left h1');
     const countEl = document.getElementById('game-count');
 
@@ -526,10 +524,8 @@
     }
   }
 
-  // Initialize with "All" view (top 10 only) on page load
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
-  // Live score polling — updates every 30s via existing /api/live endpoint
   async function updateLiveScores() {
     try {
       const response = await fetch('/api/live');
