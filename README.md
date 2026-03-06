@@ -1,86 +1,104 @@
-# W2W Sports - What to Watch Sports (W2W-sports.com)
+# W2W Sports
 
-A web application that ranks and displays the top 10 most exciting sports matchups each day across multiple leagues. The ranking system analyzes games based on rivalry intensity, team marketability, competitiveness, quality of play, and game importance.
+**Live site: [w2w-sports.com](https://w2w-sports.com)**
 
+W2W stands for Worth 2 Watch. The idea is simple: instead of scrolling through a full day of sports schedules trying to figure out what to actually watch, this site does that math for you and spits out the top 10 games of the day ranked by how good they are likely to be.
+
+We built this in October 2025 because we kept having the same problem as sports fans. Too many games, not enough time, and no good way to know which ones were actually worth sitting down for.
+
+---
+
+## Screenshot
+
+<img width="1512" height="858" alt="Screenshot 2026-03-06 at 2 38 55 PM" src="https://github.com/user-attachments/assets/53a477b6-4725-4ffa-95e9-37ac3ac35e80" />
+
+
+---
 
 ## What It Does
-The site pulls daily game schedules from ESPN's APIs and calculates a score for each matchup. Games are ranked by their entertainment value, helping users find the best games to watch on any given day. The top 10 games are displayed with betting odds, broadcast information, and AI-generated descriptions.
 
-<img width="1512" height="856" alt="Screenshot 2026-01-24 at 2 55 36 PM" src="https://github.com/user-attachments/assets/6c3a940d-96c4-40e1-9f7f-a8bdad13a9da" />
+Every day the site pulls the full schedule for every supported league from ESPN's public API, runs each game through our scoring algorithm, and displays the top 10 results ranked from best to worst. Each game shows the start time, broadcast network, moneyline, spread, live score once the game starts, and a short blurb about why it is worth watching.
 
+Users can also filter by league, which switches the view from the global top 10 to all games in that league sorted by score. So if you only care about MLB that day, you can click the MLB filter and see every baseball game ranked, even ones that did not crack the overall top 10.
 
-**Supported Leagues**
+Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college basketball).
 
-- NBA (National Basketball Association)
-- NFL (National Football League)
-- NHL (National Hockey League)
-- MLB (Major League Baseball)
-- CFB (NCAA College Football)
-- CBB (NCAA College Basketball)
+---
 
-## How it's made
+## How It Is Built
 
-**Backend:**
+This is a full-stack web application. The backend is Python running on the Flask framework, and the frontend is HTML, CSS, and vanilla JavaScript with Jinja2 handling the templating.
 
-- Python 3.x
-- Flask - web framework for handling routes and rendering templates
-- Requests - making HTTP calls to ESPN APIs
+**Backend (Python + Flask)**
 
-**Frontend:**
+Flask is a lightweight Python web framework. When someone visits the site, Flask receives the request, runs all the logic to fetch and score the games, and sends back a finished HTML page. Each route in `app.py` corresponds to a page on the site: `/` for the homepage, `/about`, and `/formula`.
 
-- HTML/CSS with Jinja2 templating
-- Vanilla JavaScript for interactivity
-- Google Analytics for traffic tracking
+The rating logic lives in separate Python modules, one per sport: `NBArating.py`, `NFLrating.py`, `NHLrating.py`, `MLBrating.py`, `CFBrating.py`, and `CBBrating.py`. Each module has a `calculate_score()` function that takes two team abbreviations and returns a W2W Score. Splitting them out by sport keeps things clean since the data from ESPN comes back slightly differently per league and the rivalry/marketability values are all sport-specific.
 
-**APIs:**
+**Templating (Jinja2)**
 
-- ESPN Scoreboard APIs - game data, scores, odds, and broadcast info
+Jinja2 is Flask's built-in templating engine. It lets you write HTML with placeholders like `{{ game.matchup }}` or loop through a list with `{% for game in matchups %}`. Flask fills those in with real data before the page gets sent to the browser, so the same template file generates a completely different page every single day.
 
-**Hosting:**
+All three pages (home, about, formula) extend a shared `base.html` template that contains the nav bar, fonts, and footer. This is called template inheritance. If we ever change the nav, we change it in one place and it updates everywhere.
 
-- Vercel - deployment platform
-- SQLite - database for email subscriptions and blurb caching
+**Frontend (HTML, CSS, JavaScript)**
 
-**Other:**
+The HTML defines the structure of the page. The CSS handles all the visual styling, colors, layout, and animations. JavaScript handles the interactive parts.
 
-- PyTZ - timezone handling for displaying games in user's local time
-- SMTP - email verification system (in progress)
+The league filter is entirely client-side, meaning no server request gets made when you click a pill. All games are rendered into the page as hidden HTML elements when it first loads. Each game div has two data attributes on it: `data-league` and `data-overall-rank`. When you click a filter, a JavaScript function reads those attributes and toggles which rows are visible. Clicking All shows only the rows where overall rank is 1 through 10. Clicking a specific league shows all rows where the league matches. The header title also updates dynamically.
 
-## How the Scoring Works
+Live scores work through AJAX polling. Every 30 seconds a JavaScript `setInterval` fires, hits the `/api/live` endpoint on the server, gets back fresh score data as JSON, and updates just the score elements on the page without doing a full reload.
 
-**Each game gets a score based on five components:**
+**Hosting**
 
-- Rivalry (0-12 points): Historical matchups between teams. Duke vs UNC gets 12 points, while non-rivalry games get 0.
-- Marketability (10-20 points): Team popularity and media market size. Lakers, Celtics, and Duke are high value.
-- Competitiveness (0-6.67 points): How evenly matched the teams are based on their win-loss records. Closer records mean higher scores.
-- Quality of Play (0-8.5 points): Combined win percentage of both teams. Two good teams playing each other scores higher.
-- Game Importance (0-14 points regular season, up to 24 for tournaments): Late season games, ranked matchups, playoff implications, and tournament games all increase this score.
+The site runs on Vercel, which handles deployment and serves the Flask app.
 
-The formula varies slightly by sport but follows the same general structure. Each league has its own rating module (NBArating.py, CBBrating.py, etc.) with sport-specific rivalries and adjustments.
+---
 
+## The Scoring Algorithm
+
+Every game gets a W2W Score made up of five components.
+
+**Rivalry Value (0-12 points):** Hard-coded per matchup. Duke vs. UNC gets a 12. Two teams that have no history get a 0. We set these manually based on what we think the actual rivalry intensity is.
+
+**Marketability (10-20 points):** Reflects how popular and widely followed each team is. A Lakers vs. Celtics game gets a much higher marketability score than two small-market teams. Also set manually.
+
+**Competitiveness (0-6.67 points):** Calculated dynamically from the ESPN data. The closer the two teams' win-loss records are to each other, the higher this score. The idea is that evenly matched teams tend to produce better games.
+
+**Quality of Play (0-8.5 points):** Also dynamic. Looks at the combined win percentage of both teams. Two good teams playing each other scores higher than two bad teams.
+
+**Importance (0-14 points regular season, higher in postseason):** Accounts for where the game falls in the season. Late-season games with playoff implications rank higher. Conference tournaments and actual playoffs get a significant boost. There are flags in each rating module like `march_madness = True` and `playoffs = True` that you can flip on when postseason starts.
+
+The final score is just all five of those added together. The formula is slightly tuned per sport but the structure is the same across all six leagues.
+
+---
 
 ## Configuration
 
-- Timezone: The site defaults to US/Eastern but can be changed via the tz query parameter.
-- League Filter: Users can filter by specific leagues using the dropdown menu or by passing ?league=NBA in the URL.
-- Rivalry Scores: Edit the rivalries list in each rating file to add or modify rivalries.
-- Marketability Scores: Team popularity scores are defined in the team_marketability dictionary in each rating file.
-- Tournament Modes: Set march_madness = True, conference_tournament = True, and playoffs = True in NHL, NBA, NFL, CFB in their respective rating files to boost importance scores during tournament season.
+A few things that are easy to adjust:
 
+- **Rivalries:** Edit the rivalries list in any rating file to add or change rivalry scores
+- **Marketability:** Team popularity values live in the `team_marketability` dictionary in each rating file
+- **Postseason mode:** Set `march_madness = True`, `playoffs = True`, etc. in the relevant rating files when tournament season starts
+- **Timezone:** Defaults to US/Eastern, can be changed with a `?tz=` query parameter
 
-## Future Features
+---
 
-- Email subscription system with daily game recommendations
-- User preference saving for favorite teams and leagues
-- Historical game data and trending analysis
-- Mobile app version
+## What We Are Still Working On
+
+- Fixing: Betting odds disappear when a game goes live
+- Fixing: Live score shows "Not Started" during halftime and period breaks
+- Adding: Daily email with that morning's top matchups
+- Adding: Premier League soccer
+
+---
 
 ## Credits
-Game data provided by ESPN's public APIs. Betting odds via DraftKings Sportsbook. 
 
-## License
-This is a personal project. Feel free to fork and modify for your own use.
+Game data from ESPN's public scoreboard APIs. Betting odds from DraftKings Sportsbook.
 
-## Contact Info:
-- Charles Gifford (giffor@bc.edu)
-- Vic Ganson (gansonv@bc.edu)
+---
+
+## Contact
+Charles Gifford -- giffor@bc.edu
+Vic Ganson -- gansonv@bc.edu
