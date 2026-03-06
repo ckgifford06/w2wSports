@@ -118,8 +118,7 @@ def index():
     # now is the good part, going through each matchup finally
     for key, sport in sports.items():
 
-        if True:  # all leagues always fetched — filtering handled client-side
-            continue
+        # all leagues always fetched — filtering handled client-side
 
         try:
             response = requests.get(sport["url"], params={"dates": today})
