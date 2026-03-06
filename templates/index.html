@@ -286,6 +286,7 @@
     background: linear-gradient(90deg, var(--crimson), var(--gold));
   }
 
+  /* ——— EXPANDED DETAILS ——— */
   .game-details {
     display: none;
     padding: 0 0 24px 152px;
@@ -357,6 +358,180 @@
     letter-spacing: 3px;
     margin-bottom: 8px;
   }
+
+  /* ——— ERROR BANNER ——— */
+  .error-banner {
+    display: none;
+    position: relative;
+    z-index: 1;
+    background: rgba(152,0,46,0.12);
+    border-bottom: 1px solid rgba(152,0,46,0.3);
+    padding: 12px 40px;
+    font-size: 13px;
+    color: #ff8080;
+    text-align: center;
+  }
+
+  /* ——— LIVE NOW BANNER ——— */
+  .live-now-banner {
+    display: none;
+    position: relative;
+    z-index: 1;
+    margin: 20px 40px 0;
+    background: rgba(255,48,96,0.07);
+    border: 1px solid rgba(255,48,96,0.25);
+    border-radius: 8px;
+    padding: 16px 20px;
+    cursor: pointer;
+    transition: background 0.2s;
+    animation: slideUp 0.4s ease both;
+  }
+
+  .live-now-banner:hover {
+    background: rgba(255,48,96,0.12);
+  }
+
+  .live-now-inner {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .live-now-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: #ff3060;
+    color: white;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  .live-now-tag::before {
+    content: '';
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: white;
+    animation: pulseDot 1s infinite;
+  }
+
+  .live-now-matchup {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .live-now-score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: #ff3060;
+    margin-left: auto;
+  }
+
+  .live-now-detail {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+
+  /* ——— MOBILE RESPONSIVE ——— */
+  @media (max-width: 768px) {
+    nav {
+      padding: 0 16px;
+      flex-wrap: wrap;
+      height: auto;
+      gap: 0;
+    }
+
+    .nav-center { display: none; }
+
+    .nav-right {
+      width: 100%;
+      min-width: unset;
+      justify-content: flex-start;
+      padding: 8px 0 10px;
+      overflow-x: auto;
+      gap: 6px;
+    }
+
+    .filter-label { display: none; }
+
+    .page-header {
+      padding: 24px 16px 20px;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .header-left h1 { font-size: 36px; }
+    .header-right { text-align: left; }
+
+    .games-container { padding: 0 16px 40px; }
+
+    .live-now-banner { margin: 16px 16px 0; }
+
+    .col-headers { display: none; }
+
+    .game-row {
+      grid-template-columns: 36px 60px 1fr;
+      grid-template-rows: auto auto;
+      gap: 8px 10px;
+      padding: 14px 0;
+    }
+
+    .game-time-col {
+      grid-column: 2 / 4;
+      text-align: left;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .score-col {
+      grid-column: 3;
+      grid-row: 1;
+      align-items: flex-end;
+    }
+
+    .score-number { font-size: 24px; }
+
+    .game-rank { font-size: 24px; }
+
+    .matchup-name { font-size: 15px; white-space: normal; }
+
+    .game-details {
+      padding: 0 0 16px 0;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .blurb-card { grid-column: span 2; }
+
+    .error-banner { padding: 10px 16px; }
+  }
+
+  @media (max-width: 480px) {
+    .game-row {
+      grid-template-columns: 32px 1fr;
+    }
+
+    .league-badge { display: none; }
+
+    .score-col { grid-column: 2; }
+
+    .game-time-col { grid-column: 2; }
+
+    .game-details { grid-template-columns: 1fr; }
+
+    .blurb-card { grid-column: span 1; }
+  }
 </style>
 {% endblock %}
 
@@ -375,6 +550,10 @@
 
 {% block content %}
 
+<div class="error-banner" id="error-banner">
+  Having trouble loading today's games. Data may be delayed — check back in a few minutes.
+</div>
+
 <div class="page-header">
   <div class="header-left">
     <h1>Top <span>10</span> Matchups Today</h1>
@@ -386,6 +565,16 @@
   <div class="header-right">
     <div class="todays-date" id="today-date"></div>
     <div class="game-count" id="game-count"></div>
+  </div>
+</div>
+
+<!-- Live Now banner: injected by JS when a top-10 game is in progress -->
+<div class="live-now-banner" id="live-now-banner" onclick="scrollToLiveGame()">
+  <div class="live-now-inner">
+    <span class="live-now-tag">Live Now</span>
+    <span class="live-now-matchup" id="live-now-matchup"></span>
+    <span class="live-now-detail" id="live-now-detail"></span>
+    <span class="live-now-score" id="live-now-score"></span>
   </div>
 </div>
 
@@ -401,7 +590,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
@@ -417,7 +606,7 @@
 
       <div class="game-time-col">
         <div class="game-time">{{ game.time }}</div>
-        <div class="game-network" id="live-score-{{ loop.index }}">
+        <div class="game-network">
           {% if 'Live' in game.live_score %}
             <span style="color:#ff3060; font-weight:600;">{{ game.live_score }}</span>
           {% elif 'Final' in game.live_score %}
@@ -477,19 +666,26 @@
 </div>
 
 <script>
-  // Set today's date in header
+  (function() {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const url = new URL(window.location.href);
+    if (!url.searchParams.get('tz') && tz) {
+      url.searchParams.set('tz', tz);
+      window.history.replaceState({}, '', url.toString());
+    }
+  })();
+
+
   const now = new Date();
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
-  // Toggle expanded game details
+
   function toggleGame(el) {
     el.classList.toggle('open');
   }
 
-  // Filter logic:
-  // "All" → show only the overall top 10 (rank 1–10)
-  // Any league → show all games in that league, ranked by their overall W2W score
+
   function filterLeague(league, btn) {
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -498,16 +694,8 @@
     let shown = 0;
 
     items.forEach(item => {
-      const itemLeague = item.dataset.league;
       const overallRank = parseInt(item.dataset.overallRank, 10);
-      let visible = false;
-
-      if (league === 'all') {
-        visible = overallRank <= 10;
-      } else {
-        visible = itemLeague === league;
-      }
-
+      const visible = league === 'all' ? overallRank <= 10 : item.dataset.league === league;
       item.style.display = visible ? '' : 'none';
       if (visible) shown++;
     });
@@ -524,32 +712,87 @@
     }
   }
 
+  // initialize on page load
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
-  async function updateLiveScores() {
-    try {
-      const response = await fetch('/api/live');
-      if (!response.ok) return;
-      const data = await response.json();
-
-      data.forEach((game, index) => {
-        const el = document.getElementById(`live-score-${index + 1}`);
-        if (!el) return;
-
-        const status = game.status.toLowerCase();
-        if (status.includes('in progress') || status.includes('live')) {
-          el.innerHTML = `<span style="color:#ff3060; font-weight:600;">Live: ${game.score}</span>`;
-        } else if (status.includes('final')) {
-          el.innerHTML = `<span style="color:var(--text-muted);">Final: ${game.score}</span>`;
-        } else {
-          el.innerHTML = `<span style="color:var(--text-dim);">Not started</span>`;
-        }
-      });
-    } catch (e) {
-      console.error('Live score update failed:', e);
+  function scrollToLiveGame() {
+    const liveItem = document.querySelector('.game-item[data-live="true"]');
+    if (liveItem) {
+      liveItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      liveItem.classList.add('open');
     }
   }
 
+  async function updateLiveScores() {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      const response = await fetch(`/api/live?tz=${encodeURIComponent(tz)}`);
+
+      if (!response.ok) {
+        document.getElementById('error-banner').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('error-banner').style.display = 'none';
+      const data = await response.json();
+
+      // Build a lookup map: matchup string -> game data
+      const liveMap = {};
+      data.forEach(game => { liveMap[game.matchup] = game; });
+
+      let bestLiveGame = null;
+      let bestLiveRank = Infinity;
+
+      // Update each visible game row
+      document.querySelectorAll('.game-item').forEach(item => {
+        const matchup = item.dataset.matchup;
+        const rank = parseInt(item.dataset.overallRank, 10);
+        const game = liveMap[matchup];
+        if (!game) return;
+
+        const scoreEl = item.querySelector('.game-network');
+        if (!scoreEl) return;
+
+        const status = game.status.toLowerCase();
+        const isLive = status.includes('in_progress') || status.includes('in progress');
+        const isFinal = status.includes('final');
+
+        item.dataset.live = isLive ? 'true' : 'false';
+
+        if (isLive) {
+          const detail = game.detail ? ` · ${game.detail}` : '';
+          scoreEl.innerHTML = `<span style="color:#ff3060;font-weight:600;">Live: ${game.score}${detail}</span>`;
+          if (rank < bestLiveRank) {
+            bestLiveRank = rank;
+            bestLiveGame = game;
+            bestLiveGame.rank = rank;
+          }
+        } else if (isFinal) {
+          scoreEl.innerHTML = `<span style="color:var(--text-muted);">Final: ${game.score}</span>`;
+        } else {
+          scoreEl.innerHTML = `<span style="color:var(--text-dim);">Not started</span>`;
+        }
+      });
+
+      // update the Live Now banner with the highest-ranked live game
+      const banner = document.getElementById('live-now-banner');
+      if (bestLiveGame) {
+        document.getElementById('live-now-matchup').textContent = bestLiveGame.matchup;
+        document.getElementById('live-now-score').textContent = bestLiveGame.score;
+        document.getElementById('live-now-detail').textContent = bestLiveGame.detail || '';
+        banner.style.display = 'block';
+      } else {
+        banner.style.display = 'none';
+      }
+
+    } catch (e) {
+      console.error('Live score update failed:', e);
+      document.getElementById('error-banner').style.display = 'block';
+    }
+  }
+
+  // poll immediately then every 30s
+  updateLiveScores();
   setInterval(updateLiveScores, 30000);
 </script>
 
