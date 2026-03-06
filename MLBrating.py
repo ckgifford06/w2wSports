@@ -103,3 +103,15 @@ def gameImportance(home, away):
         if away_seed is not None and 6 < away_seed < 11:
             importance += 3
     return importance
+
+def calculate_score(home, away):
+    return calculateScore(home, away)
+
+def calculate_score_breakdown(home, away):
+    return {
+        "rivalry":         round(rivalry(home, away), 2),
+        "marketability":   round(marketability(home, away), 2),
+        "competitiveness": round(competitiveness(home, away), 2),
+        "quality":         round(qualityOfPlay(home, away), 2),
+        "importance":      round(gameImportance(home, away), 2),
+    }
