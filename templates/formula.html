@@ -1,161 +1,220 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TYYDCDNEH"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+{% extends "base.html" %}
 
-    gtag('config', 'G-8TYYDCDNEH');
-  </script>
-  <meta charset="UTF-8">
-  <title>Our Formula — W2W Sports</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background-color: #BC9B6A;
-      color: #000000;
-      margin: 0;
-      padding: 0;
-    }
+{% block title %}Our Formula — W2W Sports{% endblock %}
 
-    nav {
-      background-color: #1f1f1f;
-      padding: 15px;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-    }
+{% block extra_styles %}
+<style>
+  .formula-components {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin: 20px 0 32px;
+  }
 
-    nav a {
-      color: #ffffff;
-      text-decoration: none;
-      margin: 0 20px;
-      font-weight: bold;
-      font-size: 18px;
-      transition: color 0.3s;
-    }
+  .component-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    border-top: 3px solid var(--crimson);
+    transition: transform 0.2s, border-color 0.2s;
+  }
 
-    nav a:hover {
-      color: #98002E;
-    }
+  .component-card:hover {
+    transform: translateY(-2px);
+    border-color: var(--crimson);
+  }
 
-    nav .divider {
-      color: #ffffff; 
-      margin: 0 8px; 
-    }
+  .component-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
 
-    .container {
-      max-width: 900px;
-      margin: 60px auto;
-      background-color: #BC9B6A;
-      color: #000000;
-      border: 4px solid #1f1f1f;
-      border-radius: 12px;
-      padding: 40px 50px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.25);
-    }
+  .component-desc {
+    font-size: 13px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
 
-    h1 {
-      text-align: center;
-      color: #1f1f1f;
-      font-size: 40px;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+  .component-range {
+    display: inline-block;
+    margin-top: 10px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    background: rgba(188,155,106,0.1);
+    border: 1px solid rgba(188,155,106,0.2);
+    padding: 2px 8px;
+    border-radius: 3px;
+  }
 
-    h2 {
-      color: #1f1f1f;
-      margin-top: 40px;
-      border-left: 6px solid #1f1f1f;
-      padding-left: 10px;
-    }
+  .formula-equation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin: 32px 0;
+    padding: 32px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
 
-    p {
-      font-size: 20px;
-      line-height: 1.7;
-      color: #000000;
-      margin: 20px 0;
-    }
+  .eq-term {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text);
+    text-align: center;
+  }
 
-    p1 {
-      font-size: 18px;
-      line-height: 1.7;
-      color: #000000;
-      margin: 20px 0;
-    }
+  .eq-plus {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    color: var(--text-dim);
+  }
 
-    ul {
-      font-size: 18px;
-      line-height: 1.8;
-      color: #000000;
-    }
+  .eq-equals {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    color: var(--crimson);
+    margin: 0 4px;
+  }
 
-    .highlight {
-      font-weight: bold;
-      color: #98002E;
-    }
+  .eq-result {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--gold);
+  }
 
-    footer {
-      background-color: #1f1f1f;
-      color: #ffffff;
-      text-align: center;
-      padding: 20px 0;
-      font-size: 14px;
-      margin-top: 60px;
-    }
+  .info-box {
+    background: rgba(152,0,46,0.07);
+    border: 1px solid rgba(152,0,46,0.2);
+    border-radius: 8px;
+    padding: 20px 24px;
+    margin: 16px 0;
+  }
 
-    hr {
-      border: none;
-      height: 3px;
-      background-color: #1f1f1f;
-      margin: 30px 0;
-    }
-  </style>
-</head>
-<body>
+  .info-box-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--crimson);
+    margin-bottom: 8px;
+  }
 
-  <nav>
-    <a href="/">Home</a> 
-    <span class="divider">|</span>
-    <a href="/formula">Our Formula</a>
-    <span class="divider">|</span>
-    <a href="/about">About Us</a>
-    
-  </nav>
+  .info-box p {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
 
-  <div class="container">
-    <h1>The W2W Score Formula</h1>
-    <hr>
+  .info-box strong { color: var(--text); }
 
-    <p>The <strong>W2W Score</strong> is a proprietary ranking system that evaluates every major U.S. sporting event across the <span class="highlight">NBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>, <span class="highlight">MLB</span>, <span class="highlight">CFB</span>, and <span class="highlight">CBB</span> to determine which matchups are the most exciting to watch on any given day.</p>
+  .source-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 4px 4px 4px 0;
+  }
+</style>
+{% endblock %}
 
-    <h2>Core Components</h2>
-      <p>We take into account...</p>
-      <ul>
-        <li><strong>Rivalry Value</strong></li>
-        <li><strong>Marketability</strong></li>
-        <li><strong>Competitiveness</strong></li>
-        <li><strong>Quality of Play</strong></li>
-        <li><strong>Importance</strong></li>
-      </ul>
-    <p>We think that these five factors are what determines the watchability (W2W Score) of a game.</p>
-    
-    <h2>How It’s Calculated</h2>
-      <p> To preface, we get all of our game-day data from <strong>ESPN API's</strong>. The only thing that we have hard coded are the rivalry values and the marketability values.</p>
-      <p> The W2W Score is built from four primary categories:
-      <ul>
-        <li><strong>Marketability</strong>: Reflects overall team appeal, including brand strength, fanbase size, star power, and media relevance. Each team is assigned a value from 1–10.</li>
-        <li><strong>Rivalry Value</strong>: Captures the historical and emotional significance of a matchup. Each rivalry is rated from 1–10 based on sport-specific context.</li>
-        <li><strong>Competitiveness</strong>: Measures how closely matched the teams are in the standings, emphasizing games where outcomes are less predictable.</li>
-        <li><strong>Quality of Play</strong>: Evaluates how well both teams are performing, using their combined success throughout the season.</li>
-        <li><strong>Importance</strong>: Accounts for where the game falls in the season, with higher weight given to late-season and postseason matchups.</li>
-      </ul>
-      </p>
-      <p> These categories are combined to produce the final W2W Score, which ranks games by overall interest and significance.</p>
-    <h2>Final Formula</h2>
-      <p1> <strong>Rivalry</strong> + <strong>Marketability</strong> + <strong>Competitiveness</strong> + <strong> Quality of Play</strong> + <strong>Importance of Game</strong> = <strong>W2W Score</strong></p1>
+{% block content %}
+<div class="page-container">
+
+  <h1 class="page-title">The <span>W2W</span> Score Formula</h1>
+  <hr class="page-divider">
+
+  <p class="prose">
+    The <strong>W2W Score</strong> is a proprietary ranking system that evaluates every major U.S. sporting event across the
+    <span class="highlight">NBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>,
+    <span class="highlight">MLB</span>, <span class="highlight">CFB</span>, and <span class="highlight">CBB</span>
+    to determine which matchups are the most exciting to watch on any given day.
+  </p>
+
+  <h2 class="section-heading">Core Components</h2>
+  <p class="prose">Five factors determine the watchability of every game:</p>
+
+  <div class="formula-components">
+    <div class="component-card">
+      <div class="component-title">Rivalry Value</div>
+      <div class="component-desc">Captures the historical and emotional significance of a matchup. Hard-coded based on sport-specific context.</div>
+      <span class="component-range">1 – 10</span>
+    </div>
+    <div class="component-card">
+      <div class="component-title">Marketability</div>
+      <div class="component-desc">Reflects overall team appeal — brand strength, fanbase size, star power, and media relevance.</div>
+      <span class="component-range">1 – 10</span>
+    </div>
+    <div class="component-card">
+      <div class="component-title">Competitiveness</div>
+      <div class="component-desc">Measures how closely matched the teams are in the standings, emphasizing less predictable outcomes.</div>
+      <span class="component-range">Dynamic</span>
+    </div>
+    <div class="component-card">
+      <div class="component-title">Quality of Play</div>
+      <div class="component-desc">Evaluates how well both teams are performing using their combined success throughout the season.</div>
+      <span class="component-range">Dynamic</span>
+    </div>
+    <div class="component-card">
+      <div class="component-title">Importance</div>
+      <div class="component-desc">Accounts for where the game falls in the season, with higher weight for late-season and postseason matchups.</div>
+      <span class="component-range">Dynamic</span>
+    </div>
   </div>
-</body>
-</html>
+
+  <h2 class="section-heading">Final Formula</h2>
+
+  <div class="formula-equation">
+    <span class="eq-term">Rivalry</span>
+    <span class="eq-plus">+</span>
+    <span class="eq-term">Marketability</span>
+    <span class="eq-plus">+</span>
+    <span class="eq-term">Competitiveness</span>
+    <span class="eq-plus">+</span>
+    <span class="eq-term">Quality of Play</span>
+    <span class="eq-plus">+</span>
+    <span class="eq-term">Importance</span>
+    <span class="eq-equals">=</span>
+    <span class="eq-result">W2W Score</span>
+  </div>
+
+  <h2 class="section-heading">Data Sources</h2>
+  <p class="prose">
+    All live game-day data is pulled from the <strong>ESPN API</strong>. The only hard-coded values are
+    rivalry scores and marketability ratings, which we've carefully calibrated ourselves.
+  </p>
+  <div>
+    <span class="source-tag">📡 ESPN Scoreboard API</span>
+    <span class="source-tag">💰 DraftKings Sportsbook (odds)</span>
+    <span class="source-tag">🤖 Claude AI (game blurbs)</span>
+  </div>
+
+  <h2 class="section-heading">The "Why Watch" Blurb</h2>
+  <div class="info-box">
+    <div class="info-box-title">Powered by Claude AI</div>
+    <p>
+      The <strong>"Why Watch"</strong> description shown when you expand a game is generated by
+      <strong>Claude AI (Anthropic)</strong>. We give it context about the matchup — records, rivalry status,
+      conference standings — and it produces a one-sentence summary of why the game is worth tuning in.
+      To reduce environmental impact, we only generate blurbs for the <strong>top 10 matchups</strong> each day,
+      not every game on the schedule.
+    </p>
+  </div>
+
+</div>
+{% endblock %}
