@@ -619,10 +619,6 @@
 
 {% block content %}
 
-<!-- Error banner: shown by JS if ESPN API fails -->
-<div class="error-banner" id="error-banner">
-  Having trouble loading today's games. Data may be delayed — check back in a few minutes.
-</div>
 
 <div class="page-header">
   <div class="header-left">
@@ -638,7 +634,6 @@
   </div>
 </div>
 
-<!-- Live Now banner: injected by JS when a top-10 game is in progress -->
 <div class="live-now-banner" id="live-now-banner" onclick="scrollToLiveGame()">
   <div class="live-now-inner">
     <span class="live-now-tag">Live Now</span>
@@ -821,8 +816,6 @@
     }
   }
 
-  // ——— LEAGUE FILTER ———
-  // "All" shows only overall top 10. Any league shows all games in that league.
   function filterLeague(league, btn) {
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -849,10 +842,9 @@
     }
   }
 
-  // Initialize on page load
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
-  // ——— SCROLL TO LIVE GAME (for the Live Now banner) ———
+
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
     if (liveItem) {
@@ -861,9 +853,7 @@
     }
   }
 
-  // ——— LIVE SCORE POLLING ———
-  // Matches by matchup name rather than index position so it stays accurate
-  // even if game order ever shifts. Also drives the Live Now banner.
+
   async function updateLiveScores() {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
