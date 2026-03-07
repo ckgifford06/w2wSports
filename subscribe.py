@@ -2,16 +2,13 @@ import os
 import json
 import requests
 
+
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
 
 def save_game_scores(games: list, date_str: str) -> bool:
-    """
-    Upsert a list of scored games into the game_scores table.
-    date_str should be in YYYY-MM-DD format.
-    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         print("Supabase not configured — skipping score save")
         return False
@@ -45,10 +42,6 @@ def save_game_scores(games: list, date_str: str) -> bool:
 
 
 def get_top_games(limit: int = 100, league: str = None) -> list:
-    """
-    Fetch the highest-scored games ever stored, optionally filtered by league.
-    Returns a list of dicts ordered by score descending.
-    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         return []
 
@@ -75,10 +68,6 @@ def get_top_games(limit: int = 100, league: str = None) -> list:
     return []
 
 def add_subscriber(email: str) -> dict:
-    """
-    Insert an email into the Supabase subscribers table.
-    Returns {"success": True} or {"error": "message"}.
-    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         return {"error": "Supabase not configured"}
 
@@ -116,7 +105,6 @@ def get_all_subscribers() -> list:
 
 
 def send_digest(subject: str, html_body: str, recipients: list) -> bool:
-    """Send the daily digest email via Resend, one per recipient for privacy."""
     if not RESEND_API_KEY:
         print("Resend not configured")
         return False
