@@ -48,7 +48,7 @@ def get_all_subscribers() -> list:
 
 
 def send_digest(subject: str, html_body: str, recipients: list) -> bool:
-    """Send the daily digest email via Resend to a list of recipients."""
+    """Send the daily digest email via Resend, one per recipient for privacy."""
     if not RESEND_API_KEY:
         print("Resend not configured")
         return False
@@ -63,12 +63,17 @@ def send_digest(subject: str, html_body: str, recipients: list) -> bool:
         "Content-Type": "application/json",
     }
 
-    payload = {
-        "from": "W2W Sports <digest@w2w-sports.com>",
-        "to": recipients,
-        "subject": subject,
-        "html": html_body,
-    }
+    success_count = 0
+    for email in recipients:
+        payload = {
+            "from": "W2W Sports <digest@w2w-sports.com>",
+            "to": [email],
+            "subject": subject,
+            "html": html_body.replace("{{email}}", email),
+        }
+        resp = requests.post(url, json=payload, headers=headers)
+        if resp.status_code == 200:
+            success_count += 1
 
-    resp = requests.post(url, json=payload, headers=headers)
-    return resp.status_code == 200
+    print(f"Sent to {success_count}/{len(recipients)} subscribers")
+    return success_count > 0
