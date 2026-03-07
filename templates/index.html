@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 
-{% block title %}W2W Sports — Top Matchups Today{% endblock %}
+{% block title %}W2W Sports — {{ matchups|length }} Games Tonight{% endblock %}
+{% block og_title %}W2W Sports — Top {{ [matchups|length, 10]|min }} Matchups Tonight{% endblock %}
+{% block og_url %}/{% endblock %}
 
 {% block extra_styles %}
 <style>
