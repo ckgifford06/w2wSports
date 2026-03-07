@@ -342,7 +342,6 @@ def api_live():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     games = fetch_games_for_date(today, local_tz)
 
-    # Return a slimmed-down payload — just what the frontend needs for live score updates
     live_data = [
         {
             "matchup": g["matchup"],
