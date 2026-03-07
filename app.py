@@ -359,10 +359,15 @@ def api_live():
 
 @app.route("/leaderboard")
 def leaderboard():
-    from subscribe import get_top_games
-    league_filter = request.args.get("league", "all")
-    league = None if league_filter == "all" else league_filter
-    games = get_top_games(limit=100, league=league)
+    try:
+        from subscribe import get_top_games
+        league_filter = request.args.get("league", "all")
+        league = None if league_filter == "all" else league_filter
+        games = get_top_games(limit=100, league=league)
+    except Exception as e:
+        print(f"Leaderboard error: {e}", flush=True)
+        games = []
+        league_filter = "all"
     return render_template("leaderboard.html", games=games, selected_league=league_filter, active_page="leaderboard")
 
 
@@ -393,7 +398,8 @@ def api_save_scores():
     return jsonify({"success": ok, "saved": len(games), "date": date_label}), 200
 
 
-
+@app.route('/about')
+def about():
     return render_template('about.html', active_page='about')
 
 @app.route("/formula")
