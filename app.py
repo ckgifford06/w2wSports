@@ -357,7 +357,7 @@ def api_live():
     ]
     return jsonify(live_data)
 
-@app.route("/leaderboard")
+@app.route("/records")
 def leaderboard():
     try:
         from subscribe import get_top_games
@@ -368,15 +368,11 @@ def leaderboard():
         print(f"Leaderboard error: {e}", flush=True)
         games = []
         league_filter = "all"
-    return render_template("leaderboard.html", games=games, selected_league=league_filter, active_page="leaderboard")
+    return render_template("records.html", games=games, selected_league=league_filter, active_page="records")
 
 
 @app.route("/api/save-scores")
 def api_save_scores():
-    """
-    Cron endpoint — called at midnight ET to store the day's final scores.
-    Protected by the same CRON_SECRET as the digest endpoint.
-    """
     token = request.args.get("token")
     if token != os.environ.get("CRON_SECRET"):
         return jsonify({"error": "Unauthorized"}), 401
@@ -386,7 +382,6 @@ def api_save_scores():
     from datetime import datetime as _dt, timedelta as _td
 
     et = _pytz.timezone("US/Eastern")
-    # At midnight ET, "yesterday" is the day whose games just finished
     yesterday = (_dt.now(et) - _td(days=1)).strftime("%Y%m%d")
     date_label = (_dt.now(et) - _td(days=1)).strftime("%Y-%m-%d")
 
