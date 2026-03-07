@@ -44,7 +44,7 @@
     color: white;
   }
 
-  /* ——— PAGE HEADER ——— */
+
   .page-header {
     position: relative;
     z-index: 1;
@@ -119,7 +119,7 @@
     margin-top: 4px;
   }
 
-  /* ——— GAMES LIST ——— */
+
   .games-container {
     position: relative;
     z-index: 1;
@@ -431,7 +431,7 @@
     .breakdown-card { grid-column: span 1; }
   }
 
-  /* ——— ERROR BANNER ——— */
+
   .error-banner {
     display: none;
     position: relative;
@@ -444,7 +444,7 @@
     text-align: center;
   }
 
-  /* ——— LIVE NOW BANNER ——— */
+
   .live-now-banner {
     display: none;
     position: relative;
@@ -514,7 +514,7 @@
     margin-left: 4px;
   }
 
-  /* ——— MOBILE RESPONSIVE ——— */
+
   @media (max-width: 768px) {
     nav {
       padding: 0 16px;
@@ -559,7 +559,7 @@
       padding: 14px 0;
     }
 
-    /* rank: col 1, row 1+2 */
+
     .game-rank {
       grid-column: 1;
       grid-row: 1 / 3;
@@ -567,7 +567,7 @@
       align-self: center;
     }
 
-    /* league badge moves inline with team name */
+
     .game-teams {
       grid-column: 2;
       grid-row: 1;
@@ -579,7 +579,7 @@
       line-height: 1.3;
     }
 
-    /* league badge sits inside matchup-meta, shown inline */
+
     .league-badge {
       display: inline-block;
       margin-right: 6px;
@@ -588,7 +588,7 @@
       padding: 2px 6px;
     }
 
-    /* score col: top right */
+
     .score-col {
       grid-column: 3;
       grid-row: 1;
@@ -597,7 +597,7 @@
 
     .score-number { font-size: 22px; }
 
-    /* time col: below team name, spanning cols 2-3 */
+
     .game-time-col {
       grid-column: 2 / 4;
       grid-row: 2;
@@ -650,7 +650,7 @@
 
 {% block content %}
 
-<!-- Error banner: shown by JS if ESPN API fails -->
+
 <div class="error-banner" id="error-banner">
   Having trouble loading today's games. Data may be delayed — check back in a few minutes.
 </div>
@@ -669,7 +669,6 @@
   </div>
 </div>
 
-<!-- Live Now banner: injected by JS when a top-10 game is in progress -->
 <div class="live-now-banner" id="live-now-banner" onclick="scrollToLiveGame()">
   <div class="live-now-inner">
     <span class="live-now-tag">Live Now</span>
@@ -816,28 +815,23 @@
 </div>
 
 <script>
-  // ——— TIMEZONE: detect user's local timezone and pass to server on next load ———
   (function() {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const url = new URL(window.location.href);
     if (!url.searchParams.get('tz') && tz) {
       url.searchParams.set('tz', tz);
-      // Replace state silently so it's used on next full navigation without forcing a reload now
       window.history.replaceState({}, '', url.toString());
     }
   })();
 
-  // ——— DATE HEADER ———
+
   const now = new Date();
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
-  // ——— TOGGLE EXPANDED GAME DETAILS ———
-  // Also triggers the breakdown bar animation on open
   function toggleGame(el) {
     el.classList.toggle('open');
     if (el.classList.contains('open')) {
-      // Small delay so the display:grid transition completes first
       setTimeout(() => {
         el.querySelectorAll('.breakdown-fill').forEach(bar => {
           bar.style.width = (bar.dataset.pct || 0) + '%';
@@ -850,8 +844,6 @@
     }
   }
 
-  // ——— LEAGUE FILTER ———
-  // "All" shows only overall top 10. Any league shows all games in that league.
   function filterLeague(league, btn) {
     document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
@@ -878,10 +870,10 @@
     }
   }
 
-  // Initialize on page load
+
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
-  // ——— SCROLL TO LIVE GAME (for the Live Now banner) ———
+
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
     if (liveItem) {
@@ -890,9 +882,6 @@
     }
   }
 
-  // ——— LIVE SCORE POLLING ———
-  // Matches by matchup name rather than index position so it stays accurate
-  // even if game order ever shifts. Also drives the Live Now banner.
   async function updateLiveScores() {
     try {
       const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -906,14 +895,12 @@
       document.getElementById('error-banner').style.display = 'none';
       const data = await response.json();
 
-      // Build a lookup map: matchup string -> game data
       const liveMap = {};
       data.forEach(game => { liveMap[game.matchup] = game; });
 
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
-      // Update each visible game row
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -944,7 +931,6 @@
         }
       });
 
-      // Update the Live Now banner with the highest-ranked live game
       const banner = document.getElementById('live-now-banner');
       if (bestLiveGame) {
         document.getElementById('live-now-matchup').textContent = bestLiveGame.matchup;
@@ -961,7 +947,6 @@
     }
   }
 
-  // Poll immediately then every 30s
   updateLiveScores();
   setInterval(updateLiveScores, 30000);
 </script>
