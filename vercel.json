@@ -16,6 +16,10 @@
     {
       "path": "/api/send-digest?token=brunsonandhart",
       "schedule": "0 13 * * *"
+    },
+    {
+      "path": "/api/save-scores?token=brunsonandhart",
+      "schedule": "0 5 * * *"
     }
   ]
 }
