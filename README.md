@@ -130,11 +130,15 @@ The formula is tuned per sport but the structure is identical across all six lea
 
 ---
 
+## Records Section
+
+- We have a whole webpage dedicated to the top ranked games of all time. As I write this, UNC vs Duke are playing and will most likely hold that coveted spot for a while.
+---
+
 ## What We Are Still Working On
 
 - Fixing: Live score shows "Not Started" during halftime and period breaks
 - Adding: More leagues (email us to give us suggestions), and when events such as the World Cup happens, have a rating system for that as well.
-
 
 ---
 
