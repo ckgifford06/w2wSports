@@ -302,7 +302,7 @@ def fetch_games_for_date(date_str, local_tz):
 
 @app.route('/')
 def index():
-    selected_league = request.args.get("league", "all")
+    selected_league = request.args.get("league", "top10")
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
