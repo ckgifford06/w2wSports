@@ -404,11 +404,9 @@
     <div class="lb-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
 
     <div class="lb-date">
-      {{ game.date | string | truncate(5, True, '') }}<br>
-      <span style="font-size:10px;color:var(--text-dim);">{{ game.date | string | truncate(4, True, '')[-2:] if game.date else '' }}</span>
       {% set d = game.date | string %}
       {{ d[5:7] }}/{{ d[8:10] }}<br>
-      <span style="font-size:10px;">{{ d[0:4] }}</span>
+      <span style="font-size:10px;color:var(--text-dim);">{{ d[0:4] }}</span>
     </div>
 
     <div class="lb-teams">
