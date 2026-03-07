@@ -6,25 +6,6 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
-# ——— GAME OF THE YEAR / LEADERBOARD ———
-#
-# Requires a Supabase table. Run this SQL in your Supabase SQL editor:
-#
-#   CREATE TABLE game_scores (
-#     id          BIGSERIAL PRIMARY KEY,
-#     date        DATE        NOT NULL,
-#     matchup     TEXT        NOT NULL,
-#     league      TEXT        NOT NULL,
-#     score       NUMERIC     NOT NULL,
-#     breakdown   JSONB,
-#     is_rivalry  BOOLEAN     DEFAULT FALSE,
-#     where_to_watch TEXT,
-#     created_at  TIMESTAMPTZ DEFAULT NOW()
-#   );
-#
-#   -- Prevent duplicate entries if the cron runs twice on the same day
-#   CREATE UNIQUE INDEX game_scores_date_matchup ON game_scores (date, matchup);
-
 
 def save_game_scores(games: list, date_str: str) -> bool:
     """
@@ -84,7 +65,6 @@ def get_top_games(limit: int = 100, league: str = None) -> list:
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
         rows = resp.json()
-        # breakdown comes back as a dict from JSONB — normalise just in case
         for row in rows:
             if isinstance(row.get("breakdown"), str):
                 try:
@@ -112,7 +92,6 @@ def add_subscriber(email: str) -> dict:
 
     resp = requests.post(url, json={"email": email}, headers=headers)
 
-    # 201 = inserted, 409 = already exists (unique constraint) — both are fine
     if resp.status_code in (201, 409):
         return {"success": True}
 
