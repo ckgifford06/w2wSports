@@ -1,12 +1,7 @@
-import requests
-
-url = "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard"
-
-season_length = 30 
+season_length = 30
 march_madness = False
 conference_tournament = False
 
-# Marketability scores for major college basketball programs (1-10 scale)
 team_marketability = {
     "UK_CBB": 9, "UNC_CBB": 9, "DUKE_CBB": 10, "KU_CBB": 9, "UCLA_CBB": 8,
     "UL_CBB": 8, "IU_CBB": 8, "MICH_CBB": 8, "MSU_CBB": 8, "OSU_CBB": 7,
@@ -35,7 +30,6 @@ team_marketability = {
     "VAN_CBB": 6, "MIZ_CBB": 6, "GW_CBB": 5, "M-OH_CBB": 5
 }
 
-# Major college basketball rivalries with intensity scores
 rivalries = [
     ("DUKE_CBB", "UNC_CBB", 12),  
     ("UK_CBB", "UL_CBB", 10),  
@@ -68,64 +62,22 @@ rivalries = [
     ("ND_CBB", "MARQ_CBB", 6), 
 ]
 
-def getData():
-    """Fetch fresh data from ESPN API"""
-    try:
-        response = requests.get(url)
-        return response.json()
-    except Exception as e:
-        print(f"Error fetching CBB data: {e}")
-        return {"events": []}
-
-def buildRecords():
-    """Build records dictionary from API data"""
-    data = getData()
-    records = {}
-    
-    if not data.get("events"):
-        print("WARNING: No events found in CBB API data")
-        return records
-    
-    for event in data.get("events", []):
-        for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_CBB"
-            # handle different record formats
-            if competitor.get("records") and len(competitor["records"]) > 0:
-                record = competitor["records"][0].get("summary", "0-0")
-            else:
-                record = "0-0"
-            records[team_abbr] = record
-    return records
-
-def buildSeeds():
-    """Build seeds/rankings dictionary from API data"""
-    data = getData()
-    seeds = {}
-    for event in data.get("events", []):
-        for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_CBB"
-            rank = competitor.get("curatedRank", {}).get("current", None)
-            seeds[team_abbr] = int(rank) if rank and rank != 99 else None
-    return seeds
-
-def calculate_score(home, away):
+def calculate_score(home, away, home_record="0-0", away_record="0-0", home_rank=None, away_rank=None):
     r = rivalry(home, away)
     m = marketability(home, away)
-    c = competitiveness(home, away)
-    q = qualityOfPlay(home, away)
-    g = gameImportance(home, away)
-
-    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
+    c = competitiveness(home_record, away_record)
+    q = qualityOfPlay(home_record, away_record)
+    g = gameImportance(home_rank, away_rank, home_record, away_record)
     return round((r + m + c + q + g), 2)
 
 
-def calculate_score_breakdown(home, away):
+def calculate_score_breakdown(home, away, home_record="0-0", away_record="0-0", home_rank=None, away_rank=None):
     return {
-        "rivalry":        round(rivalry(home, away), 2),
-        "marketability":  round(marketability(home, away), 2),
-        "competitiveness":round(competitiveness(home, away), 2),
-        "quality":        round(qualityOfPlay(home, away), 2),
-        "importance":     round(gameImportance(home, away), 2),
+        "rivalry":         round(rivalry(home, away), 2),
+        "marketability":   round(marketability(home, away), 2),
+        "competitiveness": round(competitiveness(home_record, away_record), 2),
+        "quality":         round(qualityOfPlay(home_record, away_record), 2),
+        "importance":      round(gameImportance(home_rank, away_rank, home_record, away_record), 2),
     }
 
 def rivalry(home, away):
@@ -139,77 +91,59 @@ def marketability(home, away):
     base = team_marketability.get(home, 5) + team_marketability.get(away, 5)
     return base
 
-def competitiveness(home, away):
-    records = buildRecords()
-    homeRecord = records.get(home, "0-0")
-    awayRecord = records.get(away, "0-0")
-    
+def competitiveness(home_record, away_record):
     try:
-        home_wins = int(homeRecord.split("-")[0])
-        away_wins = int(awayRecord.split("-")[0])
+        home_wins = int(home_record.split("-")[0])
+        away_wins = int(away_record.split("-")[0])
         winDiff = abs(home_wins - away_wins)
-    except (ValueError, IndexError) as e:
-        print(f"Error parsing records for {home} ({homeRecord}) vs {away} ({awayRecord}): {e}")
+    except (ValueError, IndexError):
         winDiff = 0
-    
-    compRank = (20 - winDiff) / 3
-    return compRank
 
-def qualityOfPlay(home, away):
-    records = buildRecords()
-    homeRecord = records.get(home, "0-0")
-    awayRecord = records.get(away, "0-0")
-    
+    compRank = (20 - winDiff) / 3
+    return max(0, compRank)
+
+def qualityOfPlay(home_record, away_record):
     try:
-        home_parts = homeRecord.split("-")
-        away_parts = awayRecord.split("-")
-        
-        home_wins = int(home_parts[0])
+        home_parts = home_record.split("-")
+        away_parts = away_record.split("-")
+
+        home_wins   = int(home_parts[0])
         home_losses = int(home_parts[1])
-        away_wins = int(away_parts[0])
+        away_wins   = int(away_parts[0])
         away_losses = int(away_parts[1])
-        
+
         combinedWins = float(home_wins + away_wins)
-        gamesPlayed = float(home_wins + home_losses + away_wins + away_losses)
-        
+        gamesPlayed  = float(home_wins + home_losses + away_wins + away_losses)
+
         if gamesPlayed == 0:
-            print(f"DEBUG qualityOfPlay: gamesPlayed = 0")
             return 0
-        
+
         quality = round(((combinedWins / gamesPlayed) * 10), 3)
-        print(f"DEBUG qualityOfPlay result: {quality}")
         return quality
     except (ValueError, IndexError) as e:
-        print(f"Error calculating quality for {home} ({homeRecord}) vs {away} ({awayRecord}): {e}")
+        print(f"Error calculating CBB quality: {e}")
         return 0
 
-def gameImportance(home, away):
+def gameImportance(home_rank, away_rank, home_record="0-0", away_record="0-0"):
     importance = 0
-    seeds = buildSeeds()
-    records = buildRecords()
-    
-    homeRecord = records.get(home, "0-0")
-    awayRecord = records.get(away, "0-0")
-    
+
     try:
-        home_parts = homeRecord.split("-")
-        away_parts = awayRecord.split("-")
+        home_parts = home_record.split("-")
+        away_parts = away_record.split("-")
         homeGamesPlayed = int(home_parts[0]) + int(home_parts[1])
         awayGamesPlayed = int(away_parts[0]) + int(away_parts[1])
     except (ValueError, IndexError):
         homeGamesPlayed = 0
         awayGamesPlayed = 0
-    
-    home_rank = seeds.get(home)
-    away_rank = seeds.get(away)
+
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
-    
+
     if march_madness:
-        importance += 15 
+        importance += 15
         if home_rank is not None and away_rank is not None:
-            if home_rank <= 8 and away_rank <= 8: 
+            if home_rank <= 8 and away_rank <= 8:
                 importance += 7
-            elif home_rank <= 16 and away_rank <= 16:  
+            elif home_rank <= 16 and away_rank <= 16:
                 importance += 4
     elif conference_tournament:
         importance += 8
@@ -232,5 +166,5 @@ def gameImportance(home, away):
                 importance += 4
             if home_rank <= 5 and away_rank <= 5:
                 importance += 10
-    
+
     return importance
