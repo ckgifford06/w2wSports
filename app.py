@@ -6,7 +6,6 @@ import os
 
 app = Flask(__name__)
 
-# load rating modules only when needed to save memory
 def get_rating_module(league):
     if league == "NBA":
         import NBArating
@@ -26,16 +25,19 @@ def get_rating_module(league):
     elif league == "CBB":
         import CBBrating
         return CBBrating
+    elif league == "EPL":
+        import EPLrating
+        return EPLrating
     return None
 
-# define sports and API endpoints
 sports = {
     "nba": {"name": "NBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"},
     "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"},
     "nhl": {"name": "NHL", "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"},
     "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"},
     "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"},
-    "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard"}
+    "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard"},
+    "epl": {"name": "EPL", "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard"},
 }
 
 def calculate_score(home, away, league):
@@ -65,8 +67,6 @@ def get_rivalry_score(home, away, league):
 
 def generate_fallback_blurb(game_info):
     parts = []
-    
-    # add rankings if both teams are ranked
     if game_info.get('home_rank') and game_info['home_rank'] != "Unranked":
         if game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
             parts.append(f"{game_info['home_rank']} {game_info['home_team']} hosts {game_info['away_rank']} {game_info['away_team']}")
@@ -75,7 +75,6 @@ def generate_fallback_blurb(game_info):
     elif game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
         parts.append(f"{game_info['away_rank']} {game_info['away_team']} visits {game_info['home_team']}")
     
-    # add rivalry info
     if game_info.get('is_rivalry'):
         if parts:
             parts.append("in rivalry matchup")
@@ -89,7 +88,6 @@ def generate_fallback_blurb(game_info):
         else:
             parts.append(f"{game_info['conference']} matchup")
     
-    # add record highlights
     if not parts:
         home_rec = game_info.get('home_record', '')
         away_rec = game_info.get('away_record', '')
@@ -102,10 +100,6 @@ def generate_fallback_blurb(game_info):
 
 
 def fetch_games_for_date(date_str, local_tz):
-    """
-    Fetches and scores all games across all leagues for a given date string (YYYYMMDD).
-    Returns a list of game dicts sorted by W2W score descending.
-    """
     all_games = []
 
     for key, sport in sports.items():
@@ -237,17 +231,23 @@ def fetch_games_for_date(date_str, local_tz):
                         pass
 
                 try:
-                    score = calculate_score(home_abbr, away_abbr, sport["name"])
-                    breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
-                    is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
-                    rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
-                    home_record = home_competitor.get("records", [{}])[0].get("summary", "N/A")
-                    away_record = away_competitor.get("records", [{}])[0].get("summary", "N/A")
+                    home_record = home_competitor.get("records", [{}])[0].get("summary", "0-0-0")
+                    away_record = away_competitor.get("records", [{}])[0].get("summary", "0-0-0")
                     home_rank = home_competitor.get("curatedRank", {}).get("current")
                     away_rank = away_competitor.get("curatedRank", {}).get("current")
                     conference = competition.get("groups", {}).get("shortName", "N/A")
                     home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
                     away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
+
+                    if sport["name"] == "EPL":
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    else:
+                        score = calculate_score(home_abbr, away_abbr, sport["name"])
+                        breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
+
+                    is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
+                    rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
                     description = generate_fallback_blurb({
                         'league': sport['name'], 'home_team': home_name, 'away_team': away_name,
                         'home_record': home_record, 'away_record': away_record,
@@ -315,7 +315,6 @@ def calendar():
 
 @app.route("/api/games")
 def api_games():
-    """Returns all scored games for a given date. Called by the calendar page."""
     date_str = request.args.get("date")
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
@@ -332,7 +331,6 @@ def api_games():
 
 @app.route("/api/live")
 def api_live():
-    """Returns live score status for today's games. Polled by the frontend every 30s."""
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
@@ -342,7 +340,6 @@ def api_live():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     games = fetch_games_for_date(today, local_tz)
 
-    # Return a slimmed-down payload — just what the frontend needs for live score updates
     live_data = [
         {
             "matchup": g["matchup"],
@@ -370,7 +367,6 @@ def formula():
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
-    """Accepts an email and saves it to Supabase."""
     from subscribe import add_subscriber
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
@@ -386,7 +382,6 @@ def api_subscribe():
 
 @app.route("/unsubscribe")
 def unsubscribe():
-    """Removes an email from Supabase. Linked from the digest footer."""
     from subscribe import SUPABASE_URL, SUPABASE_KEY
     import requests as req
 
@@ -404,10 +399,6 @@ def unsubscribe():
 
 @app.route("/api/send-digest")
 def api_send_digest():
-    """
-    Vercel Cron endpoint — called at 8am ET daily.
-    Protected with a secret token so it can't be triggered publicly.
-    """
     token = request.args.get("token")
     if token != os.environ.get("CRON_SECRET"):
         return jsonify({"error": "Unauthorized"}), 401
