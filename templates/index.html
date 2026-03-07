@@ -44,7 +44,7 @@
     color: white;
   }
 
-
+  /* ——— PAGE HEADER ——— */
   .page-header {
     position: relative;
     z-index: 1;
@@ -119,7 +119,7 @@
     margin-top: 4px;
   }
 
-
+  /* ——— GAMES LIST ——— */
   .games-container {
     position: relative;
     z-index: 1;
@@ -362,7 +362,7 @@
     margin-bottom: 8px;
   }
 
-  /* ——— SCORE BREAKDOWN CHART ——— */
+
   .breakdown-card {
     grid-column: span 4;
     background: var(--surface);
@@ -429,6 +429,93 @@
 
   @media (max-width: 480px) {
     .breakdown-card { grid-column: span 1; }
+  }
+
+
+  .signup-section {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--border);
+    padding: 48px 40px;
+    background: linear-gradient(180deg, transparent, rgba(152,0,46,0.04));
+  }
+
+  .signup-inner {
+    max-width: 860px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 40px;
+  }
+
+  .signup-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 3px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .signup-sub {
+    margin-top: 6px;
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .signup-form {
+    display: flex;
+    gap: 8px;
+  }
+
+  .signup-input {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 10px 16px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    width: 240px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .signup-input::placeholder { color: var(--text-dim); }
+  .signup-input:focus { border-color: var(--crimson); }
+
+  .signup-btn {
+    background: var(--crimson);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    transition: background 0.2s;
+    white-space: nowrap;
+  }
+
+  .signup-btn:hover { background: var(--crimson-bright); }
+  .signup-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+  .signup-success {
+    font-size: 14px;
+    color: var(--text-muted);
+  }
+
+  @media (max-width: 768px) {
+    .signup-section { padding: 36px 16px; }
+    .signup-inner { flex-direction: column; align-items: flex-start; gap: 20px; }
+    .signup-input { width: 100%; }
+    .signup-form { width: 100%; }
+  }
+
+  @media (max-width: 480px) {
+    .signup-form { flex-direction: column; }
+    .signup-btn { width: 100%; padding: 12px; }
   }
 
 
@@ -567,7 +654,6 @@
       align-self: center;
     }
 
-
     .game-teams {
       grid-column: 2;
       grid-row: 1;
@@ -596,7 +682,6 @@
     }
 
     .score-number { font-size: 22px; }
-
 
     .game-time-col {
       grid-column: 2 / 4;
@@ -650,7 +735,7 @@
 
 {% block content %}
 
-
+<!-- Error banner: shown by JS if ESPN API fails -->
 <div class="error-banner" id="error-banner">
   Having trouble loading today's games. Data may be delayed — check back in a few minutes.
 </div>
@@ -814,12 +899,38 @@
   {% endif %}
 </div>
 
+<div class="signup-section">
+  <div class="signup-inner">
+    <div class="signup-left">
+      <div class="signup-title">Get the Daily Digest</div>
+      <div class="signup-sub">Top 10 matchups every morning at 8am ET. Free.</div>
+    </div>
+    <div class="signup-right">
+      <div class="signup-form" id="signup-form">
+        <input
+          type="email"
+          id="signup-email"
+          class="signup-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+        />
+        <button class="signup-btn" onclick="submitEmail()">Subscribe</button>
+      </div>
+      <div class="signup-success" id="signup-success" style="display:none;">
+        <span style="color:var(--gold);">✓</span> You're in. See you tomorrow morning.
+      </div>
+      <div class="signup-error" id="signup-error" style="display:none;color:#ff6080;font-size:13px;"></div>
+    </div>
+  </div>
+</div>
+
 <script>
   (function() {
     const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const url = new URL(window.location.href);
     if (!url.searchParams.get('tz') && tz) {
       url.searchParams.set('tz', tz);
+
       window.history.replaceState({}, '', url.toString());
     }
   })();
@@ -829,9 +940,11 @@
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
+
   function toggleGame(el) {
     el.classList.toggle('open');
     if (el.classList.contains('open')) {
+
       setTimeout(() => {
         el.querySelectorAll('.breakdown-fill').forEach(bar => {
           bar.style.width = (bar.dataset.pct || 0) + '%';
@@ -931,6 +1044,7 @@
         }
       });
 
+      // Update the Live Now banner with the highest-ranked live game
       const banner = document.getElementById('live-now-banner');
       if (bestLiveGame) {
         document.getElementById('live-now-matchup').textContent = bestLiveGame.matchup;
@@ -946,9 +1060,55 @@
       document.getElementById('error-banner').style.display = 'block';
     }
   }
-
+  
   updateLiveScores();
   setInterval(updateLiveScores, 30000);
+
+  async function submitEmail() {
+    const input = document.getElementById('signup-email');
+    const btn   = document.querySelector('.signup-btn');
+    const error = document.getElementById('signup-error');
+    const email = input.value.trim();
+
+    error.style.display = 'none';
+
+    if (!email || !email.includes('@')) {
+      error.textContent = 'Please enter a valid email address.';
+      error.style.display = 'block';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Subscribing...';
+
+    try {
+      const resp = await fetch('/api/subscribe', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await resp.json();
+
+      if (data.success) {
+        document.getElementById('signup-form').style.display = 'none';
+        document.getElementById('signup-success').style.display = 'block';
+      } else {
+        error.textContent = data.error || 'Something went wrong. Try again.';
+        error.style.display = 'block';
+        btn.disabled = false;
+        btn.textContent = 'Subscribe';
+      }
+    } catch (e) {
+      error.textContent = 'Could not connect. Please try again.';
+      error.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Subscribe';
+    }
+  }
+
+  document.getElementById('signup-email').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') submitEmail();
+  });
 </script>
 
 {% endblock %}
