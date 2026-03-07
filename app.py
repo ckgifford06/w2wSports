@@ -238,9 +238,11 @@ def fetch_games_for_date(date_str, local_tz):
                     away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
 
                     if sport["name"] == "EPL":
+                        module = get_rating_module("EPL")
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "CBB":
+                        module = get_rating_module("CBB")
                         hr = home_competitor.get("curatedRank", {}).get("current")
                         ar = away_competitor.get("curatedRank", {}).get("current")
                         hr = int(hr) if hr and hr != 99 else None
