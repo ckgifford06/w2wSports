@@ -44,7 +44,6 @@
     color: white;
   }
 
-  /* ——— PAGE HEADER ——— */
   .page-header {
     position: relative;
     z-index: 1;
@@ -119,7 +118,6 @@
     margin-top: 4px;
   }
 
-  /* ——— GAMES LIST ——— */
   .games-container {
     position: relative;
     z-index: 1;
@@ -200,6 +198,7 @@
   .badge-MLB { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.07); }
   .badge-CFB { color: #a07ad0; border-color: rgba(160,122,208,0.3); background: rgba(160,122,208,0.07); }
   .badge-CBB { color: #60c890; border-color: rgba(96,200,144,0.3); background: rgba(96,200,144,0.07); }
+  .badge-EPL { color: #4ec5a5; border-color: rgba(78,197,165,0.3); background: rgba(78,197,165,0.07); }
 
   .game-teams { min-width: 0; }
 
@@ -289,7 +288,6 @@
     background: linear-gradient(90deg, var(--crimson), var(--gold));
   }
 
-  /* ——— EXPANDED DETAILS ——— */
   .game-details {
     display: none;
     padding: 0 0 24px 152px;
@@ -362,7 +360,7 @@
     margin-bottom: 8px;
   }
 
-
+  /* ——— SCORE BREAKDOWN CHART ——— */
   .breakdown-card {
     grid-column: span 4;
     background: var(--surface);
@@ -430,7 +428,6 @@
   @media (max-width: 480px) {
     .breakdown-card { grid-column: span 1; }
   }
-
 
   .signup-section {
     position: relative;
@@ -518,7 +515,6 @@
     .signup-btn { width: 100%; padding: 12px; }
   }
 
-
   .error-banner {
     display: none;
     position: relative;
@@ -530,7 +526,6 @@
     color: #ff8080;
     text-align: center;
   }
-
 
   .live-now-banner {
     display: none;
@@ -601,7 +596,6 @@
     margin-left: 4px;
   }
 
-
   @media (max-width: 768px) {
     nav {
       padding: 0 16px;
@@ -646,7 +640,6 @@
       padding: 14px 0;
     }
 
-
     .game-rank {
       grid-column: 1;
       grid-row: 1 / 3;
@@ -664,8 +657,7 @@
       white-space: normal;
       line-height: 1.3;
     }
-
-
+    
     .league-badge {
       display: inline-block;
       margin-right: 6px;
@@ -673,7 +665,6 @@
       font-size: 9px;
       padding: 2px 6px;
     }
-
 
     .score-col {
       grid-column: 3;
@@ -730,12 +721,12 @@
   <button class="pill {% if selected_league == 'MLB' %}active{% endif %}" onclick="filterLeague('MLB', this)">MLB</button>
   <button class="pill {% if selected_league == 'CFB' %}active{% endif %}" onclick="filterLeague('CFB', this)">CFB</button>
   <button class="pill {% if selected_league == 'CBB' %}active{% endif %}" onclick="filterLeague('CBB', this)">CBB</button>
+  <button class="pill {% if selected_league == 'EPL' %}active{% endif %}" onclick="filterLeague('EPL', this)">EPL</button>
 </div>
 {% endblock %}
 
 {% block content %}
 
-<!-- Error banner: shown by JS if ESPN API fails -->
 <div class="error-banner" id="error-banner">
   Having trouble loading today's games. Data may be delayed — check back in a few minutes.
 </div>
@@ -930,21 +921,17 @@
     const url = new URL(window.location.href);
     if (!url.searchParams.get('tz') && tz) {
       url.searchParams.set('tz', tz);
-
       window.history.replaceState({}, '', url.toString());
     }
   })();
-
 
   const now = new Date();
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
-
   function toggleGame(el) {
     el.classList.toggle('open');
     if (el.classList.contains('open')) {
-
       setTimeout(() => {
         el.querySelectorAll('.breakdown-fill').forEach(bar => {
           bar.style.width = (bar.dataset.pct || 0) + '%';
@@ -983,9 +970,7 @@
     }
   }
 
-
   filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
-
 
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
@@ -1014,6 +999,7 @@
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
+      // Update each visible game row
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -1044,7 +1030,6 @@
         }
       });
 
-      // Update the Live Now banner with the highest-ranked live game
       const banner = document.getElementById('live-now-banner');
       if (bestLiveGame) {
         document.getElementById('live-now-matchup').textContent = bestLiveGame.matchup;
@@ -1060,7 +1045,7 @@
       document.getElementById('error-banner').style.display = 'block';
     }
   }
-  
+
   updateLiveScores();
   setInterval(updateLiveScores, 30000);
 
