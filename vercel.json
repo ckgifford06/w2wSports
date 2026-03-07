@@ -13,3 +13,11 @@
     }
   ]
 }
+{
+  "crons": [
+    {
+      "path": "/api/send-digest?token=YOUR_CRON_SECRET",
+      "schedule": "0 13 * * *"
+    }
+  ]
+}
