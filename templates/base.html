@@ -10,7 +10,25 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}W2W Sports{% endblock %}</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/static/favicon.svg">
+
+  <!-- Page title -->
+  <title>{% block title %}W2W Sports — Know What to Watch{% endblock %}</title>
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website">
+  <meta property="og:site_name"   content="W2W Sports">
+  <meta property="og:title"       content="{% block og_title %}W2W Sports — Know What to Watch{% endblock %}">
+  <meta property="og:description" content="{% block og_description %}Daily sports matchup rankings across NBA, NFL, NHL, MLB, CFB and CBB. Ranked by rivalry, marketability, competitiveness, quality, and importance.{% endblock %}">
+  <meta property="og:url"         content="https://w2w-sports.com{% block og_url %}/{% endblock %}">
+
+  <!-- Twitter card -->
+  <meta name="twitter:card"        content="summary">
+  <meta name="twitter:title"       content="{% block twitter_title %}W2W Sports — Know What to Watch{% endblock %}">
+  <meta name="twitter:description" content="{% block twitter_description %}Daily sports matchup rankings. Know what to watch every night.{% endblock %}">
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
