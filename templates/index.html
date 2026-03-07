@@ -333,6 +333,61 @@
     color: #ff3060;
   }
 
+  /* ——— SHARE BUTTON ——— */
+  .share-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.8px;
+    padding: 3px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .share-btn:hover {
+    border-color: var(--gold-muted);
+    color: var(--gold);
+  }
+
+  /* ——— SHARE POPUP ——— */
+  #share-popup {
+    display: none;
+    position: fixed;
+    z-index: 999;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 6px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    min-width: 160px;
+  }
+
+  .share-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 14px;
+    border-radius: 5px;
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: background 0.15s;
+    white-space: nowrap;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .share-option:hover { background: rgba(255,255,255,0.05); color: var(--text); }
+  .share-option .share-icon { font-size: 15px; width: 18px; text-align: center; }
+  #share-copied { color: var(--gold); display: none; }
+
   .blurb-card {
     grid-column: span 4;
     background: rgba(152,0,46,0.07);
@@ -801,6 +856,16 @@
         <div class="score-bar">
           <div class="score-bar-fill" style="width: {{ pct }}%"></div>
         </div>
+        <button class="share-btn"
+          onclick="shareGame(event, this)"
+          data-matchup="{{ game.matchup }}"
+          data-score="{{ game.score }}"
+          data-time="{{ game.time }}"
+          data-network="{{ game.where_to_watch }}"
+          data-rank="{{ loop.index }}"
+          data-league="{{ game.league }}">
+          ↗ Share
+        </button>
       </div>
 
     </div>
@@ -1010,7 +1075,6 @@
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
-      // Update each visible game row
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -1104,6 +1168,87 @@
 
   document.getElementById('signup-email').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') submitEmail();
+  });
+
+  const sharePopup = document.createElement('div');
+  sharePopup.id = 'share-popup';
+  sharePopup.innerHTML = `
+    <button class="share-option" id="share-x">
+      <span class="share-icon">𝕏</span> Share on X
+    </button>
+    <button class="share-option" id="share-copy">
+      <span class="share-icon">⎘</span>
+      <span id="share-copy-label">Copy to clipboard</span>
+    </button>
+  `;
+  document.body.appendChild(sharePopup);
+
+  let currentShareData = null;
+
+  function shareGame(event, btn) {
+    event.stopPropagation();
+
+    const matchup  = btn.dataset.matchup;
+    const score    = btn.dataset.score;
+    const time     = btn.dataset.time;
+    const network  = btn.dataset.network;
+    const rank     = btn.dataset.rank;
+    const league   = btn.dataset.league;
+
+    const leagueEmojis = { NBA:'🏀', NFL:'🏈', NHL:'🏒', MLB:'⚾', CFB:'🏈', CBB:'🏀', EPL:'⚽' };
+    const emoji = leagueEmojis[league] || '🏟️';
+
+    const tweetText = `${emoji} #${rank} matchup tonight: ${matchup}\nW2W Score: ${score} pts · ${time} ET · ${network}\nw2w-sports.com`;
+    const copyText  = `${emoji} #${rank} tonight: ${matchup} — W2W Score: ${score} | ${time} ET on ${network} | w2w-sports.com`;
+
+    currentShareData = { tweetText, copyText, matchup, score };
+
+    if (navigator.share) {
+      navigator.share({
+        title: `W2W Sports — ${matchup}`,
+        text: copyText,
+        url: 'https://w2w-sports.com',
+      }).catch(() => {});
+      return;
+    }
+    
+    const rect = btn.getBoundingClientRect();
+    sharePopup.style.display = 'block';
+
+    const popupW = 180;
+    let left = rect.right - popupW;
+    let top  = rect.bottom + 6;
+
+    if (left < 8) left = 8;
+    if (top + 120 > window.innerHeight) top = rect.top - 120;
+
+    sharePopup.style.left = left + 'px';
+    sharePopup.style.top  = (top + window.scrollY) + 'px';
+  }
+
+  document.getElementById('share-x').addEventListener('click', () => {
+    if (!currentShareData) return;
+    const url = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(currentShareData.tweetText);
+    window.open(url, '_blank', 'width=560,height=420');
+    sharePopup.style.display = 'none';
+  });
+
+  document.getElementById('share-copy').addEventListener('click', () => {
+    if (!currentShareData) return;
+    navigator.clipboard.writeText(currentShareData.copyText).then(() => {
+      const label = document.getElementById('share-copy-label');
+      label.textContent = 'Copied!';
+      setTimeout(() => {
+        label.textContent = 'Copy to clipboard';
+        sharePopup.style.display = 'none';
+      }, 1200);
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (!sharePopup.contains(e.target) && !e.target.classList.contains('share-btn')) {
+      sharePopup.style.display = 'none';
+    }
   });
 </script>
 
