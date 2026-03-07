@@ -714,6 +714,7 @@
 {% block nav_right %}
 <span class="filter-label">Filter</span>
 <div class="league-pills">
+  <button class="pill {% if selected_league == 'top10' %}active{% endif %}" onclick="filterLeague('top10', this)">Top 10</button>
   <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('all', this)">All</button>
   <button class="pill {% if selected_league == 'NBA' %}active{% endif %}" onclick="filterLeague('NBA', this)">NBA</button>
   <button class="pill {% if selected_league == 'NFL' %}active{% endif %}" onclick="filterLeague('NFL', this)">NFL</button>
@@ -953,7 +954,14 @@
 
     items.forEach(item => {
       const overallRank = parseInt(item.dataset.overallRank, 10);
-      const visible = league === 'all' ? overallRank <= 10 : item.dataset.league === league;
+      let visible;
+      if (league === 'top10') {
+        visible = overallRank <= 10;
+      } else if (league === 'all') {
+        visible = true;
+      } else {
+        visible = item.dataset.league === league;
+      }
       item.style.display = visible ? '' : 'none';
       if (visible) shown++;
     });
@@ -961,16 +969,19 @@
     const title = document.querySelector('.header-left h1');
     const countEl = document.getElementById('game-count');
 
-    if (league === 'all') {
+    if (league === 'top10') {
       title.innerHTML = 'Top <span>10</span> Matchups Today';
       countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} shown`;
+    } else if (league === 'all') {
+      title.innerHTML = 'All <span>Matchups</span> Today';
+      countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} · sorted by W2W score`;
     } else {
       title.innerHTML = `All <span>${league}</span> Games Today`;
       countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} · sorted by W2W score`;
     }
   }
 
-  filterLeague('all', document.querySelector('.pill.active') || document.querySelector('.pill'));
+  filterLeague('top10', document.querySelector('.pill.active') || document.querySelector('.pill'));
 
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
