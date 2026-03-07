@@ -357,8 +357,43 @@ def api_live():
     ]
     return jsonify(live_data)
 
-@app.route('/about')
-def about():
+@app.route("/leaderboard")
+def leaderboard():
+    from subscribe import get_top_games
+    league_filter = request.args.get("league", "all")
+    league = None if league_filter == "all" else league_filter
+    games = get_top_games(limit=100, league=league)
+    return render_template("leaderboard.html", games=games, selected_league=league_filter, active_page="leaderboard")
+
+
+@app.route("/api/save-scores")
+def api_save_scores():
+    """
+    Cron endpoint — called at midnight ET to store the day's final scores.
+    Protected by the same CRON_SECRET as the digest endpoint.
+    """
+    token = request.args.get("token")
+    if token != os.environ.get("CRON_SECRET"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    from subscribe import save_game_scores
+    import pytz as _pytz
+    from datetime import datetime as _dt, timedelta as _td
+
+    et = _pytz.timezone("US/Eastern")
+    # At midnight ET, "yesterday" is the day whose games just finished
+    yesterday = (_dt.now(et) - _td(days=1)).strftime("%Y%m%d")
+    date_label = (_dt.now(et) - _td(days=1)).strftime("%Y-%m-%d")
+
+    games = fetch_games_for_date(yesterday, et)
+    if not games:
+        return jsonify({"message": "No games found"}), 200
+
+    ok = save_game_scores(games, date_label)
+    return jsonify({"success": ok, "saved": len(games), "date": date_label}), 200
+
+
+
     return render_template('about.html', active_page='about')
 
 @app.route("/formula")
