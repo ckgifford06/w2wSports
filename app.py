@@ -329,11 +329,40 @@ def api_games():
     games = fetch_games_for_date(date_str, local_tz)
     return jsonify(games)
 
+
+@app.route("/api/live")
+def api_live():
+    """Returns live score status for today's games. Polled by the frontend every 30s."""
+    timezone_str = request.args.get("tz", "US/Eastern")
+    try:
+        local_tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        local_tz = pytz.timezone("US/Eastern")
+
+    today = datetime.now(local_tz).strftime("%Y%m%d")
+    games = fetch_games_for_date(today, local_tz)
+
+    # Return a slimmed-down payload — just what the frontend needs for live score updates
+    live_data = [
+        {
+            "matchup": g["matchup"],
+            "league":  g["league"],
+            "score":   g["live_score"].replace("Live score: ", "").replace("Final score: ", ""),
+            "status":  "STATUS_IN_PROGRESS" if g["live_score"].startswith("Live score:") and "Not Started" not in g["live_score"]
+                       else "STATUS_FINAL" if g["live_score"].startswith("Final score:")
+                       else "STATUS_SCHEDULED",
+            "detail":  "",
+        }
+        for g in games
+    ]
+    return jsonify(live_data)
+
+
 # routes for each page
 @app.route('/about')
 def about():
-    return render_template('about.html')
+    return render_template('about.html', active_page='about')
 
 @app.route("/formula")
 def formula():
-    return render_template("formula.html")
+    return render_template("formula.html", active_page="formula")
