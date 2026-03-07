@@ -1,9 +1,98 @@
 import os
+import json
 import requests
 
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
+
+# ——— GAME OF THE YEAR / LEADERBOARD ———
+#
+# Requires a Supabase table. Run this SQL in your Supabase SQL editor:
+#
+#   CREATE TABLE game_scores (
+#     id          BIGSERIAL PRIMARY KEY,
+#     date        DATE        NOT NULL,
+#     matchup     TEXT        NOT NULL,
+#     league      TEXT        NOT NULL,
+#     score       NUMERIC     NOT NULL,
+#     breakdown   JSONB,
+#     is_rivalry  BOOLEAN     DEFAULT FALSE,
+#     where_to_watch TEXT,
+#     created_at  TIMESTAMPTZ DEFAULT NOW()
+#   );
+#
+#   -- Prevent duplicate entries if the cron runs twice on the same day
+#   CREATE UNIQUE INDEX game_scores_date_matchup ON game_scores (date, matchup);
+
+
+def save_game_scores(games: list, date_str: str) -> bool:
+    """
+    Upsert a list of scored games into the game_scores table.
+    date_str should be in YYYY-MM-DD format.
+    """
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        print("Supabase not configured — skipping score save")
+        return False
+
+    url = f"{SUPABASE_URL}/rest/v1/game_scores"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+        "Content-Type": "application/json",
+        "Prefer": "resolution=merge-duplicates,return=minimal",
+    }
+
+    records = [
+        {
+            "date": date_str,
+            "matchup": g["matchup"],
+            "league": g["league"],
+            "score": g["score"],
+            "breakdown": g.get("breakdown", {}),
+            "is_rivalry": g.get("is_rivalry", False),
+            "where_to_watch": g.get("where_to_watch", ""),
+        }
+        for g in games
+    ]
+
+    resp = requests.post(url, json=records, headers=headers)
+    success = resp.status_code in (200, 201)
+    if not success:
+        print(f"save_game_scores failed: {resp.status_code} {resp.text}")
+    return success
+
+
+def get_top_games(limit: int = 100, league: str = None) -> list:
+    """
+    Fetch the highest-scored games ever stored, optionally filtered by league.
+    Returns a list of dicts ordered by score descending.
+    """
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return []
+
+    params = f"select=*&order=score.desc&limit={limit}"
+    if league:
+        params += f"&league=eq.{league}"
+
+    url = f"{SUPABASE_URL}/rest/v1/game_scores?{params}"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+    }
+
+    resp = requests.get(url, headers=headers)
+    if resp.status_code == 200:
+        rows = resp.json()
+        # breakdown comes back as a dict from JSONB — normalise just in case
+        for row in rows:
+            if isinstance(row.get("breakdown"), str):
+                try:
+                    row["breakdown"] = json.loads(row["breakdown"])
+                except Exception:
+                    row["breakdown"] = {}
+        return rows
+    return []
 
 def add_subscriber(email: str) -> dict:
     """
