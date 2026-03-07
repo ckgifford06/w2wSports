@@ -14,7 +14,7 @@
   ],
   "crons": [
     {
-      "path": "/api/send-digest?token=YOUR_CRON_SECRET",
+      "path": "/api/send-digest?token=brunsonandhart",
       "schedule": "0 13 * * *"
     }
   ]
