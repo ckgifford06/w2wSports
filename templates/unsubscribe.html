@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Unsubscribed — W2W Sports{% endblock %}
+
+{% block content %}
+<div style="
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+">
+  <div>
+    <div style="
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      letter-spacing: 4px;
+      color: var(--text);
+      line-height: 1;
+      margin-bottom: 12px;
+    ">You're Out</div>
+    <div style="
+      font-size: 15px;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+      max-width: 360px;
+    ">
+      You've been removed from the W2W daily digest. No more emails from us.
+    </div>
+    <a href="/" style="
+      display: inline-block;
+      padding: 12px 28px;
+      background: var(--crimson);
+      color: white;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      border-radius: 4px;
+    ">Back to Today's Games</a>
+  </div>
+</div>
+{% endblock %}
