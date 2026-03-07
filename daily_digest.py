@@ -1,19 +1,8 @@
-"""
-daily_digest.py
-
-Fetches today's top 10 games, builds a clean HTML email, and sends it
-to all subscribers via Resend. Called by Vercel Cron at 8am ET daily.
-
-Vercel cron endpoint: GET /api/send-digest
-"""
-
 import pytz
 from datetime import datetime
 from app import fetch_games_for_date
 from subscribe import get_all_subscribers, send_digest
-
-
-# ——— EMAIL TEMPLATE ———
+`
 
 def build_email(games: list, date_str: str) -> tuple[str, str]:
     """Returns (subject, html_body) for the daily digest."""
@@ -23,6 +12,7 @@ def build_email(games: list, date_str: str) -> tuple[str, str]:
     league_colors = {
         "NBA": "#c9a227", "NFL": "#5aa1e0", "NHL": "#70c8f0",
         "MLB": "#e07070", "CFB": "#a07ad0", "CBB": "#60c890",
+        "EPL": "#4ec5a5"
     }
 
     rows_html = ""
@@ -165,7 +155,6 @@ def build_email(games: list, date_str: str) -> tuple[str, str]:
 
 
 def run_digest():
-    """Main entry point — fetch games, build email, send to all subscribers."""
     et = pytz.timezone("US/Eastern")
     today = datetime.now(et).strftime("%Y%m%d")
     date_label = datetime.now(et).strftime("%Y%m%d")
