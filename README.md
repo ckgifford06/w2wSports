@@ -54,7 +54,7 @@ Flask receives each request, fetches and scores the games, and returns a finishe
 - `GET /api/games?date=YYYYMMDD&tz=` — Returns all scored games for any given date as JSON. Used by the calendar page for lazy loading.
 - `GET /api/send-digest?token=` — Vercel Cron endpoint. Fetches today's games, builds the email, and sends to all subscribers. Protected by a secret token.
 
-All game-fetching logic lives in a single shared `fetch_games_for_date(date_str, local_tz)` function. The homepage, calendar endpoint, and digest all call it — no duplicated ESPN logic.
+All game-fetching logic lives in a single shared `fetch_games_for_date(date_str, local_tz)` function. The homepage, calendar endpoint, and digest all call it, no duplicated ESPN logic.
 
 The rating logic lives in separate modules, one per sport: `NBArating.py`, `NFLrating.py`, `NHLrating.py`, `MLBrating.py`, `CFBrating.py`, `CBBrating.py`. Each has a `calculate_score()` function and a `calculate_score_breakdown()` function. The breakdown returns a dict of all five components, which the frontend uses to render the animated score breakdown bars.
 
@@ -130,23 +130,11 @@ The formula is tuned per sport but the structure is identical across all six lea
 
 ---
 
-## Environment Variables
-
-Set these in Vercel under Project Settings → Environment Variables:
-
-| Variable | Description |
-|---|---|
-| `SUPABASE_URL` | Your Supabase project URL |
-| `SUPABASE_SERVICE_KEY` | Supabase service role key |
-| `RESEND_API_KEY` | Resend API key |
-| `CRON_SECRET` | Secret token to protect the digest endpoint |
-
----
-
 ## What We Are Still Working On
 
 - Fixing: Live score shows "Not Started" during halftime and period breaks
-- Adding: Premier League soccer
+- Adding: More leagues (email us to give us suggestions), and when events such as the World Cup happens, have a rating system for that as well.
+
 
 ---
 
