@@ -310,7 +310,6 @@
     font-family: 'DM Mono', monospace;
   }
 
-  /* ——— EMPTY STATE ——— */
   .lb-empty {
     text-align: center;
     padding: 100px 0;
@@ -332,7 +331,6 @@
     margin: 0 auto;
   }
 
-  /* ——— RESPONSIVE ——— */
   @media (max-width: 768px) {
     .lb-header { padding: 24px 16px 20px; flex-direction: column; align-items: flex-start; gap: 8px; }
     .lb-header h1 { font-size: 36px; }
@@ -475,14 +473,13 @@
   {% else %}
   <div class="lb-empty">
     <h3>No Games Scored Yet</h3>
-    <p>The leaderboard fills up automatically each night after games finish. Check back tomorrow — tonight's games will appear here.</p>
+    <p>The leaderboard fills up automatically each night after games finish. Check back tomorrow and tonight's games will appear here.</p>
   </div>
   {% endif %}
 </div>
 
 <script>
   function toggleRow(row) {
-    // lb-row and lb-breakdown are siblings — find the next sibling
     const breakdown = row.nextElementSibling;
     const isOpen = row.classList.contains('open');
 
