@@ -59,7 +59,6 @@ def rivalryMatchup(home, away, league):
     return False
 
 def get_rivalry_score(home, away, league):
-    """Get the actual rivalry score value"""
     module = get_rating_module(league)
     if module:
         return module.rivalry(home, away)
@@ -67,6 +66,7 @@ def get_rivalry_score(home, away, league):
 
 def generate_fallback_blurb(game_info):
     parts = []
+
     if game_info.get('home_rank') and game_info['home_rank'] != "Unranked":
         if game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
             parts.append(f"{game_info['home_rank']} {game_info['home_team']} hosts {game_info['away_rank']} {game_info['away_team']}")
@@ -74,20 +74,19 @@ def generate_fallback_blurb(game_info):
             parts.append(f"{game_info['home_rank']} {game_info['home_team']} faces {game_info['away_team']}")
     elif game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
         parts.append(f"{game_info['away_rank']} {game_info['away_team']} visits {game_info['home_team']}")
-    
+
     if game_info.get('is_rivalry'):
         if parts:
             parts.append("in rivalry matchup")
         else:
             parts.append(f"{game_info['home_team']} vs {game_info['away_team']} rivalry")
-    
-    # add conference
+
     if game_info.get('conference') and game_info['conference'] != "N/A":
         if parts:
             parts.append(f"in {game_info['conference']}")
         else:
             parts.append(f"{game_info['conference']} matchup")
-    
+
     if not parts:
         home_rec = game_info.get('home_record', '')
         away_rec = game_info.get('away_record', '')
@@ -95,9 +94,8 @@ def generate_fallback_blurb(game_info):
             parts.append(f"{home_rec} {game_info['home_team']} hosts {game_info['away_team']}")
         elif '18-' in away_rec or '17-' in away_rec or '-0' in away_rec:
             parts.append(f"{away_rec} {game_info['away_team']} visits {game_info['home_team']}")
-    
-    return " ".join(parts) if parts else f"{game_info['home_team']} vs {game_info['away_team']}"
 
+    return " ".join(parts) if parts else f"{game_info['home_team']} vs {game_info['away_team']}"
 
 def fetch_games_for_date(date_str, local_tz):
     all_games = []
@@ -242,6 +240,13 @@ def fetch_games_for_date(date_str, local_tz):
                     if sport["name"] == "EPL":
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "CBB":
+                        hr = home_competitor.get("curatedRank", {}).get("current")
+                        ar = away_competitor.get("curatedRank", {}).get("current")
+                        hr = int(hr) if hr and hr != 99 else None
+                        ar = int(ar) if ar and ar != 99 else None
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, hr, ar) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, hr, ar) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     else:
                         score = calculate_score(home_abbr, away_abbr, sport["name"])
                         breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
@@ -293,7 +298,6 @@ def fetch_games_for_date(date_str, local_tz):
 
     return sorted(all_games, key=lambda x: x["score"], reverse=True)
 
-
 @app.route('/')
 def index():
     selected_league = request.args.get("league", "all")
@@ -307,11 +311,9 @@ def index():
     all_ranked = fetch_games_for_date(today, local_tz)
     return render_template("index.html", matchups=all_ranked, selected_league=selected_league, active_page="home")
 
-
 @app.route("/calendar")
 def calendar():
     return render_template("calendar.html", active_page="calendar")
-
 
 @app.route("/api/games")
 def api_games():
@@ -327,7 +329,6 @@ def api_games():
 
     games = fetch_games_for_date(date_str, local_tz)
     return jsonify(games)
-
 
 @app.route("/api/live")
 def api_live():
@@ -354,8 +355,6 @@ def api_live():
     ]
     return jsonify(live_data)
 
-
-# routes for each page
 @app.route('/about')
 def about():
     return render_template('about.html', active_page='about')
@@ -363,7 +362,6 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html", active_page="formula")
-
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
@@ -378,7 +376,6 @@ def api_subscribe():
     if result.get("success"):
         return jsonify({"success": True}), 200
     return jsonify({"error": result.get("error", "Something went wrong")}), 500
-
 
 @app.route("/unsubscribe")
 def unsubscribe():
@@ -395,7 +392,6 @@ def unsubscribe():
         req.delete(url, headers=headers)
 
     return render_template("unsubscribe.html")
-
 
 @app.route("/api/send-digest")
 def api_send_digest():
