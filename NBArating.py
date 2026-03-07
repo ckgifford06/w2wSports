@@ -88,7 +88,7 @@ def competitiveness(home, away):
         winDiff = abs(homeRecord[0] - awayRecord[0])
     except ValueError:
         winDiff = 0
-    compRank = (20 - winDiff) / 3
+    compRank = ((20 - winDiff) / 3) + 3
     return compRank
 
 def qualityOfPlay(home, away):
@@ -114,7 +114,7 @@ def gameImportance(home, away):
     away_seed = seeds.get(away)
     gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
-        pass
+        importance += 5
     else:
         if gamesLeft <= 50:
             importance += 1
