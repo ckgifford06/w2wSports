@@ -8,19 +8,19 @@ We built this in October 2025 because we kept having the same problem as sports 
 
 ---
 
-<img width="3006" height="1717" alt="image" src="https://github.com/user-attachments/assets/0157005c-38c0-4838-8026-5329b1578c68" />
+<img width="1503" height="859" alt="Screenshot 2026-03-06 at 4 12 13 PM" src="https://github.com/user-attachments/assets/0d4ce16f-78af-4a66-ac82-4ce9c4087f1a" />
 
-
-<img width="3010" height="1707" alt="image" src="https://github.com/user-attachments/assets/4353c54e-2c3c-4d20-a0c8-f35f4e01de22" />
+<img width="1505" height="854" alt="Screenshot 2026-03-06 at 4 12 22 PM" src="https://github.com/user-attachments/assets/1b86792f-cefa-43dd-ad0f-420a87d1bf55" />
 
 
 ---
-
 ## What It Does
 
-Every day the site pulls the full schedule for every supported league from ESPN's public API, runs each game through our scoring algorithm, and displays the top 10 results ranked from best to worst. Each game shows the start time, broadcast network, moneyline, spread, live score once the game starts, and a short blurb about why it is worth watching.
+Every day the site pulls the full schedule for every supported league from ESPN's public API, runs each game through our scoring algorithm, and displays the top 10 results ranked from best to worst. Each game shows the start time, broadcast network, moneyline, spread, and live score once the game starts.
 
 Users can filter by league, which switches from the global top 10 to all games in that league sorted by score. Click NBA and you see every basketball game that day ranked, even ones that did not crack the overall top 10.
+
+Subscribers receive a daily email digest at 8am ET with the top 10 matchups for that day.
 
 Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college basketball).
 
@@ -28,10 +28,11 @@ Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college bask
 
 ## Pages
 
-- **/** — Homepage. Top 10 matchups today, filterable by league, with live score polling every 30 seconds and a Live Now banner when a top game is in progress.
+- **/** — Homepage. Top 10 matchups today, filterable by league, with live score polling every 30 seconds and a Live Now banner when a top game is in progress. Includes email signup.
 - **/calendar** — 7-Day Rivalry Calendar. Browse any day in the next week. Games load lazily per day — clicking a tab fetches that day's full schedule and ranks it instantly.
 - **/formula** — Explains the W2W scoring algorithm in detail.
 - **/about** — About the project and the team.
+- **/unsubscribe** — Removes a user from the daily digest. Linked from every email footer.
 
 ---
 
@@ -47,12 +48,30 @@ Flask receives each request, fetches and scores the games, and returns a finishe
 - `GET /calendar` — 7-day calendar page
 - `GET /about` — About page
 - `GET /formula` — Formula page
+- `GET /unsubscribe?email=` — Removes an email from Supabase and shows confirmation
+- `POST /api/subscribe` — Accepts a JSON body with an email field and saves it to Supabase
 - `GET /api/live?tz=` — Returns live score data for today's games as JSON. Polled every 30 seconds by the frontend.
 - `GET /api/games?date=YYYYMMDD&tz=` — Returns all scored games for any given date as JSON. Used by the calendar page for lazy loading.
+- `GET /api/send-digest?token=` — Vercel Cron endpoint. Fetches today's games, builds the email, and sends to all subscribers. Protected by a secret token.
 
-All game-fetching logic lives in a single shared `fetch_games_for_date(date_str, local_tz)` function. Both the homepage and the calendar endpoint call it — no duplicated ESPN logic.
+All game-fetching logic lives in a single shared `fetch_games_for_date(date_str, local_tz)` function. The homepage, calendar endpoint, and digest all call it — no duplicated ESPN logic.
 
 The rating logic lives in separate modules, one per sport: `NBArating.py`, `NFLrating.py`, `NHLrating.py`, `MLBrating.py`, `CFBrating.py`, `CBBrating.py`. Each has a `calculate_score()` function and a `calculate_score_breakdown()` function. The breakdown returns a dict of all five components, which the frontend uses to render the animated score breakdown bars.
+
+**Email Digest**
+
+The daily digest is handled across two files:
+
+`subscribe.py` manages all Supabase and Resend interactions — inserting new subscribers, fetching the full subscriber list, and sending emails. Each subscriber receives an individual email so no recipient can see other email addresses.
+
+`daily_digest.py` contains the email template and the `run_digest()` function. It fetches today's top 10 games, builds a full HTML email styled to match the site, and calls `subscribe.py` to send it. It can also be run directly from the command line for testing.
+
+Vercel Cron fires the `/api/send-digest` endpoint at 8am ET (13:00 UTC) every day via `vercel.json`.
+
+**External Services**
+
+- **Supabase** — Postgres database in the cloud. Stores subscriber email addresses. Accessed via Supabase's REST API directly from Python using `requests`.
+- **Resend** — Email delivery API. Sends the daily digest. Free tier supports up to 3,000 emails per month.
 
 **Templating (Jinja2)**
 
@@ -66,7 +85,7 @@ Live scores use `setInterval` polling every 30 seconds against `/api/live`. Matc
 
 The score breakdown chart animates on expand using CSS transitions. Bars start at `width: 0%` and transition to their real percentage when the row opens, resetting when it closes.
 
-The 7-day calendar builds date tabs dynamically in JavaScript. Clicking a tab calls `/api/games` for that date. The other six days are prefetched in the background just to populate the game count badge on each tab — no full data load until the tab is actually clicked.
+The 7-day calendar builds date tabs dynamically in JavaScript. Clicking a tab calls `/api/games` for that date. The other six days are prefetched in the background just to populate the game count badge — no full data load until the tab is clicked.
 
 **Styling**
 
@@ -106,20 +125,34 @@ The formula is tuned per sport but the structure is identical across all six lea
 - **Marketability:** Team values live in the `team_marketability` dict in each rating file
 - **Postseason mode:** Set `march_madness = True`, `playoffs = True`, etc. in the relevant rating files when postseason starts
 - **Timezone:** Defaults to US/Eastern, detected automatically from the browser via `Intl.DateTimeFormat`, can be overridden with `?tz=` query param
+- **Digest time:** Change the cron schedule in `vercel.json` (currently `0 13 * * *` = 8am ET)
+- **Digest size:** Change the `[:10]` slice in `daily_digest.py` to send more or fewer games
+
+---
+
+## Environment Variables
+
+Set these in Vercel under Project Settings → Environment Variables:
+
+| Variable | Description |
+|---|---|
+| `SUPABASE_URL` | Your Supabase project URL |
+| `SUPABASE_SERVICE_KEY` | Supabase service role key |
+| `RESEND_API_KEY` | Resend API key |
+| `CRON_SECRET` | Secret token to protect the digest endpoint |
 
 ---
 
 ## What We Are Still Working On
 
 - Fixing: Live score shows "Not Started" during halftime and period breaks
-- Adding: Daily email digest with that morning's top matchups
 - Adding: Premier League soccer
 
 ---
 
 ## Credits
 
-Game data from ESPN's public scoreboard APIs. Betting odds from DraftKings Sportsbook.
+Game data from ESPN's public scoreboard APIs. Betting odds from DraftKings Sportsbook. Email delivery by Resend. Subscriber storage by Supabase.
 
 ---
 
