@@ -342,6 +342,7 @@ def api_live():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     games = fetch_games_for_date(today, local_tz)
 
+    # Return a slimmed-down payload — just what the frontend needs for live score updates
     live_data = [
         {
             "matchup": g["matchup"],
@@ -365,3 +366,52 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html", active_page="formula")
+
+
+@app.route("/api/subscribe", methods=["POST"])
+def api_subscribe():
+    """Accepts an email and saves it to Supabase."""
+    from subscribe import add_subscriber
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+
+    if not email or "@" not in email:
+        return jsonify({"error": "Invalid email"}), 400
+
+    result = add_subscriber(email)
+    if result.get("success"):
+        return jsonify({"success": True}), 200
+    return jsonify({"error": result.get("error", "Something went wrong")}), 500
+
+
+@app.route("/unsubscribe")
+def unsubscribe():
+    """Removes an email from Supabase. Linked from the digest footer."""
+    from subscribe import SUPABASE_URL, SUPABASE_KEY
+    import requests as req
+
+    email = request.args.get("email", "").strip().lower()
+    if email and SUPABASE_URL and SUPABASE_KEY:
+        url = f"{SUPABASE_URL}/rest/v1/subscribers?email=eq.{email}"
+        headers = {
+            "apikey": SUPABASE_KEY,
+            "Authorization": f"Bearer {SUPABASE_KEY}",
+        }
+        req.delete(url, headers=headers)
+
+    return render_template("unsubscribe.html")
+
+
+@app.route("/api/send-digest")
+def api_send_digest():
+    """
+    Vercel Cron endpoint — called at 8am ET daily.
+    Protected with a secret token so it can't be triggered publicly.
+    """
+    token = request.args.get("token")
+    if token != os.environ.get("CRON_SECRET"):
+        return jsonify({"error": "Unauthorized"}), 401
+
+    from daily_digest import run_digest
+    run_digest()
+    return jsonify({"success": True}), 200
