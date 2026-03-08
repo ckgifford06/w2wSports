@@ -2,13 +2,35 @@ import os
 import json
 import requests
 
-
 SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
+# ——— GAME OF THE YEAR / LEADERBOARD ———
+#
+# Requires a Supabase table. Run this SQL in your Supabase SQL editor:
+#
+#   CREATE TABLE game_scores (
+#     id          BIGSERIAL PRIMARY KEY,
+#     date        DATE        NOT NULL,
+#     matchup     TEXT        NOT NULL,
+#     league      TEXT        NOT NULL,
+#     score       NUMERIC     NOT NULL,
+#     breakdown   JSONB,
+#     is_rivalry  BOOLEAN     DEFAULT FALSE,
+#     where_to_watch TEXT,
+#     created_at  TIMESTAMPTZ DEFAULT NOW()
+#   );
+#
+#   -- Prevent duplicate entries if the cron runs twice on the same day
+#   CREATE UNIQUE INDEX game_scores_date_matchup ON game_scores (date, matchup);
+
 
 def save_game_scores(games: list, date_str: str) -> bool:
+    """
+    Upsert a list of scored games into the game_scores table.
+    date_str should be in YYYY-MM-DD format.
+    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         print("Supabase not configured — skipping score save")
         return False
@@ -42,6 +64,10 @@ def save_game_scores(games: list, date_str: str) -> bool:
 
 
 def get_top_games(limit: int = 100, league: str = None) -> list:
+    """
+    Fetch the highest-scored games ever stored, optionally filtered by league.
+    Returns a list of dicts ordered by score descending.
+    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         return []
 
@@ -58,6 +84,7 @@ def get_top_games(limit: int = 100, league: str = None) -> list:
     resp = requests.get(url, headers=headers)
     if resp.status_code == 200:
         rows = resp.json()
+        # breakdown comes back as a dict from JSONB — normalise just in case
         for row in rows:
             if isinstance(row.get("breakdown"), str):
                 try:
@@ -67,7 +94,32 @@ def get_top_games(limit: int = 100, league: str = None) -> list:
         return rows
     return []
 
-def add_subscriber(email: str) -> dict:
+def trim_game_scores(keep: int = 100) -> bool:
+    """Delete all rows outside the top N scores."""
+    if not SUPABASE_URL or not SUPABASE_KEY:
+        return False
+
+    # Fetch the cutoff score (the score at position `keep`)
+    url = f"{SUPABASE_URL}/rest/v1/game_scores?select=score&order=score.desc&limit=1&offset={keep}"
+    headers = {
+        "apikey": SUPABASE_KEY,
+        "Authorization": f"Bearer {SUPABASE_KEY}",
+    }
+    resp = requests.get(url, headers=headers)
+    if resp.status_code != 200 or not resp.json():
+        return True  # fewer than `keep` rows exist, nothing to trim
+
+    cutoff_score = resp.json()[0]["score"]
+
+    # Delete everything strictly below the cutoff
+    del_url = f"{SUPABASE_URL}/rest/v1/game_scores?score=lt.{cutoff_score}"
+    del_headers = {**headers, "Content-Type": "application/json"}
+    requests.delete(del_url, headers=del_headers)
+    return True
+    """
+    Insert an email into the Supabase subscribers table.
+    Returns {"success": True} or {"error": "message"}.
+    """
     if not SUPABASE_URL or not SUPABASE_KEY:
         return {"error": "Supabase not configured"}
 
@@ -81,6 +133,7 @@ def add_subscriber(email: str) -> dict:
 
     resp = requests.post(url, json={"email": email}, headers=headers)
 
+    # 201 = inserted, 409 = already exists (unique constraint) — both are fine
     if resp.status_code in (201, 409):
         return {"success": True}
 
@@ -105,6 +158,7 @@ def get_all_subscribers() -> list:
 
 
 def send_digest(subject: str, html_body: str, recipients: list) -> bool:
+    """Send the daily digest email via Resend, one per recipient for privacy."""
     if not RESEND_API_KEY:
         print("Resend not configured")
         return False
