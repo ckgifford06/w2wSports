@@ -2,7 +2,7 @@ import pytz
 from datetime import datetime
 from app import fetch_games_for_date
 from subscribe import get_all_subscribers, send_digest
-`
+
 
 def build_email(games: list, date_str: str) -> tuple[str, str]:
     """Returns (subject, html_body) for the daily digest."""
