@@ -6,26 +6,6 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL")
 SUPABASE_KEY = os.environ.get("SUPABASE_SERVICE_KEY")
 RESEND_API_KEY = os.environ.get("RESEND_API_KEY")
 
-# ——— GAME OF THE YEAR / LEADERBOARD ———
-#
-# Requires a Supabase table. Run this SQL in your Supabase SQL editor:
-#
-#   CREATE TABLE game_scores (
-#     id          BIGSERIAL PRIMARY KEY,
-#     date        DATE        NOT NULL,
-#     matchup     TEXT        NOT NULL,
-#     league      TEXT        NOT NULL,
-#     score       NUMERIC     NOT NULL,
-#     breakdown   JSONB,
-#     is_rivalry  BOOLEAN     DEFAULT FALSE,
-#     where_to_watch TEXT,
-#     created_at  TIMESTAMPTZ DEFAULT NOW()
-#   );
-#
-#   -- Prevent duplicate entries if the cron runs twice on the same day
-#   CREATE UNIQUE INDEX game_scores_date_matchup ON game_scores (date, matchup);
-
-
 def save_game_scores(games: list, date_str: str) -> bool:
     """
     Upsert a list of scored games into the game_scores table.
