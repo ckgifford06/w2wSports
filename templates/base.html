@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<meta name="description" content="W2W Sports ranks every sports game daily by how worth watching it actually is. Top 10 matchups across NBA, NFL, NHL, MLB, CFB and CBB.">
 <html lang="en">
 <head>
+  <meta name="description" content="W2W Sports ranks every sports game daily by how worth watching it actually is. Top 10 matchups across NBA, NFL, NHL, MLB, CFB and CBB.">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TYYDCDNEH"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -32,6 +32,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
+      color-scheme: dark;
       --crimson: #98002E;
       --crimson-bright: #C0003A;
       --gold: #BC9B6A;
@@ -256,7 +257,7 @@
     <div class="nav-center">
       <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Today</a>
       <a href="/calendar" {% if active_page == 'calendar' %}class="active"{% endif %}>Calendar</a>
-      <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>Records</a>
+      <a href="/leaderboard" {% if active_page == 'leaderboard' %}class="active"{% endif %}>Leaderboard</a>
       <a href="/formula" {% if active_page == 'formula' %}class="active"{% endif %}>Our Formula</a>
       <a href="/about" {% if active_page == 'about' %}class="active"{% endif %}>About</a>
     </div>
