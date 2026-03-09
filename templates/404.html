@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block title %}404 — W2W Sports{% endblock %}
+{% block og_title %}404 — W2W Sports{% endblock %}
+{% block og_url %}/404{% endblock %}
+
+{% block content %}
+<div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;min-height:70vh;text-align:center;padding:40px 20px;">
+
+  <div style="font-family:'Bebas Neue',sans-serif;font-size:140px;line-height:1;
+    color:var(--border);letter-spacing:8px;user-select:none;">
+    4<span style="color:var(--crimson);">0</span>4
+  </div>
+
+  <h1 style="font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:4px;
+    color:var(--text);margin:8px 0 16px;">
+    Page Not Found
+  </h1>
+
+  <p style="font-size:15px;color:var(--text-muted);max-width:360px;line-height:1.7;margin-bottom:36px;">
+    Looks like this page doesn't exist. Maybe it got traded, retired, or just never showed up.
+  </p>
+
+  <a href="/" style="display:inline-block;background:var(--crimson);color:white;
+    font-size:13px;font-weight:600;letter-spacing:0.5px;padding:12px 28px;
+    border-radius:4px;text-decoration:none;transition:background 0.2s;">
+    See Today's Games
+  </a>
+
+</div>
+{% endblock %}
