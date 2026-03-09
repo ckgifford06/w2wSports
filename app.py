@@ -317,6 +317,10 @@ def index():
 def calendar():
     return render_template("calendar.html", active_page="calendar")
 
+@app.route("/records")
+def records():
+    return render_template("records.html", active_page="records")
+
 @app.route("/api/games")
 def api_games():
     date_str = request.args.get("date")
@@ -386,7 +390,6 @@ def api_save_scores():
     from datetime import datetime as _dt, timedelta as _td
 
     et = _pytz.timezone("US/Eastern")
-    # At midnight ET, "yesterday" is the day whose games just finished
     yesterday = (_dt.now(et) - _td(days=1)).strftime("%Y%m%d")
     date_label = (_dt.now(et) - _td(days=1)).strftime("%Y-%m-%d")
 
