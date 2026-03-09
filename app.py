@@ -357,7 +357,7 @@ def api_live():
     ]
     return jsonify(live_data)
 
-@app.route("/records")
+@app.route("/leaderboard")
 def leaderboard():
     try:
         from subscribe import get_top_games
@@ -368,7 +368,7 @@ def leaderboard():
         print(f"Leaderboard error: {e}", flush=True)
         games = []
         league_filter = "all"
-    return render_template("records.html", games=games, selected_league=league_filter, active_page="leaderboard")
+    return render_template("leaderboard.html", games=games, selected_league=league_filter, active_page="leaderboard")
 
 
 @app.route("/api/save-scores")
@@ -386,6 +386,7 @@ def api_save_scores():
     from datetime import datetime as _dt, timedelta as _td
 
     et = _pytz.timezone("US/Eastern")
+    # At midnight ET, "yesterday" is the day whose games just finished
     yesterday = (_dt.now(et) - _td(days=1)).strftime("%Y%m%d")
     date_label = (_dt.now(et) - _td(days=1)).strftime("%Y-%m-%d")
 
@@ -408,17 +409,30 @@ def formula():
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
-    from subscribe import add_subscriber
+    from subscribe import add_pending_subscriber, send_confirmation_email
     data = request.get_json(silent=True) or {}
     email = (data.get("email") or "").strip().lower()
 
     if not email or "@" not in email:
         return jsonify({"error": "Invalid email"}), 400
 
-    result = add_subscriber(email)
+    result = add_pending_subscriber(email)
     if result.get("success"):
-        return jsonify({"success": True}), 200
+        send_confirmation_email(email, result["token"])
+        return jsonify({"success": True, "pending": True}), 200
     return jsonify({"error": result.get("error", "Something went wrong")}), 500
+
+
+@app.route("/confirm")
+def confirm():
+    from subscribe import confirm_subscriber
+    token = request.args.get("token", "").strip()
+    if not token:
+        return render_template("confirm.html", success=False, error="No token provided.")
+    result = confirm_subscriber(token)
+    if result.get("success"):
+        return render_template("confirm.html", success=True, email=result["email"])
+    return render_template("confirm.html", success=False, error=result.get("error", "Something went wrong."))
 
 @app.route("/unsubscribe")
 def unsubscribe():
