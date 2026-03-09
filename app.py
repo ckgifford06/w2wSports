@@ -300,6 +300,10 @@ def fetch_games_for_date(date_str, local_tz):
 
     return sorted(all_games, key=lambda x: x["score"], reverse=True)
 
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
+
 @app.route('/')
 def index():
     selected_league = request.args.get("league", "top10")
@@ -358,25 +362,20 @@ def api_live():
     return jsonify(live_data)
 
 @app.route("/records")
-def leaderboard():
+def records():
     try:
         from subscribe import get_top_games
         league_filter = request.args.get("league", "all")
         league = None if league_filter == "all" else league_filter
         games = get_top_games(limit=100, league=league)
     except Exception as e:
-        print(f"Leaderboard error: {e}", flush=True)
+        print(f"Records error: {e}", flush=True)
         games = []
         league_filter = "all"
-    return render_template("records.html", games=games, selected_league=league_filter, active_page="leaderboard")
-
+    return render_template("records.html", games=games, selected_league=league_filter, active_page="records")
 
 @app.route("/api/save-scores")
 def api_save_scores():
-    """
-    Cron endpoint — called at midnight ET to store the day's final scores.
-    Protected by the same CRON_SECRET as the digest endpoint.
-    """
     token = request.args.get("token")
     if token != os.environ.get("CRON_SECRET"):
         return jsonify({"error": "Unauthorized"}), 401
@@ -396,7 +395,6 @@ def api_save_scores():
     ok = save_game_scores(games, date_label)
     trim_game_scores(keep=100)
     return jsonify({"success": ok, "saved": len(games), "date": date_label}), 200
-
 
 @app.route('/about')
 def about():
@@ -420,7 +418,6 @@ def api_subscribe():
         send_confirmation_email(email, result["token"])
         return jsonify({"success": True, "pending": True}), 200
     return jsonify({"error": result.get("error", "Something went wrong")}), 500
-
 
 @app.route("/confirm")
 def confirm():
