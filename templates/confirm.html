@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+
+{% block title %}W2W Sports — Subscription Confirmed{% endblock %}
+{% block og_title %}W2W Sports — Subscription Confirmed{% endblock %}
+{% block og_url %}/confirm{% endblock %}
+
+{% block content %}
+<div class="page-container" style="text-align:center;padding-top:80px;">
+
+  {% if success %}
+    <div style="font-size:48px;margin-bottom:24px;">✓</div>
+    <h1 class="page-title">You're <span>In</span></h1>
+    <hr class="page-divider" style="max-width:200px;margin:16px auto 32px;">
+    <p class="prose" style="text-align:center;">
+      <strong>{{ email }}</strong> is now subscribed to the W2W Sports daily digest.<br>
+      Expect the top 10 matchups in your inbox every morning at <strong>8am ET</strong>.
+    </p>
+    <a href="/" style="display:inline-block;margin-top:32px;background:var(--crimson);color:white;
+      font-size:13px;font-weight:600;letter-spacing:0.5px;padding:12px 28px;border-radius:4px;
+      text-decoration:none;">
+      See Today's Games
+    </a>
+
+  {% else %}
+    <div style="font-size:48px;margin-bottom:24px;">✗</div>
+    <h1 class="page-title">Something <span>Went Wrong</span></h1>
+    <hr class="page-divider" style="max-width:200px;margin:16px auto 32px;">
+    <p class="prose" style="text-align:center;">
+      {{ error or "This confirmation link is invalid or has already been used." }}
+    </p>
+    <a href="/" style="display:inline-block;margin-top:32px;background:var(--crimson);color:white;
+      font-size:13px;font-weight:600;letter-spacing:0.5px;padding:12px 28px;border-radius:4px;
+      text-decoration:none;">
+      Back to Home
+    </a>
+  {% endif %}
+
+</div>
+{% endblock %}
