@@ -974,7 +974,7 @@
         <button class="signup-btn" onclick="submitEmail()">Subscribe</button>
       </div>
       <div class="signup-success" id="signup-success" style="display:none;">
-        <span style="color:var(--gold);">✓</span> You're in. See you tomorrow morning.
+        <span style="color:var(--gold);">✓</span> Check your inbox — we sent you a confirmation email.
       </div>
       <div class="signup-error" id="signup-error" style="display:none;color:#ff6080;font-size:13px;"></div>
     </div>
@@ -1075,6 +1075,7 @@
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
+      // Update each visible game row
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -1170,6 +1171,7 @@
     if (e.key === 'Enter') submitEmail();
   });
 
+  // ——— SHARE POPUP ———
   const sharePopup = document.createElement('div');
   sharePopup.id = 'share-popup';
   sharePopup.innerHTML = `
@@ -1186,7 +1188,7 @@
   let currentShareData = null;
 
   function shareGame(event, btn) {
-    event.stopPropagation();
+    event.stopPropagation(); // don't toggle the row
 
     const matchup  = btn.dataset.matchup;
     const score    = btn.dataset.score;
@@ -1203,6 +1205,7 @@
 
     currentShareData = { tweetText, copyText, matchup, score };
 
+    // Try native share on mobile
     if (navigator.share) {
       navigator.share({
         title: `W2W Sports — ${matchup}`,
@@ -1211,7 +1214,8 @@
       }).catch(() => {});
       return;
     }
-    
+
+    // Desktop: show popup near the button
     const rect = btn.getBoundingClientRect();
     sharePopup.style.display = 'block';
 
@@ -1245,6 +1249,7 @@
     });
   });
 
+  // Close popup when clicking outside
   document.addEventListener('click', (e) => {
     if (!sharePopup.contains(e.target) && !e.target.classList.contains('share-btn')) {
       sharePopup.style.display = 'none';
