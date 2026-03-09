@@ -8,9 +8,9 @@ We built this in October 2025 because we kept having the same problem as sports 
 
 ---
 
-<img width="1503" height="859" alt="Screenshot 2026-03-06 at 4 12 13 PM" src="https://github.com/user-attachments/assets/0d4ce16f-78af-4a66-ac82-4ce9c4087f1a" />
+<img width="1512" height="856" alt="Screenshot 2026-03-09 at 9 51 38 AM" src="https://github.com/user-attachments/assets/cfb24f79-a31d-45a1-a24b-9fb21d5b0d0f" />
 
-<img width="1505" height="854" alt="Screenshot 2026-03-06 at 4 12 22 PM" src="https://github.com/user-attachments/assets/1b86792f-cefa-43dd-ad0f-420a87d1bf55" />
+<img width="1512" height="853" alt="Screenshot 2026-03-09 at 9 51 53 AM" src="https://github.com/user-attachments/assets/5d080f8e-aea2-4555-8004-9d306ba0679e" />
 
 
 ---
