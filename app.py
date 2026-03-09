@@ -367,7 +367,7 @@ def records():
         from subscribe import get_top_games
         league_filter = request.args.get("league", "all")
         league = None if league_filter == "all" else league_filter
-        games = get_top_games(limit=100, league=league)
+        games = get_top_games(limit=25, league=league)
     except Exception as e:
         print(f"Records error: {e}", flush=True)
         games = []
