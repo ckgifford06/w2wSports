@@ -317,10 +317,6 @@ def index():
 def calendar():
     return render_template("calendar.html", active_page="calendar")
 
-@app.route("/records")
-def records():
-    return render_template("records.html", active_page="records")
-
 @app.route("/api/games")
 def api_games():
     date_str = request.args.get("date")
@@ -361,7 +357,7 @@ def api_live():
     ]
     return jsonify(live_data)
 
-@app.route("/leaderboard")
+@app.route("/records")
 def leaderboard():
     try:
         from subscribe import get_top_games
@@ -372,7 +368,7 @@ def leaderboard():
         print(f"Leaderboard error: {e}", flush=True)
         games = []
         league_filter = "all"
-    return render_template("leaderboard.html", games=games, selected_league=league_filter, active_page="leaderboard")
+    return render_template("records.html", games=games, selected_league=league_filter, active_page="leaderboard")
 
 
 @app.route("/api/save-scores")
