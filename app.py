@@ -440,12 +440,12 @@ def unsubscribe():
 
     email = request.args.get("email", "").strip().lower()
     if email and SUPABASE_URL and SUPABASE_KEY:
-        url = f"{SUPABASE_URL}/rest/v1/subscribers?email=eq.{email}"
         headers = {
             "apikey": SUPABASE_KEY,
             "Authorization": f"Bearer {SUPABASE_KEY}",
         }
-        req.delete(url, headers=headers)
+        req.delete(f"{SUPABASE_URL}/rest/v1/subscribers?email=eq.{email}", headers=headers)
+        req.delete(f"{SUPABASE_URL}/rest/v1/pending_subscribers?email=eq.{email}", headers=headers)
 
     return render_template("unsubscribe.html")
 
