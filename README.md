@@ -22,7 +22,7 @@ Users can filter by league, which switches from the global top 10 to all games i
 
 Subscribers receive a daily email digest at 8am ET with the top 10 matchups for that day.
 
-Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college basketball).
+Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college basketball), and EPL (English Premier League).
 
 ---
 
