@@ -32,6 +32,7 @@ Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college bask
 - **/calendar** — 7-Day Rivalry Calendar. Browse any day in the next week. Games load lazily per day — clicking a tab fetches that day's full schedule and ranks it instantly.
 - **/formula** — Explains the W2W scoring algorithm in detail.
 - **/about** — About the project and the team.
+- **/records** - Shows the top rated 25 games since we first started to track it (03/07/26).
 - **/unsubscribe** — Removes a user from the daily digest. Linked from every email footer.
 
 ---
