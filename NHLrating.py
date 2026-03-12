@@ -20,6 +20,7 @@ rivalries = [
     ("LA_NHL", "ANA_NHL", 7),
     ("DET_NHL", "COL_NHL", 7),
     ("TOR_NHL", "BUF_NHL", 7),
+    # need to fill in more here
 ]
 
 def _parse_record(record_str):
