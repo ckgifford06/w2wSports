@@ -109,7 +109,6 @@ def build_email(games: list, date_str: str) -> tuple[str, str]:
             </td>
           </tr>
 
-          <!-- GAMES -->
           <tr>
             <td>
               <table width="100%" cellpadding="0" cellspacing="0">
@@ -118,7 +117,6 @@ def build_email(games: list, date_str: str) -> tuple[str, str]:
             </td>
           </tr>
 
-          <!-- FOOTER -->
           <tr>
             <td style="padding:32px 0 0 0;border-top:1px solid #2a2a2a;">
               <table width="100%" cellpadding="0" cellspacing="0">
