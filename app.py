@@ -249,6 +249,22 @@ def fetch_games_for_date(date_str, local_tz):
                         ar = int(ar) if ar and ar != 99 else None
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, hr, ar) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, hr, ar) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "NHL":
+                        module = get_rating_module("NHL")
+                        h_seed = home_competitor.get("curatedRank", {}).get("current")
+                        a_seed = away_competitor.get("curatedRank", {}).get("current")
+                        h_seed = int(h_seed) if h_seed and h_seed != 99 else None
+                        a_seed = int(a_seed) if a_seed and a_seed != 99 else None
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "NBA":
+                        module = get_rating_module("NBA")
+                        h_seed = home_competitor.get("curatedRank", {}).get("current")
+                        a_seed = away_competitor.get("curatedRank", {}).get("current")
+                        h_seed = int(h_seed) if h_seed and h_seed != 99 else None
+                        a_seed = int(a_seed) if a_seed and a_seed != 99 else None
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     else:
                         score = calculate_score(home_abbr, away_abbr, sport["name"])
                         breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
@@ -367,7 +383,7 @@ def records():
         from subscribe import get_top_games
         league_filter = request.args.get("league", "all")
         league = None if league_filter == "all" else league_filter
-        games = get_top_games(limit=25, league=league)
+        games = get_top_games(limit=100, league=league)
     except Exception as e:
         print(f"Records error: {e}", flush=True)
         games = []
