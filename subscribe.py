@@ -53,7 +53,7 @@ def send_confirmation_email(email: str, token: str) -> bool:
             <td style="padding:32px 0;">
               <div style="font-size:22px;font-weight:700;color:#f0ece4;margin-bottom:12px;">Confirm your subscription</div>
               <div style="font-size:15px;color:#7a7670;line-height:1.7;margin-bottom:28px;">
-                You're one click away from getting the top 10 sports matchups delivered to your inbox every morning at 8am ET.
+                You're one click away from getting the top 10 sports matchups delivered to your inbox every morning at 9:30 am ET.
               </div>
               <a href="{confirm_url}" style="display:inline-block;background:#98002E;color:#ffffff;font-size:14px;font-weight:600;letter-spacing:0.5px;padding:14px 32px;border-radius:4px;text-decoration:none;">
                 Confirm Subscription
