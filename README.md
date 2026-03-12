@@ -20,7 +20,7 @@ Every day the site pulls the full schedule for every supported league from ESPN'
 
 Users can filter by league, which switches from the global top 10 to all games in that league sorted by score. Click NBA and you see every basketball game that day ranked, even ones that did not crack the overall top 10.
 
-Subscribers receive a daily email digest at 8am ET with the top 10 matchups for that day.
+Subscribers receive a daily email digest at 9:30am ET with the top 10 matchups for that day.
 
 Supported leagues: NBA, NFL, NHL, MLB, CFB (college football), CBB (college basketball), and EPL (English Premier League).
 
