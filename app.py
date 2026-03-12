@@ -363,18 +363,32 @@ def api_live():
     today = datetime.now(local_tz).strftime("%Y%m%d")
     games = fetch_games_for_date(today, local_tz)
 
-    live_data = [
-        {
-            "matchup": g["matchup"],
-            "league":  g["league"],
-            "score":   g["live_score"].replace("Live score: ", "").replace("Final score: ", ""),
-            "status":  "STATUS_IN_PROGRESS" if g["live_score"].startswith("Live score:") and "Not Started" not in g["live_score"]
-                       else "STATUS_FINAL" if g["live_score"].startswith("Final score:")
-                       else "STATUS_SCHEDULED",
-            "detail":  "",
-        }
-        for g in games
-    ]
+    live_data = []
+    for g in games:
+        raw = g["live_score"].replace("Live score: ", "").replace("Final score: ", "")
+        status = (
+            "STATUS_IN_PROGRESS" if g["live_score"].startswith("Live score:") and "Not Started" not in g["live_score"]
+            else "STATUS_FINAL" if g["live_score"].startswith("Final score:")
+            else "STATUS_SCHEDULED"
+        )
+        home_score, away_score = None, None
+        if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL") and " - " in raw:
+            try:
+                parts = raw.split(" - ")
+                home_score = float(parts[0])
+                away_score = float(parts[1])
+            except (ValueError, IndexError):
+                pass
+        live_data.append({
+            "matchup":    g["matchup"],
+            "league":     g["league"],
+            "score":      raw,
+            "status":     status,
+            "detail":     "",
+            "favored":    g.get("favored", ""),
+            "home_score": home_score,
+            "away_score": away_score,
+        })
     return jsonify(live_data)
 
 @app.route("/records")
@@ -383,7 +397,7 @@ def records():
         from subscribe import get_top_games
         league_filter = request.args.get("league", "all")
         league = None if league_filter == "all" else league_filter
-        games = get_top_games(limit=25, league=league)
+        games = get_top_games(limit=100, league=league)
     except Exception as e:
         print(f"Records error: {e}", flush=True)
         games = []
