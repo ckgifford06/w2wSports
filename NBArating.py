@@ -1,19 +1,14 @@
-import requests
-url = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"
-data = requests.get(url).json()
-
-season_length = 82
 playoffs = False
-
 
 team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 9, "PHI_NBA": 8, "TOR_NBA": 6,
     "CHI_NBA": 8, "CLE_NBA": 7, "DET_NBA": 5, "IND_NBA": 7, "MIL_NBA": 7,
     "ATL_NBA": 7, "CHA_NBA": 5, "MIA_NBA": 7, "ORL_NBA": 6, "WAS_NBA": 6.5,
     "DEN_NBA": 7, "MIN_NBA": 6, "OKC_NBA": 9, "POR_NBA": 5, "UTAH_NBA": 5,
-    "GS_NBA": 9, "LAC_NBA": 7, "LAL_NBA": 9, "PHX_NBA":7, "SAC_NBA": 5,
+    "GS_NBA": 9, "LAC_NBA": 7, "LAL_NBA": 9, "PHX_NBA": 7, "SAC_NBA": 5,
     "DAL_NBA": 8, "HOU_NBA": 8, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 8
 }
+
 rivalries = [
     ("OKC_NBA", "SAS_NBA", 11),
     ("LAL_NBA", "BOS_NBA", 8),
@@ -27,102 +22,59 @@ rivalries = [
     ("PHX_NBA", "SAS_NBA", 3),
     ("TOR_NBA", "BOS_NBA", 2),
     ("NY_NBA", "PHI_NBA", 6),
-    ("DAL_NBA", "LAL_NBA", 6),   
+    ("DAL_NBA", "LAL_NBA", 6),
     ("OKC_NBA", "GS_NBA", 4),
     ("LAL_NBA", "SAS_NBA", 5),
     ("OKC_NBA", "IND_NBA", 5)
 ]
-def buildRecords():
-    records = {}
-    for event in data["events"]:
-        for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
-            record = competitor["records"][0]["summary"]
-            records[team_abbr] = record
-    return records
-def buildSeeds():
-    seeds = {}
-    for event in data["events"]:
-        for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NBA"
-            seed = competitor.get("seed", {}).get("rank", None)
-            seeds[team_abbr] = int(seed) if seed else None
-    return seeds
 
-
-def calculate_score(home, away):
-    r = rivalry(home, away)
-    m = marketability(home, away)
-    c = competitiveness(home, away)
-    q = qualityOfPlay(home, away)
-    g = gameImportance(home, away)
-
-    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
-    return round((r + m + c + q + g), 2)
-
-
-
-def calculate_score_breakdown(home, away):
-    return {
-        "rivalry":        round(rivalry(home, away), 2),
-        "marketability":  round(marketability(home, away), 2),
-        "competitiveness":round(competitiveness(home, away), 2),
-        "quality":        round(qualityOfPlay(home, away), 2),
-        "importance":     round(gameImportance(home, away), 2),
-    }
+def _parse_record(record_str):
+    parts = record_str.replace("-", " ").split()
+    try:
+        return int(parts[0]), int(parts[1])
+    except (IndexError, ValueError):
+        return 0, 0
 
 def rivalry(home, away):
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
             return r
-    else: return 0
+    return 0
 
 def marketability(home, away):
     return team_marketability.get(home, 5) + team_marketability.get(away, 5)
-    
-def competitiveness(home, away):
-    records = buildRecords()
-    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
-    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    try:
-        winDiff = abs(homeRecord[0] - awayRecord[0])
-    except ValueError:
-        winDiff = 0
-    compRank = ((20 - winDiff) / 3) + 3
-    return compRank
 
-def qualityOfPlay(home, away):
-    records = buildRecords()
-    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
-    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    combinedWins = float(homeRecord[0] + awayRecord[0])
-    gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
-    if gamesPlayed == 0:
+def competitiveness(home, away, home_record="0-0", away_record="0-0"):
+    hw, hl = _parse_record(home_record)
+    aw, al = _parse_record(away_record)
+    win_diff = abs(hw - aw)
+    return ((20 - win_diff) / 3) + 3
+
+def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
+    hw, hl = _parse_record(home_record)
+    aw, al = _parse_record(away_record)
+    combined_wins = float(hw + aw)
+    games_played = float(hw + hl + aw + al)
+    if games_played == 0:
         return 0
-    quality = round(((combinedWins / gamesPlayed)*17), 3)
-    return quality
-    
-def gameImportance(home, away):
+    return round((combined_wins / games_played) * 17, 3)
+
+def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
     importance = 0
-    seeds = buildSeeds()
-    records = buildRecords()
-    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
-    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
-    awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
-    home_seed = seeds.get(home)
-    away_seed = seeds.get(away)
-    gamesLeft = 82 - max(homeGamesPlayed, awayGamesPlayed)
+    hw, hl = _parse_record(home_record)
+    aw, al = _parse_record(away_record)
+    games_left = 82 - max(hw + hl, aw + al)
+
     if playoffs:
         importance += 5
     else:
-        if gamesLeft <= 50:
+        if games_left <= 50:
             importance += 1
-        if gamesLeft <= 30:
+        if games_left <= 30:
             importance += 1
-        if gamesLeft <= 20:
+        if games_left <= 20:
             importance += 1
-        if home_seed is not None and 6 <  home_seed < 11:
+        if home_seed is not None and 6 < home_seed < 11:
             importance += 3
         if away_seed is not None and 6 < away_seed < 11:
             importance += 3
@@ -130,4 +82,22 @@ def gameImportance(home, away):
             importance += 5
         if away_seed == 1 and home_seed == 2:
             importance += 5
+
     return importance
+
+def calculate_score(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
+    r = rivalry(home, away)
+    m = marketability(home, away)
+    c = competitiveness(home, away, home_record, away_record)
+    q = qualityOfPlay(home, away, home_record, away_record)
+    g = gameImportance(home, away, home_record, away_record, home_seed, away_seed)
+    return round(r + m + c + q + g, 2)
+
+def calculate_score_breakdown(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
+    return {
+        "rivalry":         round(rivalry(home, away), 2),
+        "marketability":   round(marketability(home, away), 2),
+        "competitiveness": round(competitiveness(home, away, home_record, away_record), 2),
+        "quality":         round(qualityOfPlay(home, away, home_record, away_record), 2),
+        "importance":      round(gameImportance(home, away, home_record, away_record, home_seed, away_seed), 2),
+    }
