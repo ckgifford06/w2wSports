@@ -103,6 +103,30 @@
     50% { opacity: 0.4; transform: scale(0.7); }
   }
 
+  .upset-badge {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 160, 0, 0.12);
+    border: 1px solid rgba(255, 160, 0, 0.4);
+    color: #ffa000;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .upset-badge.visible {
+    display: inline-flex;
+  }
+
+  .upset-badge::before {
+    content: '⚡';
+    font-size: 10px;
+  }
+
   .header-right { text-align: right; }
 
   .todays-date {
@@ -830,6 +854,7 @@
         <div class="matchup-name">{{ game.matchup }}</div>
         <div class="matchup-meta">
           <span class="league-badge badge-{{ game.league }}">{{ game.league }}</span>
+          <span class="upset-badge" id="upset-{{ loop.index }}">Upset Alert</span>
           <span>{{ game.where_to_watch }}</span>
         </div>
       </div>
@@ -1075,7 +1100,7 @@
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
-      // Update each visible game row
+      
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -1091,6 +1116,8 @@
 
         item.dataset.live = isLive ? 'true' : 'false';
 
+        const upsetBadge = item.querySelector('.upset-badge');
+
         if (isLive) {
           const detail = game.detail ? ` · ${game.detail}` : '';
           scoreEl.innerHTML = `<span style="color:#ff3060;font-weight:600;">Live: ${game.score}${detail}</span>`;
@@ -1099,7 +1126,21 @@
             bestLiveGame = game;
             bestLiveGame.rank = rank;
           }
+          
+          if (upsetBadge && game.home_score !== null && game.away_score !== null && game.favored) {
+            const favored = game.favored.toLowerCase();
+            const matchupParts = matchup.split(' vs ');
+            const homeName = matchupParts[0] ? matchupParts[0].trim().toLowerCase() : '';
+            const awayName = matchupParts[1] ? matchupParts[1].trim().toLowerCase() : '';
+            const homeWinning = game.home_score > game.away_score;
+            const awayWinning = game.away_score > game.home_score;
+            const homeIsFavored = favored.includes(homeName.split(' ').pop());
+            const awayIsFavored = favored.includes(awayName.split(' ').pop());
+            const isUpset = (homeIsFavored && awayWinning) || (awayIsFavored && homeWinning);
+            upsetBadge.classList.toggle('visible', isUpset);
+          }
         } else if (isFinal) {
+          if (upsetBadge) upsetBadge.classList.remove('visible');
           scoreEl.innerHTML = `<span style="color:var(--text-muted);">Final: ${game.score}</span>`;
         } else {
           scoreEl.innerHTML = `<span style="color:var(--text-dim);">Not started</span>`;
@@ -1171,7 +1212,7 @@
     if (e.key === 'Enter') submitEmail();
   });
 
-  // ——— SHARE POPUP ———
+  
   const sharePopup = document.createElement('div');
   sharePopup.id = 'share-popup';
   sharePopup.innerHTML = `
@@ -1188,7 +1229,7 @@
   let currentShareData = null;
 
   function shareGame(event, btn) {
-    event.stopPropagation(); // don't toggle the row
+    event.stopPropagation(); 
 
     const matchup  = btn.dataset.matchup;
     const score    = btn.dataset.score;
@@ -1205,7 +1246,7 @@
 
     currentShareData = { tweetText, copyText, matchup, score };
 
-    // Try native share on mobile
+    
     if (navigator.share) {
       navigator.share({
         title: `W2W Sports — ${matchup}`,
@@ -1215,7 +1256,7 @@
       return;
     }
 
-    // Desktop: show popup near the button
+    
     const rect = btn.getBoundingClientRect();
     sharePopup.style.display = 'block';
 
@@ -1249,7 +1290,7 @@
     });
   });
 
-  // Close popup when clicking outside
+  
   document.addEventListener('click', (e) => {
     if (!sharePopup.contains(e.target) && !e.target.classList.contains('share-btn')) {
       sharePopup.style.display = 'none';
