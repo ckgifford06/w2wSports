@@ -4,7 +4,7 @@ team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 9, "PHI_NBA": 8, "TOR_NBA": 6,
     "CHI_NBA": 8, "CLE_NBA": 7, "DET_NBA": 5, "IND_NBA": 7, "MIL_NBA": 7,
     "ATL_NBA": 7, "CHA_NBA": 5, "MIA_NBA": 7, "ORL_NBA": 6, "WAS_NBA": 6.5,
-    "DEN_NBA": 7, "MIN_NBA": 6, "OKC_NBA": 9, "POR_NBA": 5, "UTAH_NBA": 5,
+    "DEN_NBA": 8, "MIN_NBA": 6, "OKC_NBA": 9, "POR_NBA": 5, "UTAH_NBA": 5,
     "GS_NBA": 9, "LAC_NBA": 7, "LAL_NBA": 9, "PHX_NBA": 7, "SAC_NBA": 5,
     "DAL_NBA": 8, "HOU_NBA": 8, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 8
 }
