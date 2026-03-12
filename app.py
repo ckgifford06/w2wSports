@@ -154,6 +154,7 @@ def fetch_games_for_date(date_str, local_tz):
                 odds_info = competition.get("odds", [])
                 favored_display = "No moneyline"
                 spread_display = "No spread"
+                favored_team = ""
 
                 if sport["name"] == "NHL" and odds_info:
                     odds_item = odds_info[0]
@@ -164,14 +165,14 @@ def fetch_games_for_date(date_str, local_tz):
                     home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
                     away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
                     if home_ml is not None and away_ml is not None:
-                        favored_display = f"{home_team_odds} {home_ml}" if home_ml < away_ml else f"{away_team_odds} {away_ml}"
+                        favored_team = home_team_odds if home_ml < away_ml else away_team_odds
+                        favored_display = f"{favored_team} {home_ml}" if home_ml < away_ml else f"{favored_team} {away_ml}"
                     elif details:
                         favored_display = details
                     if spread is not None:
                         if spread > 0:
                             spread = -abs(spread)
                         if home_ml is not None and away_ml is not None:
-                            favored_team = home_team_odds if home_ml < away_ml else away_team_odds
                             spread_display = f"{favored_team} {spread:+}"
                         elif details:
                             spread_display = f"{details.split(' ')[0]} {spread:+}"
@@ -185,16 +186,16 @@ def fetch_games_for_date(date_str, local_tz):
                             away_odds = odds_item.get("awayTeamOdds", {})
                             home_odds = odds_item.get("homeTeamOdds", {})
                             if away_odds.get("favorite"):
-                                fav_team = away_odds.get("team", {}).get("displayName", "Away")
+                                favored_team = away_odds.get("team", {}).get("displayName", "Away")
                                 spread_val = odds_item.get("spread")
                                 if spread_val:
-                                    spread_display = f"{fav_team} -{abs(spread_val)}"
+                                    spread_display = f"{favored_team} -{abs(spread_val)}"
                                     break
                             elif home_odds.get("favorite"):
-                                fav_team = home_odds.get("team", {}).get("displayName", "Home")
+                                favored_team = home_odds.get("team", {}).get("displayName", "Home")
                                 spread_val = odds_item.get("spread")
                                 if spread_val:
-                                    spread_display = f"{fav_team} -{abs(spread_val)}"
+                                    spread_display = f"{favored_team} -{abs(spread_val)}"
                                     break
                             if odds_item.get("details"):
                                 spread_display = odds_item["details"]
@@ -203,7 +204,8 @@ def fetch_games_for_date(date_str, local_tz):
                         home_ml = moneyline_data.get("home", {}).get("close", {}).get("odds")
                         away_ml = moneyline_data.get("away", {}).get("close", {}).get("odds")
                         if home_ml and away_ml:
-                            favored_display = f"{home_name} {home_ml}" if int(home_ml) < int(away_ml) else f"{away_name} {away_ml}"
+                            favored_team = home_name if int(home_ml) < int(away_ml) else away_name
+                            favored_display = f"{favored_team} {home_ml}" if int(home_ml) < int(away_ml) else f"{favored_team} {away_ml}"
                         if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL"):
                             favored_display = "Game Started - No Live Moneyline"
                             spread_display = "Game Started - No Live Spread"
@@ -216,11 +218,11 @@ def fetch_games_for_date(date_str, local_tz):
                         home_ml = moneyline.get("home", {}).get("close", {}).get("odds")
                         away_ml = moneyline.get("away", {}).get("close", {}).get("odds")
                         if home_ml and away_ml:
-                            favored_display = f"{home_name} {home_ml}" if int(home_ml) < int(away_ml) else f"{away_name} {away_ml}"
+                            favored_team = home_name if int(home_ml) < int(away_ml) else away_name
+                            favored_display = f"{favored_team} {home_ml}" if int(home_ml) < int(away_ml) else f"{favored_team} {away_ml}"
                         spread = competition.get("odds", [{}])[0].get("pointSpread", {})
                         home_spread = spread.get("home", {}).get("close", {}).get("line")
                         if home_spread:
-                            favored_team = home_name if (home_ml and away_ml and int(home_ml) < int(away_ml)) else away_name
                             spread_display = f"{favored_team} {home_spread}"
                         if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL"):
                             favored_display = "Game Started - No Live Moneyline"
@@ -304,6 +306,7 @@ def fetch_games_for_date(date_str, local_tz):
                     "description": description,
                     "time": game_time,
                     "favored": favored_display,
+                    "favored_team": favored_team,
                     "favored_spread": spread_display,
                     "where_to_watch": where_to_watch,
                     "live_score": live_score,
@@ -385,7 +388,7 @@ def api_live():
             "score":      raw,
             "status":     status,
             "detail":     "",
-            "favored":    g.get("favored", ""),
+            "favored":    g.get("favored_team", ""),
             "home_score": home_score,
             "away_score": away_score,
         })
