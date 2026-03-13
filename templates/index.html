@@ -896,7 +896,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" data-leaders="{{ game.leaders | tojson | e }}" onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" data-leaders='{{ game.leaders | default([]) | tojson }}' onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
