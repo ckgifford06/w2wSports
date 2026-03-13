@@ -495,10 +495,6 @@ def api_game_details():
 
     return jsonify({"injuries": injuries}), 200
 
-    except Exception as e:
-        print(f"game-details error: {e}", flush=True)
-        return jsonify({"leaders": [], "injuries": []}), 200
-
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
     from subscribe import add_pending_subscriber, send_confirmation_email
