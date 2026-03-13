@@ -298,6 +298,31 @@ def fetch_games_for_date(date_str, local_tz):
                 except:
                     where_to_watch = "No networks..."
 
+                leaders = []
+                try:
+                    seen_leaders = set()
+                    for comp in [home_competitor, away_competitor]:
+                        team_short = comp["team"].get("shortDisplayName", comp["team"].get("displayName", ""))
+                        for cat in comp.get("leaders", []):
+                            cat_name = cat.get("displayName", "")
+                            if cat_name == "Rating":
+                                continue
+                            top = cat.get("leaders", [{}])[0]
+                            athlete = top.get("athlete", {})
+                            short_name = athlete.get("shortName", "")
+                            value = top.get("displayValue", "")
+                            key = f"{cat_name}-{short_name}"
+                            if short_name and value and key not in seen_leaders:
+                                seen_leaders.add(key)
+                                leaders.append({
+                                    "category": cat_name,
+                                    "athlete": short_name,
+                                    "team": team_short,
+                                    "value": value,
+                                })
+                except Exception:
+                    leaders = []
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "league": sport["name"],
@@ -313,6 +338,7 @@ def fetch_games_for_date(date_str, local_tz):
                     "is_rivalry": is_rivalry,
                     "event_id": event["id"],
                     "league_path": sport["path"],
+                    "leaders": leaders,
                 })
 
         except Exception as e:
@@ -447,41 +473,27 @@ def api_game_details():
     if not event_id or not league_path:
         return jsonify({"error": "Missing params"}), 400
 
+    injuries = []
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/{league_path}/summary?event={event_id}"
         resp = requests.get(url, timeout=6)
-        if not resp.ok:
-            return jsonify({"leaders": [], "injuries": []}), 200
-        data = resp.json()
+        if resp.ok:
+            data = resp.json()
+            for team_entry in data.get("injuries", []):
+                team_name = team_entry.get("team", {}).get("shortDisplayName", "")
+                for inj in team_entry.get("injuries", []):
+                    athlete = inj.get("athlete", {})
+                    status = inj.get("status", "")
+                    if status.lower() in ("out", "doubtful") and athlete.get("shortName"):
+                        injuries.append({
+                            "team": team_name,
+                            "athlete": athlete["shortName"],
+                            "status": status,
+                        })
+    except Exception as e:
+        print(f"game-details injury fetch error: {e}", flush=True)
 
-        leaders = []
-        for cat in data.get("leaders", []):
-            name = cat.get("displayName", "")
-            top = cat.get("leaders", [{}])[0]
-            athlete = top.get("athlete", {})
-            if athlete.get("shortName") and top.get("displayValue"):
-                leaders.append({
-                    "category": name,
-                    "athlete": athlete["shortName"],
-                    "value": top["displayValue"],
-                })
-
-        injuries = []
-        for team_entry in data.get("injuries", []):
-            team_name = team_entry.get("team", {}).get("shortDisplayName", "")
-            for inj in team_entry.get("injuries", []):
-                athlete = inj.get("athlete", {})
-                status = inj.get("status", "")
-                desc = inj.get("longComment", inj.get("shortComment", ""))
-                if status.lower() in ("out", "doubtful") and athlete.get("shortName"):
-                    injuries.append({
-                        "team": team_name,
-                        "athlete": athlete["shortName"],
-                        "status": status,
-                        "description": desc,
-                    })
-
-        return jsonify({"leaders": leaders, "injuries": injuries}), 200
+    return jsonify({"injuries": injuries}), 200
 
     except Exception as e:
         print(f"game-details error: {e}", flush=True)
