@@ -4,7 +4,7 @@ conference_tournament = False
 
 team_marketability = {
     "UK_CBB": 9, "UNC_CBB": 9, "DUKE_CBB": 10, "KU_CBB": 9, "UCLA_CBB": 8,
-    "UL_CBB": 8, "IU_CBB": 8, "MICH_CBB": 8, "MSU_CBB": 8, "OSU_CBB": 7,
+    "UL_CBB": 8, "IU_CBB": 8, "MICH_CBB": 8, "MSU_CBB": 8, "OSU_CBB": 6,
     "GONZ_CBB": 8, "VILL_CBB": 8, "CUSE_CBB": 7, "CONN_CBB": 8, "MD_CBB": 7,
     "WIS_CBB": 7, "ARIZ_CBB": 8, "PITT_CBB": 7, "MARQ_CBB": 7, "WAKE_CBB": 6,
     "GTWN_CBB": 7, "TEX_CBB": 7, "TENN_CBB": 7, "ARK_CBB": 7, "FLA_CBB": 7,
