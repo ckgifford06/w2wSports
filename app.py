@@ -31,13 +31,13 @@ def get_rating_module(league):
     return None
 
 sports = {
-    "nba": {"name": "NBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard"},
-    "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"},
-    "nhl": {"name": "NHL", "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard"},
-    "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"},
-    "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"},
-    "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=50"},
-    "epl": {"name": "EPL", "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard"},
+    "nba": {"name": "NBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",             "path": "basketball/nba"},
+    "nfl": {"name": "NFL", "url": "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard",               "path": "football/nfl"},
+    "nhl": {"name": "NHL", "url": "https://site.api.espn.com/apis/site/v2/sports/hockey/nhl/scoreboard",                 "path": "hockey/nhl"},
+    "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",               "path": "baseball/mlb"},
+    "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard",  "path": "football/college-football"},
+    "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=50", "path": "basketball/mens-college-basketball"},
+    "epl": {"name": "EPL", "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",               "path": "soccer/eng.1"},
 }
 
 def calculate_score(home, away, league):
@@ -311,6 +311,8 @@ def fetch_games_for_date(date_str, local_tz):
                     "where_to_watch": where_to_watch,
                     "live_score": live_score,
                     "is_rivalry": is_rivalry,
+                    "event_id": event["id"],
+                    "league_path": sport["path"],
                 })
 
         except Exception as e:
@@ -436,6 +438,54 @@ def about():
 @app.route("/formula")
 def formula():
     return render_template("formula.html", active_page="formula")
+
+
+@app.route("/api/game-details")
+def api_game_details():
+    event_id = request.args.get("event_id", "").strip()
+    league_path = request.args.get("league_path", "").strip()
+    if not event_id or not league_path:
+        return jsonify({"error": "Missing params"}), 400
+
+    try:
+        url = f"https://site.api.espn.com/apis/site/v2/sports/{league_path}/summary?event={event_id}"
+        resp = requests.get(url, timeout=6)
+        if not resp.ok:
+            return jsonify({"leaders": [], "injuries": []}), 200
+        data = resp.json()
+
+        leaders = []
+        for cat in data.get("leaders", []):
+            name = cat.get("displayName", "")
+            top = cat.get("leaders", [{}])[0]
+            athlete = top.get("athlete", {})
+            if athlete.get("shortName") and top.get("displayValue"):
+                leaders.append({
+                    "category": name,
+                    "athlete": athlete["shortName"],
+                    "value": top["displayValue"],
+                })
+
+        injuries = []
+        for team_entry in data.get("injuries", []):
+            team_name = team_entry.get("team", {}).get("shortDisplayName", "")
+            for inj in team_entry.get("injuries", []):
+                athlete = inj.get("athlete", {})
+                status = inj.get("status", "")
+                desc = inj.get("longComment", inj.get("shortComment", ""))
+                if status.lower() in ("out", "doubtful") and athlete.get("shortName"):
+                    injuries.append({
+                        "team": team_name,
+                        "athlete": athlete["shortName"],
+                        "status": status,
+                        "description": desc,
+                    })
+
+        return jsonify({"leaders": leaders, "injuries": injuries}), 200
+
+    except Exception as e:
+        print(f"game-details error: {e}", flush=True)
+        return jsonify({"leaders": [], "injuries": []}), 200
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
