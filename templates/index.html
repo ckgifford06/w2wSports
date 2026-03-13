@@ -439,6 +439,7 @@
     margin-bottom: 8px;
   }
 
+  /* ——— SCORE BREAKDOWN CHART ——— */
   .breakdown-card {
     grid-column: span 4;
     background: var(--surface);
@@ -785,6 +786,57 @@
     .game-details { grid-template-columns: 1fr; }
 
     .blurb-card { grid-column: span 1; }
+
+  .players-card {
+    grid-column: span 2;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+
+  @media (max-width: 600px) { .players-card { grid-column: span 1; } }
+
+  .players-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 10px;
+  }
+
+  @media (max-width: 500px) { .players-grid { grid-template-columns: 1fr; } }
+
+  .player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+
+  .player-row:last-child { border-bottom: none; }
+  .player-name { color: var(--text); font-weight: 500; }
+  .player-stat { color: var(--gold); font-family: 'DM Mono', monospace; font-size: 12px; font-weight: 500; }
+  .player-category { font-size: 11px; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 2px; }
+
+  .injury-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+    gap: 8px;
+  }
+
+  .injury-row:last-child { border-bottom: none; }
+  .injury-name { color: var(--text); font-weight: 500; }
+  .injury-team { font-size: 11px; color: var(--text-muted); }
+  .injury-status-out { color: #ff3060; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+  .injury-status-doubtful { color: #ffa000; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
+  .players-loading { color: var(--text-dim); font-size: 13px; padding: 8px 0; }
+  .players-empty { color: var(--text-dim); font-size: 13px; padding: 6px 0; font-style: italic; }
   }
 </style>
 {% endblock %}
@@ -844,7 +896,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
@@ -968,6 +1020,17 @@
         </div>
       </div>
       {% endif %}
+
+      <div class="players-card" id="leaders-card-{{ loop.index }}">
+        <div class="detail-card-label">Game Leaders</div>
+        <div class="players-loading" id="leaders-body-{{ loop.index }}">Loading...</div>
+      </div>
+
+      <div class="players-card" id="injuries-card-{{ loop.index }}">
+        <div class="detail-card-label">Injury Report</div>
+        <div class="players-loading" id="injuries-body-{{ loop.index }}">Loading...</div>
+      </div>
+
     </div>
   </div>
   {% endfor %}
@@ -984,7 +1047,7 @@
   <div class="signup-inner">
     <div class="signup-left">
       <div class="signup-title">Get the Daily Digest</div>
-      <div class="signup-sub">Top 10 matchups every morning at 9:30am ET. Free.</div>
+      <div class="signup-sub">Top 10 matchups every morning at 8am ET. Free.</div>
     </div>
     <div class="signup-right">
       <div class="signup-form" id="signup-form">
@@ -1019,6 +1082,51 @@
   document.getElementById('today-date').textContent =
     now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }).toUpperCase();
 
+  async function loadGameDetails(el) {
+    const rank = el.dataset.overallRank;
+    const eventId = el.dataset.eventId;
+    const leaguePath = el.dataset.leaguePath;
+    const leadersBody = document.getElementById(`leaders-body-${rank}`);
+    const injuriesBody = document.getElementById(`injuries-body-${rank}`);
+    if (!eventId || !leaguePath || el.dataset.detailsLoaded) return;
+    el.dataset.detailsLoaded = "true";
+    try {
+      const resp = await fetch(`/api/game-details?event_id=${eventId}&league_path=${encodeURIComponent(leaguePath)}`);
+      const data = await resp.json();
+      if (leadersBody) {
+        if (data.leaders && data.leaders.length > 0) {
+          leadersBody.className = "players-grid";
+          leadersBody.innerHTML = data.leaders.map(l =>
+            `<div><div class="player-category">${l.category}</div>
+             <div class="player-row"><span class="player-name">${l.athlete}</span>
+             <span class="player-stat">${l.value}</span></div></div>`
+          ).join('');
+        } else {
+          leadersBody.className = "players-empty";
+          leadersBody.textContent = "No leader data available yet.";
+        }
+      }
+      if (injuriesBody) {
+        if (data.injuries && data.injuries.length > 0) {
+          injuriesBody.className = "";
+          injuriesBody.innerHTML = data.injuries.map(i =>
+            `<div class="injury-row">
+               <div><span class="player-name">${i.athlete}</span>
+               <span class="injury-team"> · ${i.team}</span></div>
+               <span class="injury-status-${i.status.toLowerCase()}">${i.status}</span>
+             </div>`
+          ).join('');
+        } else {
+          injuriesBody.className = "players-empty";
+          injuriesBody.textContent = "No notable injuries reported.";
+        }
+      }
+    } catch(e) {
+      if (leadersBody) { leadersBody.className = "players-empty"; leadersBody.textContent = "Could not load data."; }
+      if (injuriesBody) { injuriesBody.className = "players-empty"; injuriesBody.textContent = "Could not load data."; }
+    }
+  }
+
   function toggleGame(el) {
     el.classList.toggle('open');
     if (el.classList.contains('open')) {
@@ -1027,6 +1135,7 @@
           bar.style.width = (bar.dataset.pct || 0) + '%';
         });
       }, 40);
+      loadGameDetails(el);
     } else {
       el.querySelectorAll('.breakdown-fill').forEach(bar => {
         bar.style.width = '0%';
