@@ -896,7 +896,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" data-leaders="{{ game.leaders | tojson | e }}" onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
@@ -1047,7 +1047,7 @@
   <div class="signup-inner">
     <div class="signup-left">
       <div class="signup-title">Get the Daily Digest</div>
-      <div class="signup-sub">Top 10 matchups every morning at 9:30am ET. Free.</div>
+      <div class="signup-sub">Top 10 matchups every morning at 8am ET. Free.</div>
     </div>
     <div class="signup-right">
       <div class="signup-form" id="signup-form">
@@ -1088,25 +1088,33 @@
     const leaguePath = el.dataset.leaguePath;
     const leadersBody = document.getElementById(`leaders-body-${rank}`);
     const injuriesBody = document.getElementById(`injuries-body-${rank}`);
-    if (!eventId || !leaguePath || el.dataset.detailsLoaded) return;
+    if (el.dataset.detailsLoaded) return;
     el.dataset.detailsLoaded = "true";
-    try {
-      const resp = await fetch(`/api/game-details?event_id=${eventId}&league_path=${encodeURIComponent(leaguePath)}`);
-      const data = await resp.json();
-      if (leadersBody) {
-        if (data.leaders && data.leaders.length > 0) {
+
+    if (leadersBody) {
+      try {
+        const leaders = JSON.parse(el.dataset.leaders || "[]");
+        if (leaders.length > 0) {
           leadersBody.className = "players-grid";
-          leadersBody.innerHTML = data.leaders.map(l =>
-            `<div><div class="player-category">${l.category}</div>
+          leadersBody.innerHTML = leaders.map(l =>
+            `<div><div class="player-category">${l.category} · ${l.team}</div>
              <div class="player-row"><span class="player-name">${l.athlete}</span>
              <span class="player-stat">${l.value}</span></div></div>`
           ).join('');
         } else {
           leadersBody.className = "players-empty";
-          leadersBody.textContent = "Game has not started yet.";
+          leadersBody.textContent = "No leader data available yet.";
         }
+      } catch(e) {
+        leadersBody.className = "players-empty";
+        leadersBody.textContent = "No leader data available yet.";
       }
-      if (injuriesBody) {
+    }
+
+    if (injuriesBody && eventId && leaguePath) {
+      try {
+        const resp = await fetch(`/api/game-details?event_id=${eventId}&league_path=${encodeURIComponent(leaguePath)}`);
+        const data = await resp.json();
         if (data.injuries && data.injuries.length > 0) {
           injuriesBody.className = "";
           injuriesBody.innerHTML = data.injuries.map(i =>
@@ -1120,10 +1128,10 @@
           injuriesBody.className = "players-empty";
           injuriesBody.textContent = "No notable injuries reported.";
         }
+      } catch(e) {
+        injuriesBody.className = "players-empty";
+        injuriesBody.textContent = "Could not load injury data.";
       }
-    } catch(e) {
-      if (leadersBody) { leadersBody.className = "players-empty"; leadersBody.textContent = "Could not load data."; }
-      if (injuriesBody) { injuriesBody.className = "players-empty"; injuriesBody.textContent = "Could not load data."; }
     }
   }
 
