@@ -38,7 +38,7 @@ rivalries = [
     ("NEB_CBB", "MICH_CBB", 8),
     ("DUKE_CBB", "NCST_CBB", 7), 
     ("UNC_CBB", "NCST_CBB", 7),  
-    ("OSU_CBB", "MICH_CBB", 7),  
+    ("OSU_CBB", "MICH_CBB", 6),  
     ("UCLA_CBB", "USC_CBB", 9),  
     ("GONZ_CBB", "SMC_CBB", 7),  
     ("VILL_CBB", "GTOWN_CBB", 8),  
