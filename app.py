@@ -465,6 +465,14 @@ def about():
 def formula():
     return render_template("formula.html", active_page="formula")
 
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html", active_page="privacy")
+
+@app.route("/terms")
+def terms():
+    return render_template("terms.html", active_page="terms")
+
 
 @app.route("/api/game-details")
 def api_game_details():
