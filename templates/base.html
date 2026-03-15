@@ -74,11 +74,25 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
       padding: 0 40px;
       height: 60px;
       background: rgba(13,13,13,0.92);
       backdrop-filter: blur(12px);
       border-bottom: 1px solid var(--border);
+    }
+
+    @media (max-width: 768px) {
+      nav {
+        padding: 0 16px;
+        height: auto;
+      }
+
+      .nav-logo {
+        height: 52px;
+        display: flex;
+        align-items: center;
+      }
     }
 
     .nav-logo {
