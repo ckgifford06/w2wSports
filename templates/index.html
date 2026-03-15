@@ -38,6 +38,17 @@
     color: var(--gold);
   }
 
+  .live-pill {
+    border-color: rgba(255,48,96,0.4);
+    color: #ff3060;
+  }
+
+  .live-pill.active {
+    background: rgba(255,48,96,0.15);
+    border-color: rgba(255,48,96,0.5);
+    color: #ff3060;
+  }
+
   .pill.active {
     background: var(--crimson);
     border-color: var(--crimson);
@@ -864,6 +875,7 @@
 <div class="league-pills">
   <button class="pill {% if selected_league == 'top10' %}active{% endif %}" onclick="filterLeague('top10', this)">Top 10</button>
   <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('all', this)">All</button>
+  <button class="pill live-pill" id="live-now-pill" onclick="filterLeague('live', this)">🔴 Live</button>
   <button class="pill {% if selected_league == 'NBA' %}active{% endif %}" onclick="filterLeague('NBA', this)">NBA</button>
   <button class="pill {% if selected_league == 'NFL' %}active{% endif %}" onclick="filterLeague('NFL', this)">NFL</button>
   <button class="pill {% if selected_league == 'NHL' %}active{% endif %}" onclick="filterLeague('NHL', this)">NHL</button>
@@ -1065,7 +1077,7 @@
   <div class="signup-inner">
     <div class="signup-left">
       <div class="signup-title">Get the Daily Digest</div>
-      <div class="signup-sub">Top 10 matchups every morning at 9:30 ET. Free.</div>
+      <div class="signup-sub">Top 10 matchups every morning at 9:30am ET. Free.</div>
     </div>
     <div class="signup-right">
       <div class="signup-form" id="signup-form">
@@ -1183,6 +1195,8 @@
         visible = overallRank <= 10;
       } else if (league === 'all') {
         visible = true;
+      } else if (league === 'live') {
+        visible = item.dataset.live === 'true';
       } else {
         visible = item.dataset.league === league;
       }
@@ -1199,6 +1213,9 @@
     } else if (league === 'all') {
       title.innerHTML = 'All <span>Matchups</span> Today';
       countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} · sorted by W2W score`;
+    } else if (league === 'live') {
+      title.innerHTML = '<span>Live</span> Games Now';
+      countEl.textContent = shown === 0 ? 'No games live right now' : `${shown} game${shown !== 1 ? 's' : ''} in progress`;
     } else {
       title.innerHTML = `All <span>${league}</span> Games Today`;
       countEl.textContent = `${shown} game${shown !== 1 ? 's' : ''} · sorted by W2W score`;
@@ -1249,6 +1266,10 @@
         const isFinal = status.includes('final');
 
         item.dataset.live = isLive ? 'true' : 'false';
+        const activeLeague = document.querySelector('.pill.active');
+        if (activeLeague && activeLeague.id === 'live-now-pill') {
+          item.style.display = isLive ? '' : 'none';
+        }
 
         const upsetBadge = item.querySelector('.upset-badge');
 
