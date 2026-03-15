@@ -683,13 +683,31 @@
       gap: 0;
     }
 
-    .nav-center { display: none; }
+    .nav-center {
+      width: 100%;
+      order: 3;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 10px 0;
+      gap: 20px;
+      border-top: 1px solid var(--border);
+      justify-content: flex-start;
+    }
+
+    .nav-center::-webkit-scrollbar { display: none; }
+
+    .nav-center a {
+      white-space: nowrap;
+      font-size: 12px;
+    }
 
     .nav-right {
+      order: 2;
       width: 100%;
       min-width: unset;
       justify-content: flex-start;
-      padding: 8px 0 10px;
+      padding: 6px 0;
       overflow-x: auto;
       gap: 6px;
     }
@@ -786,6 +804,7 @@
     .game-details { grid-template-columns: 1fr; }
 
     .blurb-card { grid-column: span 1; }
+  }
 
   .players-card {
     grid-column: span 2;
@@ -837,7 +856,6 @@
   .injury-status-doubtful { color: #ffa000; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
   .players-loading { color: var(--text-dim); font-size: 13px; padding: 8px 0; }
   .players-empty { color: var(--text-dim); font-size: 13px; padding: 6px 0; font-style: italic; }
-  }
 </style>
 {% endblock %}
 
