@@ -1010,7 +1010,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Rivalry</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-rivalry" data-pct="{{ [(bd.rivalry / max_score * 100)|int, 100]|min }}"></div>
+              <div class="breakdown-fill fill-rivalry" data-pct="{{ [(bd.rivalry / max_score * 150)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.rivalry }}</div>
           </div>
@@ -1018,7 +1018,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Marketability</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-market" data-pct="{{ [(bd.marketability / max_score * 50)|int, 100]|min }}"></div>
+              <div class="breakdown-fill fill-market" data-pct="{{ [(bd.marketability / max_score * 150)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.marketability }}</div>
           </div>
@@ -1026,7 +1026,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Competitive</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-compete" data-pct="{{ [(bd.competitiveness / max_score * 50)|int, 100]|min }}"></div>
+              <div class="breakdown-fill fill-compete" data-pct="{{ [(bd.competitiveness / max_score * 150)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.competitiveness }}</div>
           </div>
@@ -1034,7 +1034,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Quality</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-quality" data-pct="{{ [(bd.quality / max_score * 50)|int, 100]|min }}"></div>
+              <div class="breakdown-fill fill-quality" data-pct="{{ [(bd.quality / max_score * 150)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.quality }}</div>
           </div>
@@ -1042,7 +1042,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Importance</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-importance" data-pct="{{ [(bd.importance / max_score * 50)|int, 100]|min }}"></div>
+              <div class="breakdown-fill fill-importance" data-pct="{{ [(bd.importance / max_score * 150)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.importance }}</div>
           </div>
