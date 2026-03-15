@@ -388,6 +388,7 @@
     color: var(--gold);
   }
 
+  /* ——— SHARE POPUP ——— */
   #share-popup {
     display: none;
     position: fixed;
@@ -1009,7 +1010,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Rivalry</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-rivalry" data-pct="{{ [(bd.rivalry / max_score * 100)|int, 30]|min }}"></div>
+              <div class="breakdown-fill fill-rivalry" data-pct="{{ [(bd.rivalry / max_score * 100)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.rivalry }}</div>
           </div>
@@ -1017,7 +1018,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Marketability</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-market" data-pct="{{ [(bd.marketability / max_score * 100)|int, 30]|min }}"></div>
+              <div class="breakdown-fill fill-market" data-pct="{{ [(bd.marketability / max_score * 50)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.marketability }}</div>
           </div>
@@ -1025,7 +1026,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Competitive</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-compete" data-pct="{{ [(bd.competitiveness / max_score * 100)|int, 30]|min }}"></div>
+              <div class="breakdown-fill fill-compete" data-pct="{{ [(bd.competitiveness / max_score * 50)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.competitiveness }}</div>
           </div>
@@ -1033,7 +1034,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Quality</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-quality" data-pct="{{ [(bd.quality / max_score * 100)|int, 30]|min }}"></div>
+              <div class="breakdown-fill fill-quality" data-pct="{{ [(bd.quality / max_score * 50)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.quality }}</div>
           </div>
@@ -1041,7 +1042,7 @@
           <div class="breakdown-row">
             <div class="breakdown-label">Importance</div>
             <div class="breakdown-track">
-              <div class="breakdown-fill fill-importance" data-pct="{{ [(bd.importance / max_score * 100)|int, 30]|min }}"></div>
+              <div class="breakdown-fill fill-importance" data-pct="{{ [(bd.importance / max_score * 50)|int, 100]|min }}"></div>
             </div>
             <div class="breakdown-val">{{ bd.importance }}</div>
           </div>
@@ -1124,12 +1125,17 @@
       try {
         const leaders = JSON.parse(el.dataset.leaders || "[]");
         if (leaders.length > 0) {
+          const teams = [...new Set(leaders.map(l => l.team))];
+          const renderTeam = (team) => {
+            const tl = leaders.filter(l => l.team === team);
+            return `<div><div class="player-category" style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">${team}</div>${
+              tl.map(l => `<div><div class="player-category">${l.category}</div>
+                <div class="player-row"><span class="player-name">${l.athlete}</span>
+                <span class="player-stat">${l.value}</span></div></div>`).join('')
+            }</div>`;
+          };
           leadersBody.className = "players-grid";
-          leadersBody.innerHTML = leaders.map(l =>
-            `<div><div class="player-category">${l.category} · ${l.team}</div>
-             <div class="player-row"><span class="player-name">${l.athlete}</span>
-             <span class="player-stat">${l.value}</span></div></div>`
-          ).join('');
+          leadersBody.innerHTML = teams.map(renderTeam).join('');
         } else {
           leadersBody.className = "players-empty";
           leadersBody.textContent = "No leader data available yet.";
