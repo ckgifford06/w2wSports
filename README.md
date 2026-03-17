@@ -126,7 +126,7 @@ The formula is tuned per sport but the structure is identical across all six lea
 - **Marketability:** Team values live in the `team_marketability` dict in each rating file
 - **Postseason mode:** Set `march_madness = True`, `playoffs = True`, etc. in the relevant rating files when postseason starts
 - **Timezone:** Defaults to US/Eastern, detected automatically from the browser via `Intl.DateTimeFormat`, can be overridden with `?tz=` query param
-- **Digest time:** Change the cron schedule in `vercel.json` (currently `0 13 * * *` = 8am ET)
+- **Digest time:** Change the cron schedule in `vercel.json` (currently at 9:30
 - **Digest size:** Change the `[:10]` slice in `daily_digest.py` to send more or fewer games
 
 ---
