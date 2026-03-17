@@ -139,7 +139,7 @@ def gameImportance(home_rank, away_rank, home_record="0-0", away_record="0-0"):
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
 
     if march_madness:
-        importance += 15
+        importance += 7
         if home_rank is not None and away_rank is not None:
             if home_rank <= 8 and away_rank <= 8:
                 importance += 7
