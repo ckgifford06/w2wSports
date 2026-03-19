@@ -65,37 +65,90 @@ def get_rivalry_score(home, away, league):
     return 0
 
 def generate_fallback_blurb(game_info):
-    parts = []
+    home = game_info.get('home_team', '')
+    away = game_info.get('away_team', '')
+    home_rank = game_info.get('home_rank', 'Unranked')
+    away_rank = game_info.get('away_rank', 'Unranked')
+    home_rec = game_info.get('home_record', '0-0')
+    away_rec = game_info.get('away_record', '0-0')
+    league = game_info.get('league', '')
+    is_rivalry = game_info.get('is_rivalry', False)
+    rivalry_score = game_info.get('rivalry_score', 0)
+    conference = game_info.get('conference', 'N/A')
 
-    if game_info.get('home_rank') and game_info['home_rank'] != "Unranked":
-        if game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
-            parts.append(f"{game_info['home_rank']} {game_info['home_team']} hosts {game_info['away_rank']} {game_info['away_team']}")
-        else:
-            parts.append(f"{game_info['home_rank']} {game_info['home_team']} faces {game_info['away_team']}")
-    elif game_info.get('away_rank') and game_info['away_rank'] != "Unranked":
-        parts.append(f"{game_info['away_rank']} {game_info['away_team']} visits {game_info['home_team']}")
+    def parse_rec(rec):
+        parts = rec.replace('-', ' ').split()
+        try:
+            w, l = int(parts[0]), int(parts[1])
+            gp = w + l
+            pct = w / gp if gp > 0 else 0
+            return w, l, gp, pct
+        except:
+            return 0, 0, 0, 0
 
-    if game_info.get('is_rivalry'):
-        if parts:
-            parts.append("in rivalry matchup")
-        else:
-            parts.append(f"{game_info['home_team']} vs {game_info['away_team']} rivalry")
+    hw, hl, hgp, hpct = parse_rec(home_rec)
+    aw, al, agp, apct = parse_rec(away_rec)
 
-    if game_info.get('conference') and game_info['conference'] != "N/A":
-        if parts:
-            parts.append(f"in {game_info['conference']}")
-        else:
-            parts.append(f"{game_info['conference']} matchup")
+    home_ranked = home_rank != "Unranked"
+    away_ranked = away_rank != "Unranked"
+    home_hot = hpct >= 0.70 and hgp >= 10
+    away_hot = apct >= 0.70 and agp >= 10
+    home_struggling = hpct <= 0.35 and hgp >= 10
+    away_struggling = apct <= 0.35 and agp >= 10
+    home_undefeated = hl == 0 and hw > 0
+    away_undefeated = al == 0 and aw > 0
+    both_ranked = home_ranked and away_ranked
+    close_records = hgp > 0 and agp > 0 and abs(hpct - apct) < 0.08
 
-    if not parts:
-        home_rec = game_info.get('home_record', '')
-        away_rec = game_info.get('away_record', '')
-        if '18-' in home_rec or '17-' in home_rec or '-0' in home_rec:
-            parts.append(f"{home_rec} {game_info['home_team']} hosts {game_info['away_team']}")
-        elif '18-' in away_rec or '17-' in away_rec or '-0' in away_rec:
-            parts.append(f"{away_rec} {game_info['away_team']} visits {game_info['home_team']}")
+    if home_undefeated and away_undefeated:
+        return f"Two undefeated teams collide as {home} ({home_rec}) hosts {away} ({away_rec})."
+    if home_undefeated:
+        return f"{home} look to stay perfect at {home_rec} against {away_rank + ' ' if away_ranked else ''}{away}."
+    if away_undefeated:
+        return f"{away} bring an unblemished {away_rec} record into {home}'s building."
 
-    return " ".join(parts) if parts else f"{game_info['home_team']} vs {game_info['away_team']}"
+    if both_ranked and is_rivalry:
+        return f"A marquee rivalry game. {home_rank} {home} vs {away_rank} {away}. Two ranked sides with history between them."
+    if both_ranked:
+        return f"Top-25 showdown as {home_rank} {home} ({home_rec}) hosts {away_rank} {away} ({away_rec})."
+    if home_ranked and away_hot:
+        return f"{home_rank} {home} faces a tough test from {away}, who are {away_rec} on the season."
+    if away_ranked and home_hot:
+        return f"{away_rank} {away} visits a surging {home} squad sitting at {home_rec}."
+    if home_ranked:
+        return f"{home_rank} {home} ({home_rec}) host {away} ({away_rec}) in a key matchup."
+    if away_ranked:
+        return f"{away_rank} {away} ({away_rec}) head to {home} ({home_rec})."
+
+    if rivalry_score >= 8:
+        return f"One of the best rivalries in {league}. {home} vs {away} never disappoints."
+    if is_rivalry and close_records:
+        return f"Rivalry game with stakes. {home} ({home_rec}) and {away} ({away_rec}) are nearly identical on the season."
+    if is_rivalry:
+        return f"{home} and {away} renew their rivalry with {home} sitting at {home_rec} and {away} at {away_rec}."
+
+    if home_hot and away_hot:
+        return f"Two of the hottest teams in {league} meet. {home} ({home_rec}) hosts {away} ({away_rec})."
+    if home_hot:
+        return f"{home} are rolling at {home_rec} and host {away} ({away_rec})."
+    if away_hot:
+        return f"{away} have been one of the best teams in {league} at {away_rec} and head to {home} ({home_rec})."
+
+    if close_records and hgp >= 15:
+        return f"A tightly matched {league} game — {home} ({home_rec}) vs {away} ({away_rec}) with nearly identical records."
+
+    if home_struggling and not away_struggling:
+        return f"{away} ({away_rec}) visit a struggling {home} side sitting at {home_rec}."
+    if away_struggling and not home_struggling:
+        return f"{home} ({home_rec}) host {away}, who have had a tough season at {away_rec}."
+
+    if conference and conference != "N/A":
+        return f"{conference} matchup between {home} ({home_rec}) and {away} ({away_rec})."
+
+    if hgp > 0 and agp > 0:
+        return f"{home} ({home_rec}) host {away} ({away_rec}) in tonight's {league} action."
+
+    return f"{home} vs {away}"
 
 def fetch_games_for_date(date_str, local_tz):
     all_games = []
@@ -273,7 +326,14 @@ def fetch_games_for_date(date_str, local_tz):
 
                     is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
                     rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
-                    description = generate_fallback_blurb({
+                    espn_headline = ""
+                    if status == "STATUS_FINAL":
+                        for hl in competition.get("headlines", []):
+                            text = hl.get("shortLinkText", "") or hl.get("description", "")
+                            if text:
+                                espn_headline = text.lstrip("- ").strip()
+                                break
+                    description = espn_headline if espn_headline else generate_fallback_blurb({
                         'league': sport['name'], 'home_team': home_name, 'away_team': away_name,
                         'home_record': home_record, 'away_record': away_record,
                         'home_rank': home_rank_str, 'away_rank': away_rank_str,
