@@ -107,18 +107,20 @@ def generate_fallback_blurb(game_info):
     if away_undefeated:
         return f"{away} bring an unblemished {away_rec} record into {home}'s building."
 
-    if both_ranked and is_rivalry:
-        return f"A marquee rivalry game. {home_rank} {home} vs {away_rank} {away}. Two ranked sides with history between them."
-    if both_ranked:
-        return f"Top-25 showdown as {home_rank} {home} ({home_rec}) hosts {away_rank} {away} ({away_rec})."
-    if home_ranked and away_hot:
-        return f"{home_rank} {home} faces a tough test from {away}, who are {away_rec} on the season."
-    if away_ranked and home_hot:
-        return f"{away_rank} {away} visits a surging {home} squad sitting at {home_rec}."
-    if home_ranked:
-        return f"{home_rank} {home} ({home_rec}) host {away} ({away_rec}) in a key matchup."
-    if away_ranked:
-        return f"{away_rank} {away} ({away_rec}) head to {home} ({home_rec})."
+    skip_ranked = game_info.get('skip_ranked', False)
+    if not skip_ranked:
+        if both_ranked and is_rivalry:
+            return f"A marquee rivalry game between {home_rank} {home} and {away_rank} {away}, two ranked sides with history."
+        if both_ranked:
+            return f"Top-25 showdown as {home_rank} {home} ({home_rec}) hosts {away_rank} {away} ({away_rec})."
+        if home_ranked and away_hot:
+            return f"{home_rank} {home} faces a tough test from {away}, who are {away_rec} on the season."
+        if away_ranked and home_hot:
+            return f"{away_rank} {away} visits a surging {home} squad sitting at {home_rec}."
+        if home_ranked:
+            return f"{home_rank} {home} ({home_rec}) host {away} ({away_rec}) in a key matchup."
+        if away_ranked:
+            return f"{away_rank} {away} ({away_rec}) head to {home} ({home_rec})."
 
     if rivalry_score >= 8:
         return f"One of the best rivalries in {league}. {home} vs {away} never disappoints."
@@ -135,7 +137,7 @@ def generate_fallback_blurb(game_info):
         return f"{away} have been one of the best teams in {league} at {away_rec} and head to {home} ({home_rec})."
 
     if close_records and hgp >= 15:
-        return f"A tightly matched {league} game — {home} ({home_rec}) vs {away} ({away_rec}) with nearly identical records."
+        return f"A tightly matched {league} game. {home} ({home_rec}) vs {away} ({away_rec}) with nearly identical records."
 
     if home_struggling and not away_struggling:
         return f"{away} ({away_rec}) visit a struggling {home} side sitting at {home_rec}."
@@ -333,11 +335,19 @@ def fetch_games_for_date(date_str, local_tz):
                             if text:
                                 espn_headline = text.lstrip("- ").strip()
                                 break
+                    cbb_march_madness = False
+                    if sport['name'] == 'CBB':
+                        try:
+                            import CBBrating
+                            cbb_march_madness = CBBrating.march_madness or CBBrating.conference_tournament
+                        except Exception:
+                            pass
                     description = espn_headline if espn_headline else generate_fallback_blurb({
                         'league': sport['name'], 'home_team': home_name, 'away_team': away_name,
                         'home_record': home_record, 'away_record': away_record,
                         'home_rank': home_rank_str, 'away_rank': away_rank_str,
-                        'conference': conference, 'rivalry_score': rivalry_score, 'is_rivalry': is_rivalry
+                        'conference': conference, 'rivalry_score': rivalry_score, 'is_rivalry': is_rivalry,
+                        'skip_ranked': cbb_march_madness,
                     })
                 except Exception as e:
                     score = 0
