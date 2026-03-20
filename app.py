@@ -231,9 +231,6 @@ def fetch_games_for_date(date_str, local_tz):
                             spread_display = f"{favored_team} {spread:+}"
                         elif details:
                             spread_display = f"{details.split(' ')[0]} {spread:+}"
-                    if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL"):
-                        favored_display = "Game Started - No Live Moneyline"
-                        spread_display = "Game Started - No Live Spread"
 
                 elif sport["name"] in ["NBA", "NFL", "CBB"] and odds_info:
                     try:
@@ -261,9 +258,6 @@ def fetch_games_for_date(date_str, local_tz):
                         if home_ml and away_ml:
                             favored_team = home_name if int(home_ml) < int(away_ml) else away_name
                             favored_display = f"{favored_team} {home_ml}" if int(home_ml) < int(away_ml) else f"{favored_team} {away_ml}"
-                        if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL"):
-                            favored_display = "Game Started - No Live Moneyline"
-                            spread_display = "Game Started - No Live Spread"
                     except Exception:
                         pass
 
@@ -279,9 +273,6 @@ def fetch_games_for_date(date_str, local_tz):
                         home_spread = spread.get("home", {}).get("close", {}).get("line")
                         if home_spread:
                             spread_display = f"{favored_team} {home_spread}"
-                        if status in ("STATUS_IN_PROGRESS", "STATUS_FINAL"):
-                            favored_display = "Game Started - No Live Moneyline"
-                            spread_display = "Game Started - No Live Spread"
                     except:
                         pass
 
