@@ -640,13 +640,7 @@
             <div class="game-rank ${rank <= 3 ? 'top3' : ''}">${rank}</div>
             <div class="league-badge badge-${game.league}">${game.league}</div>
             <div class="game-teams">
-              <div class="matchup-name">
-                ${game.home_logo ? `<img class="team-logo" src="${game.home_logo}" alt="" loading="lazy">` : ''}
-                <span class="team-name">${game.home_name || game.matchup.split(' vs ')[0]}</span>
-                <span class="team-vs">vs</span>
-                ${game.away_logo ? `<img class="team-logo" src="${game.away_logo}" alt="" loading="lazy">` : ''}
-                <span class="team-name">${game.away_name || game.matchup.split(' vs ')[1] || ''}</span>
-              </div>
+              <div class="matchup-name" id="mn-${i}"></div>
               <div class="matchup-meta">
                 ${game.is_rivalry ? '<span class="rivalry-tag">🔥 Rivalry</span>' : ''}
                 <span>${game.where_to_watch}</span>
@@ -717,6 +711,41 @@
     }).join('');
 
     panel.innerHTML = headers + rows;
+
+    filtered.forEach((game, i) => {
+      const el = document.getElementById('mn-' + i);
+      if (!el) return;
+      const homeName = game.home_name || game.matchup.split(' vs ')[0] || '';
+      const awayName = game.away_name || game.matchup.split(' vs ')[1] || '';
+      if (game.home_logo) {
+        const img1 = document.createElement('img');
+        img1.className = 'team-logo';
+        img1.src = game.home_logo;
+        img1.alt = '';
+        img1.loading = 'lazy';
+        el.appendChild(img1);
+      }
+      const span1 = document.createElement('span');
+      span1.className = 'team-name';
+      span1.textContent = homeName;
+      el.appendChild(span1);
+      const vs = document.createElement('span');
+      vs.className = 'team-vs';
+      vs.textContent = 'vs';
+      el.appendChild(vs);
+      if (game.away_logo) {
+        const img2 = document.createElement('img');
+        img2.className = 'team-logo';
+        img2.src = game.away_logo;
+        img2.alt = '';
+        img2.loading = 'lazy';
+        el.appendChild(img2);
+      }
+      const span2 = document.createElement('span');
+      span2.className = 'team-name';
+      span2.textContent = awayName;
+      el.appendChild(span2);
+    });
   }
 
   function toggleGame(el) {
