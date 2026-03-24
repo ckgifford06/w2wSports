@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Install W2W Sports — Add to Home Screen{% endblock %}
+{% block og_title %}Install W2W Sports{% endblock %}
+{% block og_url %}/install{% endblock %}
+
+{% block content %}
+<div class="page-container" style="max-width:560px;">
+
+  <h1 class="page-title">Add to <span>Home Screen</span></h1>
+  <hr class="page-divider">
+
+  <p class="prose">Install W2W Sports on your iPhone in three taps. It opens like a real app with no browser bar.</p>
+
+  <div class="step-list">
+
+    <div class="step">
+      <div class="step-number">1</div>
+      <div class="step-body">
+        <div class="step-title">Open in Safari</div>
+        <div class="step-desc">Make sure you're using Safari. This won't work from Chrome or another browser.</div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">2</div>
+      <div class="step-body">
+        <div class="step-title">Tap the Share button</div>
+        <div class="step-desc">At the bottom of your screen, tap the box with an arrow pointing up.</div>
+        <div class="step-icon">
+          <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="36" height="36" rx="8" fill="rgba(188,155,106,0.12)"/>
+            <rect x="10" y="16" width="16" height="12" rx="2" stroke="#BC9B6A" stroke-width="1.5" fill="none"/>
+            <path d="M18 6v14M14 10l4-4 4 4" stroke="#BC9B6A" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="step-number">3</div>
+      <div class="step-body">
+        <div class="step-title">Tap "Add to Home Screen"</div>
+        <div class="step-desc">Scroll down in the share sheet until you see "Add to Home Screen" and tap it. Then tap Add in the top right.</div>
+      </div>
+    </div>
+
+  </div>
+
+  <p class="prose" style="margin-top:32px;">W2W Sports will appear on your home screen with its own icon. Tap it to open the app without any browser chrome.</p>
+
+  <a href="/" style="display:inline-block;margin-top:24px;background:var(--crimson);color:white;font-size:13px;font-weight:600;letter-spacing:0.5px;padding:12px 28px;border-radius:4px;text-decoration:none;">
+    Back to Today's Games
+  </a>
+
+</div>
+
+<style>
+  .step-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    margin-top: 32px;
+  }
+
+  .step {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    align-items: flex-start;
+  }
+
+  .step:last-child { border-bottom: none; }
+
+  .step-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    color: var(--crimson);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 32px;
+    text-align: center;
+  }
+
+  .step-body { flex: 1; }
+
+  .step-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .step-desc {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .step-icon {
+    margin-top: 12px;
+  }
+</style>
+{% endblock %}
