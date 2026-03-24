@@ -533,6 +533,28 @@ def about():
 def install():
     return render_template('install.html')
 
+@app.route('/sitemap.xml')
+def sitemap():
+    from datetime import date
+    today = date.today().isoformat()
+    pages = [
+        ('/', '1.0', 'daily'),
+        ('/calendar', '0.8', 'daily'),
+        ('/records', '0.7', 'weekly'),
+        ('/formula', '0.5', 'monthly'),
+        ('/about', '0.4', 'monthly'),
+    ]
+    xml = '<?xml version="1.0" encoding="UTF-8"?>'
+    xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+    for path, priority, freq in pages:
+        xml += f'<url><loc>https://www.w2w-sports.com{path}</loc><lastmod>{today}</lastmod><changefreq>{freq}</changefreq><priority>{priority}</priority></url>'
+    xml += '</urlset>'
+    return xml, 200, {'Content-Type': 'application/xml'}
+
+@app.route('/robots.txt')
+def robots():
+    return 'User-agent: *\nAllow: /\nSitemap: https://www.w2w-sports.com/sitemap.xml\n', 200, {'Content-Type': 'text/plain'}
+
 @app.route('/sw.js')
 def service_worker():
     from datetime import date
