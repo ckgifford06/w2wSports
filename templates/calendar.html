@@ -494,7 +494,10 @@
       const d = new Date(today);
       d.setDate(today.getDate() + i);
 
-      const dateStr = d.toISOString().slice(0, 10).replace(/-/g, '');
+      const yr = d.getFullYear();
+      const mo = String(d.getMonth() + 1).padStart(2, '0');
+      const dy = String(d.getDate()).padStart(2, '0');
+      const dateStr = `${yr}${mo}${dy}`;
       const dayName = i === 0 ? 'Today' : d.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase();
       const dateLabel = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
 
