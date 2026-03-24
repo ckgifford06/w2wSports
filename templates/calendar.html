@@ -228,6 +228,39 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .team-logo {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .team-vs {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .team-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .matchup-name {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .matchup-meta {
@@ -607,7 +640,13 @@
             <div class="game-rank ${rank <= 3 ? 'top3' : ''}">${rank}</div>
             <div class="league-badge badge-${game.league}">${game.league}</div>
             <div class="game-teams">
-              <div class="matchup-name">${game.matchup}</div>
+              <div class="matchup-name">
+                ${game.home_logo ? `<img class="team-logo" src="${game.home_logo}" alt="" loading="lazy">` : ''}
+                <span class="team-name">${game.home_name || game.matchup.split(' vs ')[0]}</span>
+                <span class="team-vs">vs</span>
+                ${game.away_logo ? `<img class="team-logo" src="${game.away_logo}" alt="" loading="lazy">` : ''}
+                <span class="team-name">${game.away_name || game.matchup.split(' vs ')[1] || ''}</span>
+              </div>
               <div class="matchup-meta">
                 ${game.is_rivalry ? '<span class="rivalry-tag">🔥 Rivalry</span>' : ''}
                 <span>${game.where_to_watch}</span>
