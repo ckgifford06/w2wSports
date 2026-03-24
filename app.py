@@ -529,13 +529,23 @@ def api_save_scores():
 def about():
     return render_template('about.html', active_page='about')
 
-@app.route("/formula")
-def formula():
-    return render_template("formula.html", active_page="formula")
-
 @app.route('/install')
 def install():
     return render_template('install.html')
+
+@app.route('/sw.js')
+def service_worker():
+    from datetime import date
+    version = date.today().strftime('%Y%m%d')
+    sw_content = open('static/sw.js').read().replace("'w2w-v1'", f"'w2w-{version}'")
+    return sw_content, 200, {
+        'Content-Type': 'application/javascript',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+    }
+
+@app.route("/formula")
+def formula():
+    return render_template("formula.html", active_page="formula")
 
 @app.route("/privacy")
 def privacy():
@@ -626,7 +636,3 @@ def api_send_digest():
     from daily_digest import run_digest
     run_digest()
     return jsonify({"success": True}), 200
-
-@app.route('/sw.js')
-def service_worker():
-    return app.send_static_file('sw.js'), 200, {'Content-Type': 'application/javascript'}
