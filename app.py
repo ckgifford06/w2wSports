@@ -384,8 +384,15 @@ def fetch_games_for_date(date_str, local_tz):
                 except Exception:
                     leaders = []
 
+                home_logo = home_competitor["team"].get("logo", "")
+                away_logo = away_competitor["team"].get("logo", "")
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
+                    "home_name": home_name,
+                    "away_name": away_name,
+                    "home_logo": home_logo,
+                    "away_logo": away_logo,
                     "league": sport["name"],
                     "score": score,
                     "breakdown": breakdown,
