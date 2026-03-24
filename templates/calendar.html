@@ -225,12 +225,11 @@
     font-size: 17px;
     font-weight: 600;
     color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: flex;
     align-items: center;
     gap: 7px;
+    overflow: hidden;
+    min-width: 0;
   }
 
   .team-logo {
@@ -252,15 +251,8 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-  }
-
-  .matchup-name {
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    min-width: 0;
+    flex-shrink: 1;
   }
 
   .matchup-meta {
@@ -493,8 +485,6 @@
     .matchup-name {
       font-size: 13px;
       gap: 5px;
-      flex-wrap: nowrap;
-      overflow: hidden;
     }
 
     .team-logo { width: 18px; height: 18px; }
