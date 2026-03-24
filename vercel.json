@@ -14,11 +14,11 @@
   ],
   "crons": [
     {
-      "path": "/api/send-digest?token=brunsonandhart",
+      "path": "/api/send-digest",
       "schedule": "0 13 * * *"
     },
     {
-      "path": "/api/save-scores?token=brunsonandhart",
+      "path": "/api/save-scores",
       "schedule": "0 5 * * *"
     }
   ]
