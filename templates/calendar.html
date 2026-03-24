@@ -457,23 +457,81 @@
 
 
   @media (max-width: 768px) {
-    .page-header { padding: 24px 16px 20px; }
-    .page-header h1 { font-size: 36px; }
+    .page-header { padding: 20px 16px 16px; }
+    .page-header h1 { font-size: 32px; }
     .date-tabs-container { padding: 0 16px; }
-    .date-tab { padding: 12px 16px; }
+    .date-tab { padding: 12px 14px; }
     .calendar-container { padding: 0 16px 40px; }
     .col-headers { display: none; }
-    .game-row { grid-template-columns: 36px 60px 1fr; grid-template-rows: auto auto; gap: 8px 10px; }
-    .game-time-col { grid-column: 2 / 4; text-align: left; }
-    .score-col { grid-column: 3; grid-row: 1; }
+
+    .game-row {
+      display: grid;
+      grid-template-columns: 44px 1fr 90px;
+      grid-template-rows: auto auto;
+      gap: 2px 10px;
+      padding: 14px 0;
+      align-items: start;
+    }
+
+    .game-rank {
+      grid-column: 1;
+      grid-row: 1 / 3;
+      font-size: 24px;
+      align-self: center;
+      text-align: right;
+      padding-right: 4px;
+    }
+
+    .league-badge { display: none; }
+
+    .game-teams {
+      grid-column: 2;
+      grid-row: 1;
+      min-width: 0;
+    }
+
+    .matchup-name {
+      font-size: 13px;
+      gap: 5px;
+      flex-wrap: nowrap;
+      overflow: hidden;
+    }
+
+    .team-logo { width: 18px; height: 18px; }
+
+    .matchup-meta { margin-top: 3px; font-size: 11px; }
+
+    .score-col {
+      grid-column: 3;
+      grid-row: 1 / 3;
+      align-items: flex-end;
+      align-self: center;
+      gap: 4px;
+    }
+
+    .score-number { font-size: 22px; }
+    .score-bar { width: 60px; }
+
+    .game-time-col {
+      grid-column: 2;
+      grid-row: 2;
+      text-align: left;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .game-time { font-size: 11px; }
+
     .game-details { padding: 0 0 16px 0; grid-template-columns: 1fr 1fr; }
     .blurb-card, .breakdown-card { grid-column: span 2; }
   }
 
-  @media (max-width: 480px) {
-    .game-row { grid-template-columns: 32px 1fr; }
-    .league-badge { display: none; }
-    .score-col, .game-time-col { grid-column: 2; }
+  @media (max-width: 400px) {
+    .game-row { grid-template-columns: 36px 1fr 80px; }
+    .game-rank { font-size: 20px; }
+    .score-number { font-size: 20px; }
     .game-details { grid-template-columns: 1fr; }
     .blurb-card, .breakdown-card { grid-column: span 1; }
   }
@@ -640,7 +698,7 @@
             <div class="game-rank ${rank <= 3 ? 'top3' : ''}">${rank}</div>
             <div class="league-badge badge-${game.league}">${game.league}</div>
             <div class="game-teams">
-              <div class="matchup-name" id="mn-${i}"></div>
+              <div class="matchup-name">${buildMatchup(game)}</div>
               <div class="matchup-meta">
                 ${game.is_rivalry ? '<span class="rivalry-tag">🔥 Rivalry</span>' : ''}
                 <span>${game.where_to_watch}</span>
@@ -711,41 +769,18 @@
     }).join('');
 
     panel.innerHTML = headers + rows;
+  }
 
-    filtered.forEach((game, i) => {
-      const el = document.getElementById('mn-' + i);
-      if (!el) return;
-      const homeName = game.home_name || game.matchup.split(' vs ')[0] || '';
-      const awayName = game.away_name || game.matchup.split(' vs ')[1] || '';
-      if (game.home_logo) {
-        const img1 = document.createElement('img');
-        img1.className = 'team-logo';
-        img1.src = game.home_logo;
-        img1.alt = '';
-        img1.loading = 'lazy';
-        el.appendChild(img1);
-      }
-      const span1 = document.createElement('span');
-      span1.className = 'team-name';
-      span1.textContent = homeName;
-      el.appendChild(span1);
-      const vs = document.createElement('span');
-      vs.className = 'team-vs';
-      vs.textContent = 'vs';
-      el.appendChild(vs);
-      if (game.away_logo) {
-        const img2 = document.createElement('img');
-        img2.className = 'team-logo';
-        img2.src = game.away_logo;
-        img2.alt = '';
-        img2.loading = 'lazy';
-        el.appendChild(img2);
-      }
-      const span2 = document.createElement('span');
-      span2.className = 'team-name';
-      span2.textContent = awayName;
-      el.appendChild(span2);
-    });
+  function buildMatchup(game) {
+    var homeName = game.home_name || game.matchup.split(' vs ')[0] || '';
+    var awayName = game.away_name || (game.matchup.split(' vs ')[1] || '').trim();
+    var html = '';
+    if (game.home_logo) html += '<img class="team-logo" src="' + game.home_logo + '" alt="" loading="lazy">';
+    html += '<span class="team-name">' + homeName + '</span>';
+    html += '<span class="team-vs">vs</span>';
+    if (game.away_logo) html += '<img class="team-logo" src="' + game.away_logo + '" alt="" loading="lazy">';
+    html += '<span class="team-name">' + awayName + '</span>';
+    return html;
   }
 
   function toggleGame(el) {
