@@ -622,3 +622,7 @@ def api_send_digest():
     from daily_digest import run_digest
     run_digest()
     return jsonify({"success": True}), 200
+
+@app.route('/sw.js')
+def service_worker():
+    return app.send_static_file('sw.js'), 200, {'Content-Type': 'application/javascript'}
