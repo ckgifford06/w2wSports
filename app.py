@@ -533,6 +533,10 @@ def about():
 def formula():
     return render_template("formula.html", active_page="formula")
 
+@app.route('/install')
+def install():
+    return render_template('install.html')
+
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html", active_page="privacy")
