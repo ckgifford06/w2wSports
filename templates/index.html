@@ -237,45 +237,6 @@
 
   .game-teams { min-width: 0; }
 
-  .team-rows {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-
-  .team-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .team-logo {
-    width: 22px;
-    height: 22px;
-    object-fit: contain;
-    flex-shrink: 0;
-    border-radius: 2px;
-  }
-
-  .team-name {
-    font-size: 15px;
-    font-weight: 600;
-    color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    letter-spacing: 0.2px;
-  }
-
-  .team-vs {
-    font-size: 9px;
-    color: var(--text-dim);
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-    padding-left: 30px;
-  }
-
   .matchup-name {
     font-size: 18px;
     font-weight: 600;
@@ -284,6 +245,30 @@
     overflow: hidden;
     text-overflow: ellipsis;
     letter-spacing: 0.2px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+
+  .team-logo {
+    width: 22px;
+    height: 22px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .team-vs {
+    font-size: 11px;
+    color: var(--text-dim);
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+  }
+
+  .team-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .matchup-meta {
@@ -812,8 +797,7 @@
     }
 
     .team-logo { width: 18px; height: 18px; }
-    .team-name { font-size: 13px; }
-    .team-vs { padding-left: 26px; }
+    .matchup-name { font-size: 13px; gap: 5px; }
 
     .matchup-meta {
       margin-top: 3px;
@@ -1010,16 +994,12 @@
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
 
       <div class="game-teams">
-        <div class="team-rows">
-          <div class="team-row">
-            {% if game.home_logo %}<img class="team-logo" src="{{ game.home_logo }}" alt="{{ game.home_name }}" loading="lazy">{% endif %}
-            <span class="team-name">{{ game.home_name }}</span>
-          </div>
-          <div class="team-vs">vs</div>
-          <div class="team-row">
-            {% if game.away_logo %}<img class="team-logo" src="{{ game.away_logo }}" alt="{{ game.away_name }}" loading="lazy">{% endif %}
-            <span class="team-name">{{ game.away_name }}</span>
-          </div>
+        <div class="matchup-name">
+          {% if game.home_logo %}<img class="team-logo" src="{{ game.home_logo }}" alt="{{ game.home_name }}" loading="lazy">{% endif %}
+          <span class="team-name">{{ game.home_name }}</span>
+          <span class="team-vs">vs</span>
+          {% if game.away_logo %}<img class="team-logo" src="{{ game.away_logo }}" alt="{{ game.away_name }}" loading="lazy">{% endif %}
+          <span class="team-name">{{ game.away_name }}</span>
         </div>
         <div class="matchup-meta">
           <span class="league-badge badge-{{ game.league }}">{{ game.league }}</span>
