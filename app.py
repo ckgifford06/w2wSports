@@ -506,7 +506,8 @@ def records():
 @app.route("/api/save-scores")
 def api_save_scores():
     token = request.args.get("token")
-    if token != os.environ.get("CRON_SECRET"):
+    vercel_cron = request.headers.get("x-vercel-cron")
+    if token != os.environ.get("CRON_SECRET") and not vercel_cron:
         return jsonify({"error": "Unauthorized"}), 401
 
     from subscribe import save_game_scores, trim_game_scores
@@ -652,7 +653,8 @@ def unsubscribe():
 @app.route("/api/send-digest")
 def api_send_digest():
     token = request.args.get("token")
-    if token != os.environ.get("CRON_SECRET"):
+    vercel_cron = request.headers.get("x-vercel-cron")
+    if token != os.environ.get("CRON_SECRET") and not vercel_cron:
         return jsonify({"error": "Unauthorized"}), 401
 
     from daily_digest import run_digest
