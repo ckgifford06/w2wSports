@@ -8,9 +8,11 @@ Built in October 2025 because we kept having the same problem as sports fans: to
 
 ---
 
-<img width="1512" height="856" alt="Screenshot 2026-03-09 at 9 51 38 AM" src="https://github.com/user-attachments/assets/cfb24f79-a31d-45a1-a24b-9fb21d5b0d0f" />
+<img width="1512" height="858" alt="Screenshot 2026-03-29 at 4 42 34 PM" src="https://github.com/user-attachments/assets/0e854994-6027-4ff2-bdaa-694a6d948116" />
 
-<img width="1512" height="853" alt="Screenshot 2026-03-09 at 9 51 53 AM" src="https://github.com/user-attachments/assets/5d080f8e-aea2-4555-8004-9d306ba0679e" />
+<img width="1512" height="858" alt="Screenshot 2026-03-29 at 4 42 59 PM" src="https://github.com/user-attachments/assets/6afc03fb-d062-423a-ac65-8f974087bfe8" />
+
+<img width="1512" height="856" alt="Screenshot 2026-03-29 at 4 43 19 PM" src="https://github.com/user-attachments/assets/461eb1b1-ff02-493d-8321-48174596a8b3" />
 
 ---
 
