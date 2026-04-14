@@ -1,4 +1,4 @@
-playoffs = False
+playoffs = False #Stars on Sat Apr 14
 
 team_marketability = {
     "ANA_NHL": 4, "UTA_NHL": 3.5, "BOS_NHL": 8, "BUF_NHL": 5, "CAR_NHL": 4,
