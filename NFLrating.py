@@ -4,7 +4,7 @@ url = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 data = requests.get(url).json()
 
 season_length = 17
-playoffs = True
+playoffs = False
 
 team_marketability = {
     "ARI_NFL": 6, "ATL_NFL": 6.5, "BAL_NFL": 8, "BUF_NFL": 8, "CAR_NFL": 5,
