@@ -100,6 +100,45 @@ def generate_fallback_blurb(game_info):
     both_ranked = home_ranked and away_ranked
     close_records = hgp > 0 and agp > 0 and abs(hpct - apct) < 0.08
 
+    if game_info.get('nba_playoffs'):
+        home_seed = game_info.get('home_seed')
+        away_seed = game_info.get('away_seed')
+        series_summary = (game_info.get('nba_series_summary') or '').strip().rstrip('.')
+        series_round = (game_info.get('nba_series_round') or '').strip()
+        header = series_round if series_round else "NBA Playoffs"
+
+        if home_seed and away_seed:
+            matchup_str = f"#{away_seed} {away} at #{home_seed} {home}"
+        else:
+            matchup_str = f"{away} at {home}"
+
+        if series_summary:
+            if rivalry_score >= 8:
+                return f"{header}: {matchup_str}. {series_summary}. A storied rivalry on the postseason stage."
+            if home_seed and away_seed:
+                hi, lo = sorted([home_seed, away_seed])
+                if (hi, lo) == (1, 8):
+                    return f"{header}: {matchup_str}. {series_summary}. The #8 seed taking on the conference's top team."
+                if (hi, lo) == (4, 5):
+                    return f"{header}: {matchup_str}. {series_summary}. A 4-5 series that should go the distance."
+                if hi <= 2 and lo <= 3:
+                    return f"{header}: {matchup_str}. {series_summary}. A top-seed showdown."
+            return f"{header}: {matchup_str}. {series_summary}."
+
+        if rivalry_score >= 8:
+            return f"{header}: {home} and {away} meet in the playoffs. A rivalry on the biggest stage."
+        if is_rivalry:
+            return f"{header}: {home} and {away} renew their rivalry in the postseason."
+        if home_seed and away_seed:
+            hi, lo = sorted([home_seed, away_seed])
+            if (hi, lo) == (1, 8):
+                return f"{header}: {matchup_str}. The #8 seed faces a daunting task against the top seed."
+            if (hi, lo) == (4, 5):
+                return f"{header}: {matchup_str}. A 4-5 series that should go the distance."
+            if hi <= 2 and lo <= 3:
+                return f"{header}: {matchup_str}. A top-seed showdown."
+        return f"{header}: {matchup_str}."
+
     if home_undefeated and away_undefeated:
         return f"Two undefeated teams collide as {home} ({home_rec}) hosts {away} ({away_rec})."
     if home_undefeated:
@@ -285,6 +324,12 @@ def fetch_games_for_date(date_str, local_tz):
                     home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
                     away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
 
+                    nba_playoffs = False
+                    nba_series_summary = ""
+                    nba_series_round = ""
+                    nba_h_seed = None
+                    nba_a_seed = None
+
                     if sport["name"] == "EPL":
                         module = get_rating_module("EPL")
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
@@ -313,6 +358,20 @@ def fetch_games_for_date(date_str, local_tz):
                         a_seed = int(a_seed) if a_seed and a_seed != 99 else None
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                        nba_playoffs = bool(getattr(module, 'playoffs', False)) if module else False
+                        nba_h_seed = h_seed
+                        nba_a_seed = a_seed
+                        if nba_playoffs:
+                            try:
+                                series = competition.get("series", {}) or {}
+                                nba_series_summary = series.get("summary", "") or ""
+                                for note in (competition.get("notes", []) or []):
+                                    hl_text = note.get("headline", "") or ""
+                                    if hl_text:
+                                        nba_series_round = hl_text
+                                        break
+                            except Exception:
+                                pass
                     else:
                         score = calculate_score(home_abbr, away_abbr, sport["name"])
                         breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
@@ -339,6 +398,11 @@ def fetch_games_for_date(date_str, local_tz):
                         'home_rank': home_rank_str, 'away_rank': away_rank_str,
                         'conference': conference, 'rivalry_score': rivalry_score, 'is_rivalry': is_rivalry,
                         'skip_ranked': cbb_march_madness,
+                        'nba_playoffs': nba_playoffs,
+                        'nba_series_summary': nba_series_summary,
+                        'nba_series_round': nba_series_round,
+                        'home_seed': nba_h_seed,
+                        'away_seed': nba_a_seed,
                     })
                 except Exception as e:
                     score = 0
