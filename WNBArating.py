@@ -42,7 +42,7 @@ def competitiveness(home, away, home_record="0-0", away_record="0-0"):
     hw, hl = _parse_record(home_record)
     aw, al = _parse_record(away_record)
     win_diff = abs(hw - aw)
-    return ((20 - win_diff) / 3) + 3
+    return ((20 - win_diff) / 4) + 3
 
 def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     hw, hl = _parse_record(home_record)
@@ -51,7 +51,7 @@ def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     games_played = float(hw + hl + aw + al)
     if games_played == 0:
         return 0
-    return round((combined_wins / games_played) * 19, 3)
+    return round((combined_wins / games_played) * 14, 3)
 
 def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
     importance = 0
@@ -63,19 +63,19 @@ def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=N
         importance += 8
     else:
         if games_left <= 25:
-            importance += 2
+            importance += 1
         if games_left <= 15:
-            importance += 2
+            importance += 1
         if games_left <= 8:
-            importance += 2
+            importance += 1
         if home_seed is not None and 4 < home_seed < 9:
-            importance += 4
+            importance += 2
         if away_seed is not None and 4 < away_seed < 9:
-            importance += 4
+            importance += 2
         if home_seed == 1 and away_seed == 2:
-            importance += 6
+            importance += 4
         if away_seed == 1 and home_seed == 2:
-            importance += 6
+            importance += 4
 
     return importance
 
