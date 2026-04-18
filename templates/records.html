@@ -375,7 +375,7 @@
 
 <div class="lb-filter-bar">
   <span class="filter-label">Filter</span>
-  <a href="/leaderboard" class="pill {% if selected_league == 'all' %}active{% endif %}">All</a>
+  <a href="/records" class="pill {% if selected_league == 'all' %}active{% endif %}">All</a>
 </div>
 
 <div class="lb-container">
@@ -390,7 +390,7 @@
   </div>
 
   {% for game in games %}
-  {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
+  {% set pct = [(game.score / 75 * 100)|int, 100]|min %}
   {% set bd = game.breakdown or {} %}
   <div class="lb-row" onclick="toggleRow(this)">
 
