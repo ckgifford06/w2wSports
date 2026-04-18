@@ -68,11 +68,11 @@ def eventImportance(is_title=False, is_ppv=False, is_main_card=True, num_ranked_
         importance += 6
     elif is_main_card:
         importance += 2
-    if num_ranked_fighters >= 6:
+    if num_ranked_fighters >= 10:
         importance += 4
-    elif num_ranked_fighters >= 4:
+    elif num_ranked_fighters >= 6:
         importance += 2
-    elif num_ranked_fighters >= 2:
+    elif num_ranked_fighters >= 3:
         importance += 1
     return importance
 
