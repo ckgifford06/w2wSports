@@ -43,7 +43,6 @@ def calculateScore(home, away):
     q = qualityOfPlay(home, away)
     g = gameImportance(home, away)
 
-    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
     return round((r + m + c + q + g), 2)
 
 
