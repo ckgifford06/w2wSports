@@ -380,12 +380,71 @@ def fetch_games_for_date(date_str, local_tz):
                 elif sport["name"] == "MMA" and odds_info:
                     try:
                         odds_item = odds_info[0]
+                        details = odds_item.get("details", "")
                         home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
                         away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
                         if home_ml is not None and away_ml is not None:
-                            favored_team = home_name if home_ml < away_ml else away_name
-                            favored_display = f"{favored_team} {home_ml}" if home_ml < away_ml else f"{favored_team} {away_ml}"
+                            try:
+                                h_int, a_int = int(home_ml), int(away_ml)
+                                favored_team = home_name if h_int < a_int else away_name
+                                fav_ml = h_int if h_int < a_int else a_int
+                                favored_display = f"{favored_team} {fav_ml:+}"
+                            except (ValueError, TypeError):
+                                pass
+                        elif details:
+                            favored_display = details
                         spread_display = "No spread"
+                    except Exception:
+                        pass
+
+                elif sport["name"] == "MLB" and odds_info:
+                    try:
+                        odds_item = odds_info[0]
+                        details = odds_item.get("details", "")
+                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
+                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
+                        if home_ml is not None and away_ml is not None:
+                            try:
+                                h_int, a_int = int(home_ml), int(away_ml)
+                                favored_team = home_name if h_int < a_int else away_name
+                                fav_ml = h_int if h_int < a_int else a_int
+                                favored_display = f"{favored_team} {fav_ml:+}"
+                            except (ValueError, TypeError):
+                                pass
+                        elif details:
+                            favored_display = details
+                        spread = odds_item.get("spread")
+                        if spread is not None and favored_team:
+                            run_line = -abs(float(spread))
+                            spread_display = f"{favored_team} {run_line:+.1f}"
+                        elif details:
+                            spread_display = details
+                    except Exception:
+                        pass
+
+                elif sport["name"] in ["EPL", "UCL"] and odds_info:
+                    try:
+                        odds_item = odds_info[0]
+                        details = odds_item.get("details", "")
+                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
+                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
+                        draw_ml = odds_item.get("drawOdds", {}).get("moneyLine")
+                        if home_ml is not None and away_ml is not None:
+                            try:
+                                h_int, a_int = int(home_ml), int(away_ml)
+                                favored_team = home_name if h_int < a_int else away_name
+                                fav_ml = h_int if h_int < a_int else a_int
+                                favored_display = f"{favored_team} {fav_ml:+}"
+                                if draw_ml is not None:
+                                    favored_display += f" | Draw {int(draw_ml):+}"
+                            except (ValueError, TypeError):
+                                pass
+                        elif details:
+                            favored_display = details
+                        spread = odds_item.get("spread")
+                        if spread is not None and favored_team:
+                            goal_line = -abs(float(spread))
+                            spread_display = f"{favored_team} {goal_line:+g}"
                     except Exception:
                         pass
 
