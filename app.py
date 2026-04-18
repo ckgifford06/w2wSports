@@ -28,6 +28,15 @@ def get_rating_module(league):
     elif league == "EPL":
         import EPLrating
         return EPLrating
+    elif league == "WNBA":
+        import WNBArating
+        return WNBArating
+    elif league == "UCL":
+        import UCLrating
+        return UCLrating
+    elif league == "MMA":
+        import MMArating
+        return MMArating
     return None
 
 sports = {
@@ -37,7 +46,10 @@ sports = {
     "mlb": {"name": "MLB", "url": "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard",               "path": "baseball/mlb"},
     "cfb": {"name": "CFB", "url": "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard",  "path": "football/college-football"},
     "cbb": {"name": "CBB", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/mens-college-basketball/scoreboard?groups=50", "path": "basketball/mens-college-basketball"},
-    "epl": {"name": "EPL", "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",               "path": "soccer/eng.1"},
+    "epl":  {"name": "EPL",  "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard",               "path": "soccer/eng.1"},
+    "wnba": {"name": "WNBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard",            "path": "basketball/wnba"},
+    "ucl":  {"name": "UCL",  "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",      "path": "soccer/uefa.champions"},
+    "mma":  {"name": "MMA",  "url": "https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard",                    "path": "mma/ufc"},
 }
 
 def calculate_score(home, away, league):
@@ -202,30 +214,77 @@ def fetch_games_for_date(date_str, local_tz):
             data = response.json()
 
             for event in data.get("events", []):
-                competition = event["competitions"][0]
+                if sport["name"] == "MMA":
+                    comp_list = event.get("competitions", [])
+                    if not comp_list:
+                        continue
+                    main_events = [c for c in comp_list if c.get("type", {}).get("abbreviation") == "MAIN"]
+                    competition = main_events[0] if main_events else comp_list[-1]
+                    num_ranked = 0
+                    for c in comp_list:
+                        for comp in c.get("competitors", []):
+                            athlete = comp.get("athlete", {})
+                            rankings = athlete.get("rankings", [])
+                            if rankings and rankings[0].get("current"):
+                                num_ranked += 1
+                                break
+                    event_name = event.get("shortName", "") or event.get("name", "")
+                    is_ppv = "UFC " in event_name and any(ch.isdigit() for ch in event_name.split("UFC ")[1][:4]) if "UFC " in event_name else False
+                else:
+                    competition = event["competitions"][0]
+                    num_ranked = 0
+                    is_ppv = False
+                    event_name = ""
+
                 competitors = competition["competitors"]
 
                 home_competitor = None
                 away_competitor = None
-                for comp in competitors:
-                    if comp.get("homeAway") == "home":
-                        home_competitor = comp
-                    elif comp.get("homeAway") == "away":
-                        away_competitor = comp
 
-                if not home_competitor or not away_competitor:
+                if sport["name"] == "MMA":
+                    if len(competitors) < 2:
+                        continue
                     home_competitor = competitors[0]
                     away_competitor = competitors[1]
+                    home_athlete = home_competitor.get("athlete", {})
+                    away_athlete = away_competitor.get("athlete", {})
+                    home_last = (home_athlete.get("lastName") or home_athlete.get("displayName", "UNK")).split()[-1].upper()
+                    away_last = (away_athlete.get("lastName") or away_athlete.get("displayName", "UNK")).split()[-1].upper()
+                    home_abbr = f"{home_last}_MMA"
+                    away_abbr = f"{away_last}_MMA"
+                    home_name = home_athlete.get("displayName", "Fighter A")
+                    away_name = away_athlete.get("displayName", "Fighter B")
+                    home_team = {"abbreviation": home_last, "displayName": home_name}
+                    away_team = {"abbreviation": away_last, "displayName": away_name}
+                    home_rank = None
+                    away_rank = None
+                    try:
+                        hr = home_athlete.get("rankings", [])
+                        ar = away_athlete.get("rankings", [])
+                        home_rank = hr[0].get("current") if hr else None
+                        away_rank = ar[0].get("current") if ar else None
+                    except Exception:
+                        pass
+                else:
+                    for comp in competitors:
+                        if comp.get("homeAway") == "home":
+                            home_competitor = comp
+                        elif comp.get("homeAway") == "away":
+                            away_competitor = comp
 
-                home_abbr = f"{home_competitor['team']['abbreviation']}_{sport['name']}"
-                away_abbr = f"{away_competitor['team']['abbreviation']}_{sport['name']}"
-                home_name = home_competitor['team']['displayName']
-                away_name = away_competitor['team']['displayName']
-                home_team = home_competitor["team"]
-                away_team = away_competitor["team"]
+                    if not home_competitor or not away_competitor:
+                        home_competitor = competitors[0]
+                        away_competitor = competitors[1]
 
-                if home_team["abbreviation"] == "TBD" or away_team["abbreviation"] == "TBD":
-                    continue
+                    home_abbr = f"{home_competitor['team']['abbreviation']}_{sport['name']}"
+                    away_abbr = f"{away_competitor['team']['abbreviation']}_{sport['name']}"
+                    home_name = home_competitor['team']['displayName']
+                    away_name = away_competitor['team']['displayName']
+                    home_team = home_competitor["team"]
+                    away_team = away_competitor["team"]
+
+                    if home_team["abbreviation"] == "TBD" or away_team["abbreviation"] == "TBD":
+                        continue
 
                 try:
                     game_datetime_utc = datetime.fromisoformat(event["date"].replace("Z", "+00:00"))
@@ -271,7 +330,7 @@ def fetch_games_for_date(date_str, local_tz):
                         elif details:
                             spread_display = f"{details.split(' ')[0]} {spread:+}"
 
-                elif sport["name"] in ["NBA", "NFL", "CBB"] and odds_info:
+                elif sport["name"] in ["NBA", "NFL", "CBB", "WNBA"] and odds_info:
                     try:
                         for odds_item in odds_info:
                             away_odds = odds_item.get("awayTeamOdds", {})
@@ -315,14 +374,42 @@ def fetch_games_for_date(date_str, local_tz):
                     except:
                         pass
 
+                elif sport["name"] == "MMA" and odds_info:
+                    try:
+                        odds_item = odds_info[0]
+                        home_ml = odds_item.get("homeTeamOdds", {}).get("moneyLine")
+                        away_ml = odds_item.get("awayTeamOdds", {}).get("moneyLine")
+                        if home_ml is not None and away_ml is not None:
+                            favored_team = home_name if home_ml < away_ml else away_name
+                            favored_display = f"{favored_team} {home_ml}" if home_ml < away_ml else f"{favored_team} {away_ml}"
+                        spread_display = "No spread"
+                    except Exception:
+                        pass
+
                 try:
-                    home_record = home_competitor.get("records", [{}])[0].get("summary", "0-0-0")
-                    away_record = away_competitor.get("records", [{}])[0].get("summary", "0-0-0")
-                    home_rank = home_competitor.get("curatedRank", {}).get("current")
-                    away_rank = away_competitor.get("curatedRank", {}).get("current")
-                    conference = competition.get("groups", {}).get("shortName", "N/A")
-                    home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
-                    away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
+                    if sport["name"] == "MMA":
+                        home_record = ""
+                        away_record = ""
+                        home_rank = None
+                        away_rank = None
+                        try:
+                            hr_list = home_athlete.get("rankings", [])
+                            ar_list = away_athlete.get("rankings", [])
+                            home_rank = hr_list[0].get("current") if hr_list else None
+                            away_rank = ar_list[0].get("current") if ar_list else None
+                        except Exception:
+                            pass
+                        conference = event_name
+                        home_rank_str = f"#{home_rank}" if home_rank else "Unranked"
+                        away_rank_str = f"#{away_rank}" if away_rank else "Unranked"
+                    else:
+                        home_record = home_competitor.get("records", [{}])[0].get("summary", "0-0-0")
+                        away_record = away_competitor.get("records", [{}])[0].get("summary", "0-0-0")
+                        home_rank = home_competitor.get("curatedRank", {}).get("current")
+                        away_rank = away_competitor.get("curatedRank", {}).get("current")
+                        conference = competition.get("groups", {}).get("shortName", "N/A")
+                        home_rank_str = f"#{home_rank}" if home_rank and home_rank != 99 else "Unranked"
+                        away_rank_str = f"#{away_rank}" if away_rank and away_rank != 99 else "Unranked"
 
                     nba_playoffs = False
                     nba_series_summary = ""
@@ -334,6 +421,18 @@ def fetch_games_for_date(date_str, local_tz):
                         module = get_rating_module("EPL")
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "UCL":
+                        module = get_rating_module("UCL")
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "MMA":
+                        module = get_rating_module("MMA")
+                        hr_int = int(home_rank) if home_rank else None
+                        ar_int = int(away_rank) if away_rank else None
+                        is_title = "title" in event_name.lower() or "championship" in event_name.lower()
+                        is_main_card = True
+                        score = module.calculate_score(home_abbr, away_abbr, hr_int, ar_int, is_title, is_ppv, is_main_card, num_ranked) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, hr_int, ar_int, is_title, is_ppv, is_main_card, num_ranked) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "CBB":
                         module = get_rating_module("CBB")
                         hr = home_competitor.get("curatedRank", {}).get("current")
@@ -372,6 +471,14 @@ def fetch_games_for_date(date_str, local_tz):
                                         break
                             except Exception:
                                 pass
+                    elif sport["name"] == "WNBA":
+                        module = get_rating_module("WNBA")
+                        h_seed = home_competitor.get("curatedRank", {}).get("current")
+                        a_seed = away_competitor.get("curatedRank", {}).get("current")
+                        h_seed = int(h_seed) if h_seed and h_seed != 99 else None
+                        a_seed = int(a_seed) if a_seed and a_seed != 99 else None
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     else:
                         score = calculate_score(home_abbr, away_abbr, sport["name"])
                         breakdown = calculate_score_breakdown(home_abbr, away_abbr, sport["name"])
@@ -425,31 +532,36 @@ def fetch_games_for_date(date_str, local_tz):
 
                 leaders = []
                 try:
-                    seen_leaders = set()
-                    for comp in [home_competitor, away_competitor]:
-                        team_short = comp["team"].get("shortDisplayName", comp["team"].get("displayName", ""))
-                        for cat in comp.get("leaders", []):
-                            cat_name = cat.get("displayName", "")
-                            if cat_name == "Rating":
-                                continue
-                            top = cat.get("leaders", [{}])[0]
-                            athlete = top.get("athlete", {})
-                            short_name = athlete.get("shortName", "")
-                            value = top.get("displayValue", "")
-                            key = f"{cat_name}-{short_name}"
-                            if short_name and value and key not in seen_leaders:
-                                seen_leaders.add(key)
-                                leaders.append({
-                                    "category": cat_name,
-                                    "athlete": short_name,
-                                    "team": team_short,
-                                    "value": value,
-                                })
+                    if sport["name"] != "MMA":
+                        seen_leaders = set()
+                        for comp in [home_competitor, away_competitor]:
+                            team_short = comp["team"].get("shortDisplayName", comp["team"].get("displayName", ""))
+                            for cat in comp.get("leaders", []):
+                                cat_name = cat.get("displayName", "")
+                                if cat_name == "Rating":
+                                    continue
+                                top = cat.get("leaders", [{}])[0]
+                                athlete = top.get("athlete", {})
+                                short_name = athlete.get("shortName", "")
+                                value = top.get("displayValue", "")
+                                key = f"{cat_name}-{short_name}"
+                                if short_name and value and key not in seen_leaders:
+                                    seen_leaders.add(key)
+                                    leaders.append({
+                                        "category": cat_name,
+                                        "athlete": short_name,
+                                        "team": team_short,
+                                        "value": value,
+                                    })
                 except Exception:
                     leaders = []
 
-                home_logo = home_competitor["team"].get("logo", "")
-                away_logo = away_competitor["team"].get("logo", "")
+                if sport["name"] == "MMA":
+                    home_logo = home_athlete.get("headshot", "") or home_athlete.get("flag", {}).get("href", "")
+                    away_logo = away_athlete.get("headshot", "") or away_athlete.get("flag", {}).get("href", "")
+                else:
+                    home_logo = home_competitor["team"].get("logo", "")
+                    away_logo = away_competitor["team"].get("logo", "")
 
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
