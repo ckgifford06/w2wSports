@@ -225,9 +225,8 @@ def fetch_games_for_date(date_str, local_tz):
                         for comp in c.get("competitors", []):
                             athlete = comp.get("athlete", {})
                             rankings = athlete.get("rankings", [])
-                            if rankings and rankings[0].get("current"):
+                            if rankings and rankings[0].get("current") is not None:
                                 num_ranked += 1
-                                break
                     event_name = event.get("shortName", "") or event.get("name", "")
                     is_ppv = "UFC " in event_name and any(ch.isdigit() for ch in event_name.split("UFC ")[1][:4]) if "UFC " in event_name else False
                 else:
@@ -460,8 +459,8 @@ def fetch_games_for_date(date_str, local_tz):
                         except Exception:
                             pass
                         conference = event_name
-                        home_rank_str = f"#{home_rank}" if home_rank else "Unranked"
-                        away_rank_str = f"#{away_rank}" if away_rank else "Unranked"
+                        home_rank_str = f"#{home_rank}" if home_rank is not None else "Unranked"
+                        away_rank_str = f"#{away_rank}" if away_rank is not None else "Unranked"
                     else:
                         home_record = home_competitor.get("records", [{}])[0].get("summary", "0-0-0")
                         away_record = away_competitor.get("records", [{}])[0].get("summary", "0-0-0")
@@ -487,9 +486,22 @@ def fetch_games_for_date(date_str, local_tz):
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "MMA":
                         module = get_rating_module("MMA")
-                        hr_int = int(home_rank) if home_rank else None
-                        ar_int = int(away_rank) if away_rank else None
+                        hr_int = int(home_rank) if home_rank is not None else None
+                        ar_int = int(away_rank) if away_rank is not None else None
                         is_title = "title" in event_name.lower() or "championship" in event_name.lower()
+                        if not is_title:
+                            try:
+                                for note in (competition.get("notes", []) or []):
+                                    note_text = (note.get("headline", "") or note.get("text", "") or "").lower()
+                                    if "title" in note_text or "championship" in note_text or "belt" in note_text:
+                                        is_title = True
+                                        break
+                                if not is_title:
+                                    comp_type_text = (competition.get("type", {}).get("text", "") or "").lower()
+                                    if "title" in comp_type_text or "championship" in comp_type_text:
+                                        is_title = True
+                            except Exception:
+                                pass
                         is_main_card = True
                         score = module.calculate_score(home_abbr, away_abbr, hr_int, ar_int, is_title, is_ppv, is_main_card, num_ranked) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, hr_int, ar_int, is_title, is_ppv, is_main_card, num_ranked) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
