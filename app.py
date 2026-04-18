@@ -293,13 +293,16 @@ def fetch_games_for_date(date_str, local_tz):
                 except:
                     continue
 
-                status = competition.get("status", {}).get("type", {}).get("name", "STATUS_SCHEDULED")
+                status_type = competition.get("status", {}).get("type", {})
+                status = status_type.get("name", "STATUS_SCHEDULED")
+                state = status_type.get("state", "pre")
+                completed = status_type.get("completed", False)
                 home_score = home_competitor.get("score", "0")
                 away_score = away_competitor.get("score", "0")
 
-                if status == "STATUS_IN_PROGRESS":
+                if state == "in":
                     live_score = f"Live score: {home_score} - {away_score}"
-                elif status == "STATUS_FINAL":
+                elif state == "post" or completed:
                     live_score = f"Final score: {home_score} - {away_score}"
                 else:
                     live_score = "Live score: Not Started"
@@ -486,7 +489,7 @@ def fetch_games_for_date(date_str, local_tz):
                     is_rivalry = rivalryMatchup(home_abbr, away_abbr, sport["name"])
                     rivalry_score = get_rivalry_score(home_abbr, away_abbr, sport["name"])
                     espn_headline = ""
-                    if status == "STATUS_FINAL":
+                    if state == "post" or completed:
                         for hl in competition.get("headlines", []):
                             text = hl.get("shortLinkText", "") or hl.get("description", "")
                             if text:
