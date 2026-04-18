@@ -417,8 +417,6 @@ def fetch_games_for_date(date_str, local_tz):
                         if spread is not None and favored_team:
                             run_line = -abs(float(spread))
                             spread_display = f"{favored_team} {run_line:+.1f}"
-                        elif details:
-                            spread_display = details
                     except Exception:
                         pass
 
