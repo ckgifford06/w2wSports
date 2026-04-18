@@ -1,5 +1,5 @@
 season_length = 30
-march_madness = True # Its march baby!
+march_madness = False # Damn :(
 conference_tournament = False
 
 team_marketability = {
