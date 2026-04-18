@@ -16,8 +16,7 @@ team_marketability = {
     "TEN_NFL": 6.5, "WAS_NFL": 7
 }
 
-rivalries = {
-}
+rivalries = []
     
 
 team_division = {
@@ -66,7 +65,6 @@ def calculate_score(home, away):
     q = qualityOfPlay(home, away)
     g = gameImportance(home, away)
 
-    print(f"DEBUG {home} vs {away} → R:{r} M:{m} C:{c} Q:{q} G:{g}")
     return round((r + m + c + q + g), 2) + 5
 
 
@@ -93,8 +91,8 @@ def marketability(home, away):
     
 def competitiveness(home, away):
     records = buildRecords()
-    homeRecord = records.get(home).split("-")
-    awayRecord = records.get(away).split("-")
+    homeRecord = records.get(home, "0-0").split("-")
+    awayRecord = records.get(away, "0-0").split("-")
     winDiff = abs(int(homeRecord[0]) - int(awayRecord[0]))
     compRank = (10 - winDiff)
     return compRank
@@ -103,8 +101,8 @@ def gameImportance(home, away):
     records = buildRecords()
     seeds = buildSeeds()
     importance = 2
-    homeRecord = records.get(home).split("-")
-    awayRecord = records.get(away).split("-")
+    homeRecord = records.get(home, "0-0").split("-")
+    awayRecord = records.get(away, "0-0").split("-")
     homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
     awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
     home_seed = seeds.get(home)
