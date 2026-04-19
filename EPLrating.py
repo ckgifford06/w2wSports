@@ -2,7 +2,7 @@ RIVALRIES = {
     frozenset(["MCI_EPL", "MUN_EPL"]): 12,
     frozenset(["ARS_EPL", "TOT_EPL"]): 12,
     frozenset(["LIV_EPL", "MUN_EPL"]): 12,
-    frozenset(["LIV_EPL", "EVE_EPL"]): 12,
+    frozenset(["LIV_EPL", "EVE_EPL"]): 10,
     frozenset(["AVL_EPL", "WOL_EPL"]): 8,
     frozenset(["SOU_EPL", "BOU_EPL"]): 6,
     frozenset(["CHE_EPL", "ARS_EPL"]): 9,
@@ -14,6 +14,7 @@ RIVALRIES = {
     frozenset(["BHA_EPL", "CRY_EPL"]): 8,
     frozenset(["WHU_EPL", "MIL_EPL"]): 8,
     frozenset(["LEI_EPL", "NFO_EPL"]): 8,
+    frozenset(["ARS_EPL", "MCI_EPL"]): 10
 }
 
 def rivalry(home, away):
@@ -23,8 +24,8 @@ def rivalry(home, away):
 TEAM_MARKETABILITY = {
     "MUN_EPL": 8,  
     "LIV_EPL": 8,  
-    "MCI_EPL": 7,   
-    "ARS_EPL": 7,   
+    "MCI_EPL": 8,   
+    "ARS_EPL": 8,   
     "CHE_EPL": 7,   
     "TOT_EPL": 6,   
     "NEW_EPL": 6,   
@@ -88,9 +89,9 @@ def quality_of_play(home_record, away_record):
     return min(score, 8.5)
 
 #flip these manually as the season progresses
-title_race       = False   
-relegation_battle = False 
-european_spots   = False   
+title_race       = True   
+relegation_battle = True 
+european_spots   = True  
 season_finale    = False   
 
 def importance(home, away, home_record, away_record):
