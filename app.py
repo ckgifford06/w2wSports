@@ -875,7 +875,9 @@ def share_card(event_id):
     try:
         png_bytes = generate_card(game)
     except Exception as e:
+        import traceback
         print(f"card render error: {e}", flush=True)
+        print(traceback.format_exc(), flush=True)
         abort(500)
 
     live = game.get("live_score", "") or ""
