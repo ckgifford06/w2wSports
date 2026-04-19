@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, Response, abort
 import requests
 from datetime import datetime
 import pytz
@@ -670,6 +670,7 @@ def page_not_found(e):
 @app.route('/')
 def index():
     selected_league = request.args.get("league", "top10")
+    focused_event_id = request.args.get("game", "").strip()
     timezone_str = request.args.get("tz", "US/Eastern")
     try:
         local_tz = pytz.timezone(timezone_str)
@@ -678,7 +679,22 @@ def index():
 
     today = datetime.now(local_tz).strftime("%Y%m%d")
     all_ranked = fetch_games_for_date(today, local_tz)
-    return render_template("index.html", matchups=all_ranked, selected_league=selected_league, active_page="home")
+
+    focused_game = None
+    if focused_event_id:
+        focused_game = next(
+            (g for g in all_ranked if str(g.get("event_id")) == focused_event_id),
+            None,
+        )
+
+    return render_template(
+        "index.html",
+        matchups=all_ranked,
+        selected_league=selected_league,
+        active_page="home",
+        focused_game=focused_game,
+        focused_event_id=focused_event_id,
+    )
 
 @app.route("/calendar")
 def calendar():
@@ -825,6 +841,56 @@ def privacy():
 @app.route("/terms")
 def terms():
     return render_template("terms.html", active_page="terms")
+
+
+@app.route("/card/<event_id>.png")
+def share_card(event_id):
+    """
+    Generates a 1200x630 share card for Open Graph / Twitter previews.
+    Live games re-render every minute; scheduled games cache for 5 minutes;
+    finals cache for 24 hours.
+    """
+    from card_generator import generate_card
+
+    timezone_str = request.args.get("tz", "US/Eastern")
+    try:
+        local_tz = pytz.timezone(timezone_str)
+    except pytz.UnknownTimeZoneError:
+        local_tz = pytz.timezone("US/Eastern")
+
+    today = datetime.now(local_tz).strftime("%Y%m%d")
+    games = fetch_games_for_date(today, local_tz)
+
+    game = next((g for g in games if str(g.get("event_id")) == str(event_id)), None)
+
+    if not game:
+        from datetime import timedelta
+        yesterday = (datetime.now(local_tz) - timedelta(days=1)).strftime("%Y%m%d")
+        games_y = fetch_games_for_date(yesterday, local_tz)
+        game = next((g for g in games_y if str(g.get("event_id")) == str(event_id)), None)
+
+    if not game:
+        abort(404)
+
+    try:
+        png_bytes = generate_card(game)
+    except Exception as e:
+        print(f"card render error: {e}", flush=True)
+        abort(500)
+
+    live = game.get("live_score", "") or ""
+    if live.startswith("Live score:") and "Not Started" not in live:
+        cache_control = "public, max-age=60"
+    elif live.startswith("Final score:"):
+        cache_control = "public, max-age=86400"
+    else:
+        cache_control = "public, max-age=300"
+
+    return Response(
+        png_bytes,
+        mimetype="image/png",
+        headers={"Cache-Control": cache_control},
+    )
 
 
 @app.route("/api/game-details")
