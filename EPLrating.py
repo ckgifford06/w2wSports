@@ -1,41 +1,31 @@
 RIVALRIES = {
-    # Manchester derby
     frozenset(["MNC_EPL", "MUN_EPL"]): 12,
-    # North London derby
     frozenset(["ARS_EPL", "TOT_EPL"]): 12,
-    # Merseyside derby
     frozenset(["LIV_EPL", "EVE_EPL"]): 12,
-    # Tyne-Wear derby
     frozenset(["NEW_EPL", "SUN_EPL"]): 12,
-    # Northwest derby
     frozenset(["LIV_EPL", "MUN_EPL"]): 12,
-    # Roses rivalry
     frozenset(["LEE_EPL", "MUN_EPL"]): 11,
-    # Modern title rivalries
     frozenset(["MNC_EPL", "LIV_EPL"]): 11,
     frozenset(["MNC_EPL", "ARS_EPL"]): 10,
     frozenset(["ARS_EPL", "MUN_EPL"]): 10,
     frozenset(["LIV_EPL", "ARS_EPL"]): 9,
-    # Chelsea rivalries
     frozenset(["CHE_EPL", "ARS_EPL"]): 9,
     frozenset(["CHE_EPL", "TOT_EPL"]): 10,
     frozenset(["CHE_EPL", "LIV_EPL"]): 9,
     frozenset(["CHE_EPL", "MUN_EPL"]): 8,
-    # Tottenham extras
     frozenset(["TOT_EPL", "MUN_EPL"]): 6,
     frozenset(["TOT_EPL", "WHU_EPL"]): 7,
-    # Other derbies and rivalries
     frozenset(["AVL_EPL", "WOL_EPL"]): 8,
-    frozenset(["AVL_EPL", "BIR_EPL"]): 9,   # Second City derby (Birmingham rarely in PL)
-    frozenset(["BHA_EPL", "CRY_EPL"]): 9,   # M23 derby
-    frozenset(["WHU_EPL", "MIL_EPL"]): 8,   # Millwall rarely in PL
-    frozenset(["LEI_EPL", "NFO_EPL"]): 8,   # East Midlands derby
-    frozenset(["NFO_EPL", "DER_EPL"]): 9,   # Derby rarely in PL
-    frozenset(["SOU_EPL", "BOU_EPL"]): 6,   # South Coast
-    frozenset(["SOU_EPL", "POR_EPL"]): 10,  # Portsmouth rarely in PL
-    frozenset(["FUL_EPL", "CHE_EPL"]): 6,   # West London derby
+    frozenset(["AVL_EPL", "BIR_EPL"]): 9,  
+    frozenset(["BHA_EPL", "CRY_EPL"]): 9,  
+    frozenset(["WHU_EPL", "MIL_EPL"]): 8,  
+    frozenset(["LEI_EPL", "NFO_EPL"]): 8,   
+    frozenset(["NFO_EPL", "DER_EPL"]): 9,  
+    frozenset(["SOU_EPL", "BOU_EPL"]): 6,  
+    frozenset(["SOU_EPL", "POR_EPL"]): 10,  
+    frozenset(["FUL_EPL", "CHE_EPL"]): 6,   
     frozenset(["FUL_EPL", "BRE_EPL"]): 5,
-    frozenset(["BUR_EPL", "BB_EPL"]):  9,   # East Lancashire (Blackburn rarely in PL)
+    frozenset(["BUR_EPL", "BB_EPL"]):  9,   
     frozenset(["BUR_EPL", "LEE_EPL"]): 6,
 }
 
@@ -43,30 +33,24 @@ def rivalry(home, away):
     return RIVALRIES.get(frozenset([home, away]), 0)
 
 
-# Tiered by global audience, historical stature, and current profile
 TEAM_MARKETABILITY = {
-    # Tier 1: Global giants
     "MUN_EPL": 8,
     "LIV_EPL": 8,
     "MNC_EPL": 8,
     "ARS_EPL": 8,
     "CHE_EPL": 7,
-    # Tier 2: Big Six edge
     "TOT_EPL": 6,
     "NEW_EPL": 6,
-    # Tier 3: Established PL clubs
     "AVL_EPL": 5,
     "WHU_EPL": 5,
     "EVE_EPL": 5,
     "LEI_EPL": 5,
     "NFO_EPL": 5,
     "LEE_EPL": 5,
-    # Tier 4: Mid/lower table
     "BHA_EPL": 4,
     "CRY_EPL": 4,
     "WOL_EPL": 4,
     "SUN_EPL": 4,
-    # Tier 5: Smaller or recently promoted
     "FUL_EPL": 3,
     "BRE_EPL": 3,
     "BOU_EPL": 3,
