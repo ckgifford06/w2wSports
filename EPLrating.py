@@ -14,7 +14,8 @@ RIVALRIES = {
     frozenset(["BHA_EPL", "CRY_EPL"]): 8,
     frozenset(["WHU_EPL", "MIL_EPL"]): 8,
     frozenset(["LEI_EPL", "NFO_EPL"]): 8,
-    frozenset(["ARS_EPL", "MCI_EPL"]): 10
+    frozenset(["ARS_EPL", "MCI_EPL"]): 10,
+    frozenset(["MCI_EPL", "ARS_EPL"]): 10
 }
 
 def rivalry(home, away):
