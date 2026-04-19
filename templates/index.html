@@ -1,8 +1,22 @@
 {% extends "base.html" %}
 
+{% if focused_game %}
+{% block title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }} · W2W Sports{% endblock %}
+{% block og_title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% endblock %}
+{% block twitter_title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% endblock %}
+{% block og_description %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}. See the full top 10 on w2w-sports.com.{% endblock %}
+{% block twitter_description %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}.{% endblock %}
+{% block og_url %}/?game={{ focused_event_id }}{% endblock %}
+{% block og_image %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% endblock %}
+{% block og_image_width %}1200{% endblock %}
+{% block og_image_height %}630{% endblock %}
+{% block twitter_card %}summary_large_image{% endblock %}
+{% block twitter_image %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% endblock %}
+{% else %}
 {% block title %}W2W Sports — {{ matchups|length }} Games Tonight{% endblock %}
 {% block og_title %}W2W Sports — Top {{ [matchups|length, 10]|min }} Matchups Tonight{% endblock %}
 {% block og_url %}/{% endblock %}
+{% endif %}
 
 {% block extra_styles %}
 <style>
@@ -1174,7 +1188,8 @@
           data-time="{{ game.time }}"
           data-network="{{ game.where_to_watch }}"
           data-rank="{{ loop.index }}"
-          data-league="{{ game.league }}">
+          data-league="{{ game.league }}"
+          data-event-id="{{ game.event_id }}">
           ↗ Share
         </button>
       </div>
@@ -1616,21 +1631,26 @@
     const network  = btn.dataset.network;
     const rank     = btn.dataset.rank;
     const league   = btn.dataset.league;
+    const eventId  = btn.dataset.eventId;
 
     const leagueEmojis = { NBA:'🏀', NFL:'🏈', NHL:'🏒', MLB:'⚾', CFB:'🏈', CBB:'🏀', EPL:'⚽', WNBA:'🏀', UCL:'⚽', MMA:'🥊' };
     const emoji = leagueEmojis[league] || '🏟️';
 
-    const tweetText = `${emoji} #${rank} matchup tonight: ${matchup}\nW2W Score: ${score} pts · ${time} ET · ${network}\nw2w-sports.com`;
-    const copyText  = `${emoji} #${rank} tonight: ${matchup} — W2W Score: ${score} | ${time} ET on ${network} | w2w-sports.com`;
+    const shareUrl = eventId
+      ? `https://w2w-sports.com/?game=${eventId}`
+      : 'https://w2w-sports.com';
 
-    currentShareData = { tweetText, copyText, matchup, score };
+    const tweetText = `${emoji} #${rank} matchup tonight: ${matchup}\nW2W Score: ${score} pts · ${time} ET · ${network}\n${shareUrl}`;
+    const copyText  = `${emoji} #${rank} tonight: ${matchup} — W2W Score: ${score} | ${time} ET on ${network} | ${shareUrl}`;
 
-    
+    currentShareData = { tweetText, copyText, matchup, score, shareUrl };
+
+
     if (navigator.share) {
       navigator.share({
         title: `W2W Sports — ${matchup}`,
         text: copyText,
-        url: 'https://w2w-sports.com',
+        url: shareUrl,
       }).catch(() => {});
       return;
     }
