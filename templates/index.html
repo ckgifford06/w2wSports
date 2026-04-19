@@ -1,22 +1,26 @@
 {% extends "base.html" %}
 
-{% if focused_game %}
-{% block title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }} · W2W Sports{% endblock %}
-{% block og_title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% endblock %}
-{% block twitter_title %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% endblock %}
-{% block og_description %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}. See the full top 10 on w2w-sports.com.{% endblock %}
-{% block twitter_description %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}.{% endblock %}
-{% block og_url %}/?game={{ focused_event_id }}{% endblock %}
-{% block og_image %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% endblock %}
-{% block og_image_width %}1200{% endblock %}
-{% block og_image_height %}630{% endblock %}
-{% block twitter_card %}summary_large_image{% endblock %}
-{% block twitter_image %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% endblock %}
-{% else %}
-{% block title %}W2W Sports — {{ matchups|length }} Games Tonight{% endblock %}
-{% block og_title %}W2W Sports — Top {{ [matchups|length, 10]|min }} Matchups Tonight{% endblock %}
-{% block og_url %}/{% endblock %}
-{% endif %}
+{% block title %}{% if focused_game %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }} · W2W Sports{% else %}W2W Sports — {{ matchups|length }} Games Tonight{% endif %}{% endblock %}
+
+{% block og_title %}{% if focused_game %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% else %}W2W Sports — Top {{ [matchups|length, 10]|min }} Matchups Tonight{% endif %}{% endblock %}
+
+{% block twitter_title %}{% if focused_game %}{{ focused_game.matchup }} — W2W Score {{ focused_game.score }}{% else %}W2W Sports — Know What to Watch{% endif %}{% endblock %}
+
+{% block og_description %}{% if focused_game %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}. See the full top 10 on w2w-sports.com.{% else %}Daily sports matchup rankings across NBA, NFL, NHL, MLB, CFB and CBB. Ranked by rivalry, marketability, competitiveness, quality, and importance.{% endif %}{% endblock %}
+
+{% block twitter_description %}{% if focused_game %}{{ focused_game.league }} · {{ focused_game.time }} ET · {{ focused_game.where_to_watch }}.{% else %}Daily sports matchup rankings. Know what to watch every night.{% endif %}{% endblock %}
+
+{% block og_url %}{% if focused_game %}/?game={{ focused_event_id }}{% else %}/{% endif %}{% endblock %}
+
+{% block og_image %}{% if focused_game %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% else %}https://w2w-sports.com/static/icon-512.png{% endif %}{% endblock %}
+
+{% block og_image_width %}{% if focused_game %}1200{% else %}512{% endif %}{% endblock %}
+
+{% block og_image_height %}{% if focused_game %}630{% else %}512{% endif %}{% endblock %}
+
+{% block twitter_card %}{% if focused_game %}summary_large_image{% else %}summary{% endif %}{% endblock %}
+
+{% block twitter_image %}{% if focused_game %}https://w2w-sports.com/card/{{ focused_event_id }}.png{% else %}https://w2w-sports.com/static/icon-512.png{% endif %}{% endblock %}
 
 {% block extra_styles %}
 <style>
