@@ -3,6 +3,7 @@ W2W Sports share card generator.
 Produces 1200x630 PNG cards sized for Open Graph / Twitter previews.
 """
 
+import os
 from io import BytesIO
 from PIL import Image, ImageDraw, ImageFont
 import requests
@@ -33,15 +34,40 @@ LEAGUE_COLORS = {
 W, H = 1200, 630
 LOGO_CACHE = {}
 
+_HERE = os.path.dirname(os.path.abspath(__file__))
+_FONT_DIR = os.path.join(_HERE, "static", "fonts")
+
+_FONT_REGULAR_CANDIDATES = [
+    os.path.join(_FONT_DIR, "DejaVuSans.ttf"),
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+    "/System/Library/Fonts/Helvetica.ttc",
+]
+_FONT_BOLD_CANDIDATES = [
+    os.path.join(_FONT_DIR, "DejaVuSans-Bold.ttf"),
+    "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+    "/System/Library/Fonts/Helvetica.ttc",
+]
+
+
+def _resolve_font_path(candidates):
+    for p in candidates:
+        if os.path.exists(p):
+            return p
+    return None
+
+
+_FONT_REGULAR_PATH = _resolve_font_path(_FONT_REGULAR_CANDIDATES)
+_FONT_BOLD_PATH = _resolve_font_path(_FONT_BOLD_CANDIDATES)
+
 
 def _font(size, bold=False):
-    """Try Bebas Neue for display, DM Sans for body; fall back to DejaVu."""
-    try:
-        if bold:
-            return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", size)
-        return ImageFont.truetype("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf", size)
-    except Exception:
-        return ImageFont.load_default()
+    path = _FONT_BOLD_PATH if bold else _FONT_REGULAR_PATH
+    if path:
+        try:
+            return ImageFont.truetype(path, size)
+        except Exception:
+            pass
+    return ImageFont.load_default()
 
 
 def _text_width(draw, text, font):
@@ -55,7 +81,7 @@ def _fetch_logo(url, size=180):
     if url in LOGO_CACHE:
         return LOGO_CACHE[url]
     try:
-        resp = requests.get(url, timeout=4)
+        resp = requests.get(url, timeout=2)
         if not resp.ok:
             return None
         img = Image.open(BytesIO(resp.content)).convert("RGBA")
