@@ -201,8 +201,12 @@ def generate_card(game: dict) -> bytes:
     show_live = (live.startswith("Live score:") and "Not Started" not in live) or live.startswith("Final score:")
 
     if show_live and " - " in live_score_raw:
-        # Score like "2 - 1"
-        score_text = live_score_raw.strip()
+        # live_score is stored as "home - away" but card positions are away (left) | home (right)
+        parts = [p.strip() for p in live_score_raw.split(" - ", 1)]
+        if len(parts) == 2:
+            score_text = f"{parts[1]} - {parts[0]}"
+        else:
+            score_text = live_score_raw.strip()
         sw = _text_width(draw, score_text, f_live)
         draw.text((center_x - sw // 2, center_y - 30), score_text, fill=TEXT, font=f_live)
     else:
