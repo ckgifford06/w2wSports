@@ -683,9 +683,20 @@ def index():
     focused_game = None
     if focused_event_id:
         focused_game = next(
-            (g for g in all_ranked if str(g.get("event_id")) == focused_event_id),
+            (g for g in all_ranked if str(g.get("event_id", "")).strip() == focused_event_id),
             None,
         )
+        if not focused_game:
+            from datetime import timedelta
+            yesterday = (datetime.now(local_tz) - timedelta(days=1)).strftime("%Y%m%d")
+            try:
+                games_y = fetch_games_for_date(yesterday, local_tz)
+                focused_game = next(
+                    (g for g in games_y if str(g.get("event_id", "")).strip() == focused_event_id),
+                    None,
+                )
+            except Exception as e:
+                print(f"index yesterday fallback error: {e}", flush=True)
 
     return render_template(
         "index.html",
