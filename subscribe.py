@@ -154,6 +154,8 @@ def send_digest(subject: str, html_body: str, recipients: list) -> bool:
         print("No subscribers to send to")
         return False
 
+    import time
+
     headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
 
     # Resend batch endpoint accepts up to 100 emails per call.
@@ -192,6 +194,10 @@ def send_digest(subject: str, html_body: str, recipients: list) -> bool:
                 print(f"batch {i}: status {resp.status_code} body={resp.text[:300]}")
         except Exception as e:
             print(f"batch {i} error: {e}")
+
+        # Small delay between batches to stay comfortably under Resend's 5 req/sec limit
+        if i + BATCH_SIZE < total:
+            time.sleep(0.25)
 
     print(f"Sent {success_count}/{total} subscribers")
     return success_count > 0
