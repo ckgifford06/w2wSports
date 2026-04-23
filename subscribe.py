@@ -155,19 +155,45 @@ def send_digest(subject: str, html_body: str, recipients: list) -> bool:
         return False
 
     headers = {"Authorization": f"Bearer {RESEND_API_KEY}", "Content-Type": "application/json"}
-    success_count = 0
-    for email in recipients:
-        payload = {
-            "from": "W2W Sports <digest@w2w-sports.com>",
-            "to": [email],
-            "subject": subject,
-            "html": html_body.replace("{{email}}", email),
-        }
-        resp = requests.post("https://api.resend.com/emails", json=payload, headers=headers)
-        if resp.status_code == 200:
-            success_count += 1
 
-    print(f"Sent to {success_count}/{len(recipients)} subscribers")
+    # Resend batch endpoint accepts up to 100 emails per call.
+    # Chunk recipients and send batches to avoid per-email sequential overhead.
+    BATCH_SIZE = 100
+    success_count = 0
+    total = len(recipients)
+
+    for i in range(0, total, BATCH_SIZE):
+        chunk = recipients[i:i + BATCH_SIZE]
+        batch_payload = [
+            {
+                "from": "W2W Sports <digest@w2w-sports.com>",
+                "to": [email],
+                "subject": subject,
+                "html": html_body.replace("{{email}}", email),
+            }
+            for email in chunk
+        ]
+        try:
+            resp = requests.post(
+                "https://api.resend.com/emails/batch",
+                json=batch_payload,
+                headers=headers,
+                timeout=15,
+            )
+            # Resend returns 200 for batch and 202 for single sends
+            if resp.status_code in (200, 202):
+                try:
+                    data = resp.json()
+                    sent = len(data.get("data", []))
+                    success_count += sent if sent else len(chunk)
+                except Exception:
+                    success_count += len(chunk)
+            else:
+                print(f"batch {i}: status {resp.status_code} body={resp.text[:300]}")
+        except Exception as e:
+            print(f"batch {i} error: {e}")
+
+    print(f"Sent {success_count}/{total} subscribers")
     return success_count > 0
 
 
