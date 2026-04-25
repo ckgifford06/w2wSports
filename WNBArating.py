@@ -2,7 +2,7 @@ playoffs = False #Playoffs begin mid-September
 
 team_marketability = {
     "ATL_WNBA": 5, "CHI_WNBA": 8, "CONN_WNBA": 6, "DAL_WNBA": 6.5, "GS_WNBA": 7,
-    "IND_WNBA": 10, "LV_WNBA": 8, "LA_WNBA": 7, "MIN_WNBA": 7.5, "NY_WNBA": 9,
+    "IND_WNBA": 8, "LV_WNBA": 8, "LA_WNBA": 7, "MIN_WNBA": 7.5, "NY_WNBA": 7,
     "PHX_WNBA": 6, "POR_WNBA": 5, "SEA_WNBA": 7, "TOR_WNBA": 5, "WSH_WNBA": 6
 }
 
