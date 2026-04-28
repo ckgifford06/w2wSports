@@ -76,7 +76,7 @@ def competitiveness(home_record, away_record):
     home_wpct = win_percentage(home_record)
     away_wpct = win_percentage(away_record)
     diff = abs(home_wpct - away_wpct)
-    score = max(0, 7 * (1 - diff * 1.3))
+    score = max(0, 10 * (1 - diff * 1.3))
     return round(score, 2)
 
 
@@ -91,7 +91,7 @@ def quality_of_play(home, away, home_record, away_record):
 
 #flip these manually as the competition progresses
 #stage options: "league_phase", "knockout_playoff", "round_of_16", "quarterfinals", "semifinals", "final"
-STAGE = "league_phase"
+STAGE = "semifinals"
 matchday_decider = False
 is_matchday_final = False
 
