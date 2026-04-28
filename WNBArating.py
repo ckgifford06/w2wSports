@@ -36,7 +36,7 @@ def rivalry(home, away):
     return 0
 
 def marketability(home, away):
-    return team_marketability.get(home, 5) + team_marketability.get(away, 5)
+    return team_marketability.get(home, 3) + team_marketability.get(away, 3)
 
 def competitiveness(home, away, home_record="0-0", away_record="0-0"):
     hw, hl = _parse_record(home_record)
@@ -51,7 +51,7 @@ def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     games_played = float(hw + hl + aw + al)
     if games_played == 0:
         return 0
-    return round((combined_wins / games_played) * 9, 3)
+    return round((combined_wins / games_played) * 7, 3)
 
 def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
     importance = 0
