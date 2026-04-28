@@ -51,7 +51,7 @@ def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     games_played = float(hw + hl + aw + al)
     if games_played == 0:
         return 0
-    return round((combined_wins / games_played) * 14, 3)
+    return round((combined_wins / games_played) * 9, 3)
 
 def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
     importance = 0
