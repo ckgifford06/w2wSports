@@ -80,6 +80,7 @@ def get_game_weather(home_abbr, league, game_iso, venue_indoor=False):
                 "temperature_unit": "fahrenheit",
                 "wind_speed_unit": "mph",
                 "timezone": "UTC",
+                "past_days": 1,
                 "forecast_days": 16,
             },
             timeout=5,
