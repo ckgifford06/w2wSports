@@ -4,6 +4,8 @@ from datetime import datetime
 import pytz
 import os
 from weather import get_game_weather
+from game_context import get_streaks, get_head_to_head
+from standings import get_standings_context
 
 app = Flask(__name__)
 
@@ -659,6 +661,7 @@ def fetch_games_for_date(date_str, local_tz):
                     "league_path": sport["path"],
                     "leaders": leaders,
                     "home_abbr": home_abbr.replace(f"_{sport['name']}", ""),
+                    "away_abbr": away_abbr.replace(f"_{sport['name']}", ""),
                     "game_iso": event["date"],
                     "venue_indoor": venue_indoor,
                 })
@@ -917,6 +920,7 @@ def api_game_details():
     event_id = request.args.get("event_id", "").strip()
     league_path = request.args.get("league_path", "").strip()
     home_abbr = request.args.get("home_abbr", "").strip()
+    away_abbr = request.args.get("away_abbr", "").strip()
     league = request.args.get("league", "").strip()
     game_iso = request.args.get("game_iso", "").strip()
     venue_indoor = request.args.get("venue_indoor", "false").lower() == "true"
@@ -924,11 +928,15 @@ def api_game_details():
         return jsonify({"error": "Missing params"}), 400
 
     injuries = []
+    streaks = None
+    head_to_head = None
+
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/{league_path}/summary?event={event_id}"
         resp = requests.get(url, timeout=6)
         if resp.ok:
             data = resp.json()
+
             for team_entry in data.get("injuries", []):
                 team_name = team_entry.get("team", {}).get("shortDisplayName", "")
                 for inj in team_entry.get("injuries", []):
@@ -940,17 +948,40 @@ def api_game_details():
                             "athlete": athlete["shortName"],
                             "status": status,
                         })
+
+            if home_abbr and away_abbr:
+                try:
+                    streaks = get_streaks(data, home_abbr, away_abbr)
+                except Exception as e:
+                    print(f"streaks extract error: {e}", flush=True)
+                try:
+                    head_to_head = get_head_to_head(data)
+                except Exception as e:
+                    print(f"h2h extract error: {e}", flush=True)
     except Exception as e:
-        print(f"game-details injury fetch error: {e}", flush=True)
+        print(f"game-details summary fetch error: {e}", flush=True)
 
     weather = None
     if home_abbr and league and game_iso:
         try:
             weather = get_game_weather(home_abbr, league, game_iso, venue_indoor)
         except Exception as e:
-            print(f"game-details weather fetch error: {e}", flush=True)
+            print(f"weather fetch error: {e}", flush=True)
 
-    return jsonify({"injuries": injuries, "weather": weather}), 200
+    standings = None
+    if league and home_abbr and away_abbr:
+        try:
+            standings = get_standings_context(league, home_abbr, away_abbr)
+        except Exception as e:
+            print(f"standings fetch error: {e}", flush=True)
+
+    return jsonify({
+        "injuries": injuries,
+        "weather": weather,
+        "streaks": streaks,
+        "head_to_head": head_to_head,
+        "standings": standings,
+    }), 200
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
