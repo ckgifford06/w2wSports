@@ -3,6 +3,7 @@ import requests
 from datetime import datetime
 import pytz
 import os
+from weather import get_game_weather
 
 app = Flask(__name__)
 
@@ -635,6 +636,8 @@ def fetch_games_for_date(date_str, local_tz):
                     home_logo = home_competitor["team"].get("logo", "")
                     away_logo = away_competitor["team"].get("logo", "")
 
+                venue_indoor = competition.get("venue", {}).get("indoor", False)
+
                 all_games.append({
                     "matchup": f"{home_name} vs {away_name}",
                     "home_name": home_name,
@@ -655,6 +658,9 @@ def fetch_games_for_date(date_str, local_tz):
                     "event_id": event["id"],
                     "league_path": sport["path"],
                     "leaders": leaders,
+                    "home_abbr": home_abbr.replace(f"_{sport['name']}", ""),
+                    "game_iso": event["date"],
+                    "venue_indoor": venue_indoor,
                 })
 
         except Exception as e:
@@ -910,6 +916,10 @@ def share_card(event_id):
 def api_game_details():
     event_id = request.args.get("event_id", "").strip()
     league_path = request.args.get("league_path", "").strip()
+    home_abbr = request.args.get("home_abbr", "").strip()
+    league = request.args.get("league", "").strip()
+    game_iso = request.args.get("game_iso", "").strip()
+    venue_indoor = request.args.get("venue_indoor", "false").lower() == "true"
     if not event_id or not league_path:
         return jsonify({"error": "Missing params"}), 400
 
@@ -933,7 +943,14 @@ def api_game_details():
     except Exception as e:
         print(f"game-details injury fetch error: {e}", flush=True)
 
-    return jsonify({"injuries": injuries}), 200
+    weather = None
+    if home_abbr and league and game_iso:
+        try:
+            weather = get_game_weather(home_abbr, league, game_iso, venue_indoor)
+        except Exception as e:
+            print(f"game-details weather fetch error: {e}", flush=True)
+
+    return jsonify({"injuries": injuries, "weather": weather}), 200
 
 @app.route("/api/subscribe", methods=["POST"])
 def api_subscribe():
