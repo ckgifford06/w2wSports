@@ -1143,7 +1143,7 @@
 
   {% for game in matchups %}
   {% set pct = [(game.score / 55 * 100)|int, 100]|min %}
-  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" data-home-abbr="{{ game.home_abbr | default('') }}" data-game-iso="{{ game.game_iso | default('') }}" data-venue-indoor="{{ 'true' if game.venue_indoor else 'false' }}" data-leaders='{{ game.leaders | default([]) | tojson }}' onclick="toggleGame(this)">
+  <div class="game-item" data-league="{{ game.league }}" data-overall-rank="{{ loop.index }}" data-matchup="{{ game.matchup }}" data-event-id="{{ game.event_id }}" data-league-path="{{ game.league_path }}" data-home-abbr="{{ game.home_abbr | default('') }}" data-away-abbr="{{ game.away_abbr | default('') }}" data-game-iso="{{ game.game_iso | default('') }}" data-venue-indoor="{{ 'true' if game.venue_indoor else 'false' }}" data-leaders='{{ game.leaders | default([]) | tojson }}' onclick="toggleGame(this)">
     <div class="game-row">
 
       <div class="game-rank {% if loop.index <= 3 %}top3{% endif %}">{{ loop.index }}</div>
@@ -1223,6 +1223,18 @@
         <div class="detail-card-value" id="weather-body-{{ loop.index }}"></div>
       </div>
       {% endif %}
+      <div class="detail-card" id="form-card-{{ loop.index }}" style="display: none;">
+        <div class="detail-card-label">Form</div>
+        <div class="detail-card-value mono" id="form-body-{{ loop.index }}"></div>
+      </div>
+      <div class="detail-card" id="h2h-card-{{ loop.index }}" style="display: none;">
+        <div class="detail-card-label">Season Series</div>
+        <div class="detail-card-value" id="h2h-body-{{ loop.index }}"></div>
+      </div>
+      <div class="detail-card" id="standings-card-{{ loop.index }}" style="display: none;">
+        <div class="detail-card-label">Standings</div>
+        <div class="detail-card-value" id="standings-body-{{ loop.index }}"></div>
+      </div>
       {% if game.description %}
       <div class="detail-card blurb-card">
         <div class="detail-card-label">Why Watch</div>
@@ -1379,6 +1391,7 @@
     if (injuriesBody && eventId && leaguePath) {
       try {
         const homeAbbr = el.dataset.homeAbbr || "";
+        const awayAbbr = el.dataset.awayAbbr || "";
         const league = el.dataset.league || "";
         const gameIso = el.dataset.gameIso || "";
         const venueIndoor = el.dataset.venueIndoor || "false";
@@ -1386,6 +1399,7 @@
           event_id: eventId,
           league_path: leaguePath,
           home_abbr: homeAbbr,
+          away_abbr: awayAbbr,
           league: league,
           game_iso: gameIso,
           venue_indoor: venueIndoor,
@@ -1405,14 +1419,18 @@
           injuriesBody.className = "players-empty";
           injuriesBody.textContent = "No notable injuries reported.";
         }
-        if (data.weather) {
-          const weatherCard = document.getElementById(`weather-card-${rank}`);
-          const weatherBody = document.getElementById(`weather-body-${rank}`);
-          if (weatherCard && weatherBody) {
-            weatherBody.textContent = data.weather.summary;
-            weatherCard.style.display = "";
+        const showCard = (key, text) => {
+          const card = document.getElementById(`${key}-card-${rank}`);
+          const body = document.getElementById(`${key}-body-${rank}`);
+          if (card && body && text) {
+            body.textContent = text;
+            card.style.display = "";
           }
-        }
+        };
+        if (data.weather) showCard("weather", data.weather.summary);
+        if (data.streaks) showCard("form", data.streaks.summary);
+        if (data.head_to_head) showCard("h2h", data.head_to_head.summary);
+        if (data.standings) showCard("standings", data.standings.summary);
       } catch(e) {
         injuriesBody.className = "players-empty";
         injuriesBody.textContent = "Could not load injury data.";
