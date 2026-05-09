@@ -61,7 +61,7 @@ def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=N
     games_left = 82 - max(hw + hl, aw + al)
 
     if playoffs:
-        importance += 8
+        importance += 12
     else:
         if games_left <= 50:
             importance += 1
