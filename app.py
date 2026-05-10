@@ -530,22 +530,28 @@ def fetch_games_for_date(date_str, local_tz):
                         a_seed = away_competitor.get("curatedRank", {}).get("current")
                         h_seed = int(h_seed) if h_seed and h_seed != 99 else None
                         a_seed = int(a_seed) if a_seed and a_seed != 99 else None
-                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else 15
-                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                         nba_playoffs = bool(getattr(module, 'playoffs', False)) if module else False
                         nba_h_seed = h_seed
                         nba_a_seed = a_seed
+                        playoff_game_number = None
+                        leader_wins = None
                         if nba_playoffs:
                             try:
+                                from playoff_bonus import parse_game_number, parse_leader_wins
                                 series = competition.get("series", {}) or {}
+                                notes = competition.get("notes", []) or []
                                 nba_series_summary = series.get("summary", "") or ""
-                                for note in (competition.get("notes", []) or []):
+                                for note in notes:
                                     hl_text = note.get("headline", "") or ""
                                     if hl_text:
                                         nba_series_round = hl_text
                                         break
-                            except Exception:
-                                pass
+                                playoff_game_number = parse_game_number(series, notes)
+                                leader_wins = parse_leader_wins(nba_series_summary)
+                            except Exception as e:
+                                print(f"NBA playoff series parse error: {e}", flush=True)
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed, playoff_game_number, leader_wins) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record, h_seed, a_seed, playoff_game_number, leader_wins) if module else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "WNBA":
                         module = get_rating_module("WNBA")
                         h_seed = home_competitor.get("curatedRank", {}).get("current")
