@@ -1,5 +1,7 @@
 playoffs = True #playoffs start April 12
 
+from playoff_bonus import playoff_bonus
+
 team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 9, "PHI_NBA": 8, "TOR_NBA": 6,
     "CHI_NBA": 8, "CLE_NBA": 7, "DET_NBA": 5, "IND_NBA": 7, "MIL_NBA": 7,
@@ -59,14 +61,14 @@ def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
         return 0
     return round((combined_wins / games_played) * 19, 3)
 
-def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
+def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None, playoff_game_number=None, leader_wins=None):
     importance = 0
     hw, hl = _parse_record(home_record)
     aw, al = _parse_record(away_record)
     games_left = 82 - max(hw + hl, aw + al)
 
     if playoffs:
-        importance += 8
+        importance += playoff_bonus(playoff_game_number, series_length=7, leader_wins=leader_wins, default=8)
     else:
         if games_left <= 50:
             importance += 2
@@ -85,19 +87,19 @@ def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=N
 
     return importance
 
-def calculate_score(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
+def calculate_score(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None, playoff_game_number=None, leader_wins=None):
     r = rivalry(home, away)
     m = marketability(home, away)
     c = competitiveness(home, away, home_record, away_record)
     q = qualityOfPlay(home, away, home_record, away_record)
-    g = gameImportance(home, away, home_record, away_record, home_seed, away_seed)
+    g = gameImportance(home, away, home_record, away_record, home_seed, away_seed, playoff_game_number, leader_wins)
     return round(r + m + c + q + g, 2)
 
-def calculate_score_breakdown(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
+def calculate_score_breakdown(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None, playoff_game_number=None, leader_wins=None):
     return {
         "rivalry":         round(rivalry(home, away), 2),
         "marketability":   round(marketability(home, away), 2),
         "competitiveness": round(competitiveness(home, away, home_record, away_record), 2),
         "quality":         round(qualityOfPlay(home, away, home_record, away_record), 2),
-        "importance":      round(gameImportance(home, away, home_record, away_record, home_seed, away_seed), 2),
+        "importance":      round(gameImportance(home, away, home_record, away_record, home_seed, away_seed, playoff_game_number, leader_wins), 2),
     }
