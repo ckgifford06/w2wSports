@@ -27,7 +27,7 @@ rivalries = [
     ("DAL_NBA", "LAL_NBA", 6),
     ("OKC_NBA", "GS_NBA", 4),
     ("LAL_NBA", "SAS_NBA", 5),
-    ("OKC_NBA", "IND_NBA", 5)
+    ("OKC_NBA", "IND_NBA", 5),
     ("NY_NBA", "CLE_NBA", 6)
 ]
 
