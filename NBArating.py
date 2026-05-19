@@ -1,7 +1,6 @@
-]playoffs = True #playoffs start April 12
+playoffs = True #playoffs start April 12
 
 from playoff_bonus import playoff_bonus
-
 
 team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 9, "PHI_NBA": 8, "TOR_NBA": 6,
@@ -39,14 +38,12 @@ def _parse_record(record_str):
         return 0, 0
 
 def rivalry(home, away):
-    home, away = _normalize(home), _normalize(away)
     for t1, t2, r in rivalries:
         if (t1 == home and t2 == away) or (t2 == home and t1 == away):
             return r
     return 0
 
 def marketability(home, away):
-    home, away = _normalize(home), _normalize(away)
     return team_marketability.get(home, 5) + team_marketability.get(away, 5)
 
 def competitiveness(home, away, home_record="0-0", away_record="0-0"):
