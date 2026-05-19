@@ -1219,16 +1219,16 @@
       </div>
       {% if game.league in ['NFL', 'MLB', 'EPL', 'UCL', 'CFB'] %}
       <div class="detail-card" id="weather-card-{{ loop.index }}" style="display: none;">
-        <div class="detail-card-label">Weather at Game Time</div>
+        <div class="detail-card-label">Weather at Game Time (Unroofed stadiums)</div>
         <div class="detail-card-value" id="weather-body-{{ loop.index }}"></div>
       </div>
       {% endif %}
       <div class="detail-card" id="form-card-{{ loop.index }}" style="display: none;">
-        <div class="detail-card-label">Form</div>
+        <div class="detail-card-label">Current Form</div>
         <div class="detail-card-value mono" id="form-body-{{ loop.index }}"></div>
       </div>
       <div class="detail-card" id="h2h-card-{{ loop.index }}" style="display: none;">
-        <div class="detail-card-label">Season Series</div>
+        <div class="detail-card-label">Regular Season Series</div>
         <div class="detail-card-value" id="h2h-body-{{ loop.index }}"></div>
       </div>
       <div class="detail-card" id="standings-card-{{ loop.index }}" style="display: none;">
