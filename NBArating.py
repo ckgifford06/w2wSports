@@ -2,15 +2,6 @@
 
 from playoff_bonus import playoff_bonus
 
-ESPN_ABBR_OVERRIDES = {
-    "SA": "SAS",
-}
-
-def _normalize(team_id):
-    if not team_id or "_" not in team_id:
-        return team_id
-    abbr, league = team_id.split("_", 1)
-    return f"{ESPN_ABBR_OVERRIDES.get(abbr, abbr)}_{league}"
 
 team_marketability = {
     "BOS_NBA": 9, "BKN_NBA": 7, "NY_NBA": 9, "PHI_NBA": 8, "TOR_NBA": 6,
@@ -18,11 +9,11 @@ team_marketability = {
     "ATL_NBA": 7, "CHA_NBA": 5, "MIA_NBA": 7, "ORL_NBA": 6, "WAS_NBA": 6.5,
     "DEN_NBA": 8, "MIN_NBA": 6, "OKC_NBA": 9, "POR_NBA": 5, "UTAH_NBA": 5,
     "GS_NBA": 9, "LAC_NBA": 7, "LAL_NBA": 9, "PHX_NBA": 7, "SAC_NBA": 5,
-    "DAL_NBA": 8, "HOU_NBA": 8, "MEM_NBA": 5, "NO_NBA": 6, "SAS_NBA": 8
+    "DAL_NBA": 8, "HOU_NBA": 8, "MEM_NBA": 5, "NO_NBA": 6, "SA_NBA": 8
 }
 
 rivalries = [
-    ("OKC_NBA", "SAS_NBA", 11),
+    ("OKC_NBA", "SA_NBA", 11),
     ("LAL_NBA", "BOS_NBA", 8),
     ("NY_NBA", "BOS_NBA", 8),
     ("NY_NBA", "IND_NBA", 5),
