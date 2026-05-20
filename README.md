@@ -6,7 +6,7 @@ W2W stands for What-2-Watch. Instead of scrolling through a full day of sports s
 
 Built in October 2025 because we kept having the same problem as sports fans: too many games, not enough time, and no good way to know which ones were actually worth sitting down for.
 
-(Readme was last updated in: May 20)
+(Readme was last updated in: May 2026)
 
 ---
 
