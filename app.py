@@ -9,38 +9,7 @@ from standings import get_standings_context
 
 app = Flask(__name__)
 
-def get_rating_module(league):
-    if league == "NBA":
-        import NBArating
-        return NBArating
-    elif league == "NFL":
-        import NFLrating
-        return NFLrating
-    elif league == "NHL":
-        import NHLrating
-        return NHLrating
-    elif league == "MLB":
-        import MLBrating
-        return MLBrating
-    elif league == "CFB":
-        import CFBrating
-        return CFBrating
-    elif league == "CBB":
-        import CBBrating
-        return CBBrating
-    elif league == "EPL":
-        import EPLrating
-        return EPLrating
-    elif league == "WNBA":
-        import WNBArating
-        return WNBArating
-    elif league == "UCL":
-        import UCLrating
-        return UCLrating
-    elif league == "MMA":
-        import MMArating
-        return MMArating
-    return None
+from ratings import get_rating_module
 
 sports = {
     "nba": {"name": "NBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/nba/scoreboard",             "path": "basketball/nba"},
