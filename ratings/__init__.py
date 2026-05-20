@@ -1,32 +1,32 @@
 def get_rating_module(league):
     if league == "NBA":
-        from . import nba
-        return nba
+        from . import NBArating
+        return NBArating
     elif league == "NFL":
-        from . import nfl
-        return nfl
+        from . import NFLrating
+        return NFLrating
     elif league == "NHL":
-        from . import nhl
-        return nhl
+        from . import NHLrating
+        return NHLrating
     elif league == "MLB":
-        from . import mlb
-        return mlb
+        from . import MLBrating
+        return MLBrating
     elif league == "CFB":
-        from . import cfb
-        return cfb
+        from . import CFBrating
+        return CFBrating
     elif league == "CBB":
-        from . import cbb
-        return cbb
+        from . import CBBrating
+        return CBBrating
     elif league == "EPL":
-        from . import epl
-        return epl
+        from . import EPLrating
+        return EPLrating
     elif league == "WNBA":
-        from . import wnba
-        return wnba
+        from . import WNBArating
+        return WNBArating
     elif league == "UCL":
-        from . import ucl
-        return ucl
+        from . import UCLrating
+        return UCLrating
     elif league == "MMA":
-        from . import mma
-        return mma
+        from . import MMArating
+        return MMArating
     return None
