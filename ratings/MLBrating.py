@@ -1,6 +1,13 @@
 import requests
-url = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
-data = requests.get(url).json()
+
+URL = "https://site.api.espn.com/apis/site/v2/sports/baseball/mlb/scoreboard"
+_cached_data = None
+
+def _get_data():
+    global _cached_data
+    if _cached_data is None:
+        _cached_data = requests.get(URL).json()
+    return _cached_data
 
 season_length = 162
 playoffs = False
