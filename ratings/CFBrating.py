@@ -1,4 +1,5 @@
 import requests
+
 URL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
 _cached_data = None
 
@@ -84,7 +85,7 @@ team_conference = {
 
 def buildRecords():
     records = {}
-    for event in data.get("events", []):
+    for event in _get_data().get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_CFB"
             record_summary = None
@@ -96,7 +97,7 @@ def buildRecords():
 def buildSeeds():
   # gets the seeding or playoff rank if present
     seeds = {}
-    for event in data.get("events", []):
+    for event in _get_data().get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_CFB"
             seed = competitor.get("seed", {}).get("rank")
