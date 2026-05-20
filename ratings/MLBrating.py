@@ -28,7 +28,7 @@ rivalries = [
 
 def buildRecords():
     records = {}
-    for event in data["events"]:
+    for event in _get_data()["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_MLB"
             record = competitor["records"][0]["summary"]
@@ -36,7 +36,7 @@ def buildRecords():
     return records
 def buildSeeds():
     seeds = {}
-    for event in data["events"]:
+    for event in _get_data()["events"]:
         for competitor in event["competitions"][0]["competitors"]:
             team_abbr = competitor["team"]["abbreviation"] + "_MLB"
             seed = competitor.get("seed", {}).get("rank", None)
