@@ -1204,10 +1204,25 @@
       <div class="detail-card">
         <div class="detail-card-label">Moneyline</div>
         <div class="detail-card-value mono">{{ game.favored }}</div>
+        {% if game.line_movement and game.line_movement.moneyline %}
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;font-family:'DM Mono',monospace;">
+          {% if game.line_movement.moneyline.home_open and game.line_movement.moneyline.home_close %}H: {{ game.line_movement.moneyline.home_open }} → {{ game.line_movement.moneyline.home_close }}{% endif %}{% if game.line_movement.moneyline.home_open and game.line_movement.moneyline.away_open %} · {% endif %}{% if game.line_movement.moneyline.away_open and game.line_movement.moneyline.away_close %}A: {{ game.line_movement.moneyline.away_open }} → {{ game.line_movement.moneyline.away_close }}{% endif %}
+        </div>
+        {% endif %}
       </div>
       <div class="detail-card">
         <div class="detail-card-label">Spread</div>
         <div class="detail-card-value mono">{{ game.favored_spread }}</div>
+        {% if game.line_movement and game.line_movement.spread %}
+        <div style="font-size:11px;color:var(--text-dim);margin-top:4px;font-family:'DM Mono',monospace;">
+          Open {{ game.line_movement.spread.open }} → {{ game.line_movement.spread.close }}
+        </div>
+        {% endif %}
+        {% if game.line_movement and game.line_movement.total %}
+        <div style="font-size:11px;color:var(--text-dim);margin-top:2px;font-family:'DM Mono',monospace;">
+          Total {{ game.line_movement.total.open }} → {{ game.line_movement.total.close }}
+        </div>
+        {% endif %}
       </div>
       <div class="detail-card">
         <div class="detail-card-label">Start Time</div>
@@ -1223,6 +1238,16 @@
         <div class="detail-card-value">{{ game.venue_display }}</div>
       </div>
       {% endif %}
+      {% if game.ticket_floor %}
+      <div class="detail-card">
+        <div class="detail-card-label">Tickets</div>
+        <div class="detail-card-value">{{ game.ticket_floor }}</div>
+      </div>
+      {% endif %}
+      <div class="detail-card" id="winprob-card-{{ loop.index }}" style="display: none;">
+        <div class="detail-card-label">Win Probability</div>
+        <div class="detail-card-value mono" id="winprob-body-{{ loop.index }}"></div>
+      </div>
       {% if game.league in ['NFL', 'MLB', 'EPL', 'UCL', 'CFB'] %}
       <div class="detail-card" id="weather-card-{{ loop.index }}" style="display: none;">
         <div class="detail-card-label">Weather at Game Time (Unroofed stadiums)</div>
@@ -1475,6 +1500,7 @@
         if (data.streaks) showCard("form", data.streaks.summary);
         if (data.head_to_head) showCard("h2h", data.head_to_head.summary);
         if (data.standings) showCard("standings", data.standings.summary);
+        if (data.win_probability) showCard("winprob", data.win_probability.summary);
       } catch(e) {
         injuriesBody.className = "players-empty";
         injuriesBody.textContent = "Could not load injury data.";
