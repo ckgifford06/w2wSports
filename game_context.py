@@ -81,3 +81,43 @@ def get_head_to_head(summary_data):
         return {"summary": summary, "total": total}
 
     return None
+
+
+def get_win_probability(summary_data, home_abbr, away_abbr):
+    try:
+        status_state = (
+            summary_data.get("header", {})
+            .get("competitions", [{}])[0]
+            .get("status", {})
+            .get("type", {})
+            .get("state", "")
+        )
+    except Exception:
+        status_state = ""
+    if status_state != "in":
+        return None
+
+    wp_list = summary_data.get("winprobability", []) or []
+    if not wp_list:
+        return None
+
+    latest = wp_list[-1]
+    home_pct_raw = latest.get("homeWinPercentage")
+    if home_pct_raw is None:
+        return None
+
+    home_pct = round(float(home_pct_raw) * 100)
+    if home_pct < 0:
+        home_pct = 0
+    elif home_pct > 100:
+        home_pct = 100
+    away_pct = 100 - home_pct
+
+    if home_pct in (0, 100):
+        return None
+
+    return {
+        "home_pct": home_pct,
+        "away_pct": away_pct,
+        "summary": f"{home_abbr} {home_pct}% · {away_abbr} {away_pct}%",
+    }
