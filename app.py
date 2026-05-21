@@ -48,6 +48,74 @@ def get_rivalry_score(home, away, league):
         return module.rivalry(home, away)
     return 0
 
+SPORTS_WITH_STARS = {"NBA", "WNBA", "NFL", "NHL", "MLB", "CBB", "CFB", "EPL", "UCL"}
+
+LEADER_PRIORITY = {
+    "NBA": ["rating"],
+    "WNBA": ["rating"],
+    "NFL": ["rating"],
+    "CFB": ["rating"],
+    "CBB": ["rating"],
+    "NHL": ["rating"],
+    "MLB": ["rating"],
+    "EPL": ["rating", "goals", "appearances"],
+    "UCL": ["rating", "goals", "appearances"],
+}
+
+def extract_star(comp, sport_name):
+    leaders = comp.get("leaders", []) or []
+    if not leaders:
+        return None
+    preferred = LEADER_PRIORITY.get(sport_name, ["rating"])
+    by_name = {cat.get("name"): cat for cat in leaders}
+    chosen = None
+    for target in preferred:
+        cat = by_name.get(target)
+        if cat and cat.get("leaders"):
+            chosen = cat
+            break
+    if not chosen:
+        for cat in leaders:
+            if cat.get("name") in preferred:
+                continue
+            if cat.get("leaders"):
+                chosen = cat
+                break
+    if not chosen:
+        return None
+    top = chosen["leaders"][0]
+    a = top.get("athlete", {})
+    return {
+        "name": a.get("displayName", ""),
+        "headshot": a.get("headshot", ""),
+        "jersey": a.get("jersey", ""),
+        "position": a.get("position", {}).get("abbreviation", ""),
+        "stat_line": top.get("displayValue", ""),
+    }
+
+def extract_splits(comp):
+    home_rec, road_rec = "", ""
+    for r in comp.get("records", []) or []:
+        t = r.get("type", "")
+        if t == "home":
+            home_rec = r.get("summary", "")
+        elif t in ("road", "away"):
+            road_rec = r.get("summary", "")
+    if home_rec or road_rec:
+        return {"home_rec": home_rec, "road_rec": road_rec}
+    return None
+
+def extract_venue_display(competition):
+    venue_obj = competition.get("venue", {}) or {}
+    venue_addr = venue_obj.get("address", {}) or {}
+    venue_name = venue_obj.get("fullName", "")
+    venue_city = venue_addr.get("city", "")
+    venue_state = venue_addr.get("state", "")
+    loc = ", ".join([p for p in [venue_city, venue_state] if p])
+    if venue_name and loc:
+        return f"{venue_name} · {loc}"
+    return venue_name or ""
+
 def generate_fallback_blurb(game_info):
     home = game_info.get('home_team', '')
     away = game_info.get('away_team', '')
@@ -605,50 +673,25 @@ def fetch_games_for_date(date_str, local_tz):
                                     })
                 except Exception:
                     leaders = []
-                    
-                nba_stars = None
-                nba_home_split = None
-                nba_away_split = None
-                if sport["name"] == "NBA":
+
+                stars = None
+                home_split = None
+                away_split = None
+                if sport["name"] in SPORTS_WITH_STARS:
                     try:
-                        def _get_star(comp):
-                            for cat in comp.get("leaders", []):
-                                if cat.get("name") == "rating":
-                                    lst = cat.get("leaders", [])
-                                    if lst:
-                                        l = lst[0]
-                                        a = l.get("athlete", {})
-                                        return {
-                                            "name": a.get("displayName", ""),
-                                            "headshot": a.get("headshot", ""),
-                                            "jersey": a.get("jersey", ""),
-                                            "position": a.get("position", {}).get("abbreviation", ""),
-                                            "stat_line": l.get("displayValue", ""),
-                                        }
-                            return None
-                
-                        def _get_split(comp, t):
-                            for r in comp.get("records", []):
-                                if r.get("type") == t:
-                                    return r.get("summary", "")
-                            return ""
-                
-                        nba_stars = {"home": _get_star(home_competitor), "away": _get_star(away_competitor)}
-                        nba_home_split = {"home_rec": _get_split(home_competitor, "home"), "road_rec": _get_split(home_competitor, "road")}
-                        nba_away_split = {"home_rec": _get_split(away_competitor, "home"), "road_rec": _get_split(away_competitor, "road")}
+                        home_star = extract_star(home_competitor, sport["name"])
+                        away_star = extract_star(away_competitor, sport["name"])
+                        if home_star or away_star:
+                            stars = {"home": home_star, "away": away_star}
+                        home_split = extract_splits(home_competitor)
+                        away_split = extract_splits(away_competitor)
                     except Exception:
-                        nba_stars = None
-                        nba_home_split = None
-                        nba_away_split = None
-                
-                venue_obj = competition.get("venue", {})
-                venue_addr = venue_obj.get("address", {})
-                venue_name = venue_obj.get("fullName", "")
-                venue_city = venue_addr.get("city", "")
-                venue_state = venue_addr.get("state", "")
-                loc = ", ".join([p for p in [venue_city, venue_state] if p])
-                venue_display = f"{venue_name} · {loc}" if venue_name and loc else venue_name
-                
+                        stars = None
+                        home_split = None
+                        away_split = None
+
+                venue_display = extract_venue_display(competition)
+
                 if sport["name"] == "MMA":
                     home_logo = home_athlete.get("headshot", "") or home_athlete.get("flag", {}).get("href", "")
                     away_logo = away_athlete.get("headshot", "") or away_athlete.get("flag", {}).get("href", "")
@@ -682,10 +725,10 @@ def fetch_games_for_date(date_str, local_tz):
                     "away_abbr": away_abbr.replace(f"_{sport['name']}", ""),
                     "game_iso": event["date"],
                     "venue_indoor": venue_indoor,
-                    "nba_stars": nba_stars,
-                    "nba_home_split": nba_home_split,
-                    "nba_away_split": nba_away_split,
-                    "venue_display": venue_display
+                    "stars": stars,
+                    "home_split": home_split,
+                    "away_split": away_split,
+                    "venue_display": venue_display,
                 })
 
         except Exception as e:
