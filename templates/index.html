@@ -1299,36 +1299,36 @@
       </div>
       {% endif %}
 
-      {% if game.league == 'NBA' and game.nba_stars and (game.nba_stars.home or game.nba_stars.away) %}
-      <div class="players-card">
+      {% if game.stars and (game.stars.home or game.stars.away) %}
+      <div class="players-card" style="grid-column: span 4;">
         <div class="detail-card-label">Stars to Watch</div>
         <div class="players-grid">
-          {% if game.nba_stars.away %}
+          {% if game.stars.away %}
           <div>
             <div class="player-category" style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">
-              {{ game.away_name }}{% if game.nba_away_split %} · Home {{ game.nba_away_split.home_rec }} / Road {{ game.nba_away_split.road_rec }}{% endif %}
+              {{ game.away_name }}{% if game.away_split and (game.away_split.home_rec or game.away_split.road_rec) %} · Home {{ game.away_split.home_rec }} / Road {{ game.away_split.road_rec }}{% endif %}
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              {% if game.nba_stars.away.headshot %}<img src="{{ game.nba_stars.away.headshot }}" alt="{{ game.nba_stars.away.name }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">{% endif %}
+              {% if game.stars.away.headshot %}<img src="{{ game.stars.away.headshot }}" alt="{{ game.stars.away.name }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">{% endif %}
               <div>
-                <div class="player-row"><span class="player-name">{{ game.nba_stars.away.name }}</span></div>
-                <div class="player-category">#{{ game.nba_stars.away.jersey }} · {{ game.nba_stars.away.position }}</div>
-                <div class="player-stat" style="font-size:11px;">{{ game.nba_stars.away.stat_line }}</div>
+                <div class="player-row"><span class="player-name">{{ game.stars.away.name }}</span></div>
+                <div class="player-category">{% if game.stars.away.jersey %}#{{ game.stars.away.jersey }}{% endif %}{% if game.stars.away.jersey and game.stars.away.position %} · {% endif %}{{ game.stars.away.position }}</div>
+                <div class="player-stat" style="font-size:11px;">{{ game.stars.away.stat_line }}</div>
               </div>
             </div>
           </div>
           {% endif %}
-          {% if game.nba_stars.home %}
+          {% if game.stars.home %}
           <div>
             <div class="player-category" style="font-size:12px;font-weight:600;color:var(--text);margin-bottom:8px;">
-              {{ game.home_name }}{% if game.nba_home_split %} · Home {{ game.nba_home_split.home_rec }} / Road {{ game.nba_home_split.road_rec }}{% endif %}
+              {{ game.home_name }}{% if game.home_split and (game.home_split.home_rec or game.home_split.road_rec) %} · Home {{ game.home_split.home_rec }} / Road {{ game.home_split.road_rec }}{% endif %}
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
-              {% if game.nba_stars.home.headshot %}<img src="{{ game.nba_stars.home.headshot }}" alt="{{ game.nba_stars.home.name }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">{% endif %}
+              {% if game.stars.home.headshot %}<img src="{{ game.stars.home.headshot }}" alt="{{ game.stars.home.name }}" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" loading="lazy">{% endif %}
               <div>
-                <div class="player-row"><span class="player-name">{{ game.nba_stars.home.name }}</span></div>
-                <div class="player-category">#{{ game.nba_stars.home.jersey }} · {{ game.nba_stars.home.position }}</div>
-                <div class="player-stat" style="font-size:11px;">{{ game.nba_stars.home.stat_line }}</div>
+                <div class="player-row"><span class="player-name">{{ game.stars.home.name }}</span></div>
+                <div class="player-category">{% if game.stars.home.jersey %}#{{ game.stars.home.jersey }}{% endif %}{% if game.stars.home.jersey and game.stars.home.position %} · {% endif %}{{ game.stars.home.position }}</div>
+                <div class="player-stat" style="font-size:11px;">{{ game.stars.home.stat_line }}</div>
               </div>
             </div>
           </div>
