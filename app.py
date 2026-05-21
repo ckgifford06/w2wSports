@@ -605,7 +605,50 @@ def fetch_games_for_date(date_str, local_tz):
                                     })
                 except Exception:
                     leaders = []
-
+                    
+                nba_stars = None
+                nba_home_split = None
+                nba_away_split = None
+                if sport["name"] == "NBA":
+                    try:
+                        def _get_star(comp):
+                            for cat in comp.get("leaders", []):
+                                if cat.get("name") == "rating":
+                                    lst = cat.get("leaders", [])
+                                    if lst:
+                                        l = lst[0]
+                                        a = l.get("athlete", {})
+                                        return {
+                                            "name": a.get("displayName", ""),
+                                            "headshot": a.get("headshot", ""),
+                                            "jersey": a.get("jersey", ""),
+                                            "position": a.get("position", {}).get("abbreviation", ""),
+                                            "stat_line": l.get("displayValue", ""),
+                                        }
+                            return None
+                
+                        def _get_split(comp, t):
+                            for r in comp.get("records", []):
+                                if r.get("type") == t:
+                                    return r.get("summary", "")
+                            return ""
+                
+                        nba_stars = {"home": _get_star(home_competitor), "away": _get_star(away_competitor)}
+                        nba_home_split = {"home_rec": _get_split(home_competitor, "home"), "road_rec": _get_split(home_competitor, "road")}
+                        nba_away_split = {"home_rec": _get_split(away_competitor, "home"), "road_rec": _get_split(away_competitor, "road")}
+                    except Exception:
+                        nba_stars = None
+                        nba_home_split = None
+                        nba_away_split = None
+                
+                venue_obj = competition.get("venue", {})
+                venue_addr = venue_obj.get("address", {})
+                venue_name = venue_obj.get("fullName", "")
+                venue_city = venue_addr.get("city", "")
+                venue_state = venue_addr.get("state", "")
+                loc = ", ".join([p for p in [venue_city, venue_state] if p])
+                venue_display = f"{venue_name} · {loc}" if venue_name and loc else venue_name
+                
                 if sport["name"] == "MMA":
                     home_logo = home_athlete.get("headshot", "") or home_athlete.get("flag", {}).get("href", "")
                     away_logo = away_athlete.get("headshot", "") or away_athlete.get("flag", {}).get("href", "")
@@ -639,6 +682,10 @@ def fetch_games_for_date(date_str, local_tz):
                     "away_abbr": away_abbr.replace(f"_{sport['name']}", ""),
                     "game_iso": event["date"],
                     "venue_indoor": venue_indoor,
+                    "nba_stars": nba_stars,
+                    "nba_home_split": nba_home_split,
+                    "nba_away_split": nba_away_split,
+                    "venue_display": venue_display
                 })
 
         except Exception as e:
