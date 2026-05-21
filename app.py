@@ -4,7 +4,7 @@ from datetime import datetime
 import pytz
 import os
 from weather import get_game_weather
-from game_context import get_streaks, get_head_to_head
+from game_context import get_streaks, get_head_to_head, get_win_probability
 from standings import get_standings_context
 
 app = Flask(__name__)
@@ -115,6 +115,54 @@ def extract_venue_display(competition):
     if venue_name and loc:
         return f"{venue_name} · {loc}"
     return venue_name or ""
+
+def extract_line_movement(competition):
+    odds_info = competition.get("odds", []) or []
+    if not odds_info:
+        return None
+    odds = odds_info[0]
+    movement = {}
+
+    ps = odds.get("pointSpread", {}) or {}
+    h_open = (ps.get("home", {}).get("open") or {}).get("line")
+    h_close = (ps.get("home", {}).get("close") or {}).get("line")
+    if h_open and h_close and str(h_open) != str(h_close):
+        movement["spread"] = {"open": str(h_open), "close": str(h_close)}
+
+    tot = odds.get("total", {}) or {}
+    o_open = ((tot.get("over", {}) or {}).get("open") or {}).get("line", "") or ""
+    o_close = ((tot.get("over", {}) or {}).get("close") or {}).get("line", "") or ""
+    o_open_num = str(o_open).lstrip("ou")
+    o_close_num = str(o_close).lstrip("ou")
+    if o_open_num and o_close_num and o_open_num != o_close_num:
+        movement["total"] = {"open": o_open_num, "close": o_close_num}
+
+    ml = odds.get("moneyline", {}) or {}
+    h_ml_open = (ml.get("home", {}).get("open") or {}).get("odds")
+    h_ml_close = (ml.get("home", {}).get("close") or {}).get("odds")
+    a_ml_open = (ml.get("away", {}).get("open") or {}).get("odds")
+    a_ml_close = (ml.get("away", {}).get("close") or {}).get("odds")
+    ml_changed = False
+    if h_ml_open and h_ml_close and str(h_ml_open) != str(h_ml_close):
+        ml_changed = True
+    if a_ml_open and a_ml_close and str(a_ml_open) != str(a_ml_close):
+        ml_changed = True
+    if ml_changed:
+        movement["moneyline"] = {
+            "home_open": str(h_ml_open) if h_ml_open else "",
+            "home_close": str(h_ml_close) if h_ml_close else "",
+            "away_open": str(a_ml_open) if a_ml_open else "",
+            "away_close": str(a_ml_close) if a_ml_close else "",
+        }
+
+    return movement if movement else None
+
+def extract_ticket_floor(competition):
+    tickets = competition.get("tickets", []) or []
+    if not tickets:
+        return None
+    summary = (tickets[0].get("summary") or "").strip()
+    return summary if summary else None
 
 def generate_fallback_blurb(game_info):
     home = game_info.get('home_team', '')
@@ -691,6 +739,8 @@ def fetch_games_for_date(date_str, local_tz):
                         away_split = None
 
                 venue_display = extract_venue_display(competition)
+                line_movement = extract_line_movement(competition)
+                ticket_floor = extract_ticket_floor(competition)
 
                 if sport["name"] == "MMA":
                     home_logo = home_athlete.get("headshot", "") or home_athlete.get("flag", {}).get("href", "")
@@ -729,6 +779,8 @@ def fetch_games_for_date(date_str, local_tz):
                     "home_split": home_split,
                     "away_split": away_split,
                     "venue_display": venue_display,
+                    "line_movement": line_movement,
+                    "ticket_floor": ticket_floor,
                 })
 
         except Exception as e:
@@ -995,6 +1047,7 @@ def api_game_details():
     injuries = []
     streaks = None
     head_to_head = None
+    win_probability = None
 
     try:
         url = f"https://site.api.espn.com/apis/site/v2/sports/{league_path}/summary?event={event_id}"
@@ -1023,6 +1076,11 @@ def api_game_details():
                     head_to_head = get_head_to_head(data)
                 except Exception as e:
                     print(f"h2h extract error: {e}", flush=True)
+                try:
+                    win_probability = get_win_probability(data, home_abbr, away_abbr)
+                except Exception as e:
+                    print(f"win prob extract error: {e}", flush=True)
+                    win_probability = None
     except Exception as e:
         print(f"game-details summary fetch error: {e}", flush=True)
 
@@ -1046,6 +1104,7 @@ def api_game_details():
         "streaks": streaks,
         "head_to_head": head_to_head,
         "standings": standings,
+        "win_probability": win_probability,
     }), 200
 
 @app.route("/api/subscribe", methods=["POST"])
