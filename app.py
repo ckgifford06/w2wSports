@@ -22,6 +22,7 @@ sports = {
     "wnba": {"name": "WNBA", "url": "https://site.api.espn.com/apis/site/v2/sports/basketball/wnba/scoreboard",            "path": "basketball/wnba"},
     "ucl":  {"name": "UCL",  "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard",      "path": "soccer/uefa.champions"},
     "mma":  {"name": "MMA",  "url": "https://site.api.espn.com/apis/site/v2/sports/mma/ufc/scoreboard",                    "path": "mma/ufc"},
+    "wc": {"name": "WC", "url": "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard", "path": "soccer/fifa.world"},
 }
 
 def calculate_score(home, away, league):
