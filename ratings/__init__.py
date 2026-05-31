@@ -11,6 +11,9 @@ def get_rating_module(league):
     elif league == "MLB":
         from . import MLBrating
         return MLBrating
+    elif league == "WC":
+        from . import WorldCuprating
+        return WorldCuprating
     elif league == "CFB":
         from . import CFBrating
         return CFBrating
