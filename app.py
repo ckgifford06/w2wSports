@@ -49,7 +49,7 @@ def get_rivalry_score(home, away, league):
         return module.rivalry(home, away)
     return 0
 
-SPORTS_WITH_STARS = {"NBA", "WNBA", "NFL", "NHL", "MLB", "CBB", "CFB", "EPL", "UCL"}
+SPORTS_WITH_STARS = {"NBA", "WNBA", "NFL", "NHL", "MLB", "CBB", "CFB", "EPL", "UCL", "WC"}
 
 LEADER_PRIORITY = {
     "NBA": ["rating"],
@@ -571,6 +571,10 @@ def fetch_games_for_date(date_str, local_tz):
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "UCL":
                         module = get_rating_module("UCL")
+                        score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
+                        breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
+                    elif sport["name"] == "WC":
+                        module = get_rating_module("WC")
                         score = module.calculate_score(home_abbr, away_abbr, home_record, away_record) if module else 15
                         breakdown = module.calculate_score_breakdown(home_abbr, away_abbr, home_record, away_record) if module and hasattr(module, 'calculate_score_breakdown') else {"rivalry": 0, "marketability": 0, "competitiveness": 0, "quality": 0, "importance": 0}
                     elif sport["name"] == "MMA":
