@@ -29,15 +29,11 @@
     color: var(--text-dim);
     text-transform: uppercase;
     letter-spacing: 1px;
+    white-space: nowrap;
   }
 
-  .league-pills {
-    display: flex;
-    gap: 4px;
-  }
-
-  .pill {
-    padding: 4px 10px;
+  .league-select {
+    padding: 5px 28px 5px 10px;
     border-radius: 4px;
     font-size: 11px;
     font-weight: 600;
@@ -46,32 +42,18 @@
     cursor: pointer;
     border: 1px solid var(--border);
     color: var(--text-muted);
-    background: transparent;
-    transition: all 0.2s;
+    background: var(--bg);
     font-family: 'DM Mono', monospace;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    transition: border-color 0.2s, color 0.2s;
   }
 
-  .pill:hover {
-    border-color: var(--gold-muted);
-    color: var(--gold);
-  }
-
-  .live-pill {
-    border-color: rgba(255,48,96,0.4);
-    color: #ff3060;
-  }
-
-  .live-pill.active {
-    background: rgba(255,48,96,0.15);
-    border-color: rgba(255,48,96,0.5);
-    color: #ff3060;
-  }
-
-  .pill.active {
-    background: var(--crimson);
-    border-color: var(--crimson);
-    color: white;
-  }
+  .league-select:hover { border-color: var(--gold-muted); color: var(--gold); }
+  .league-select:focus { outline: none; border-color: var(--crimson); color: var(--text); }
 
   .page-header {
     position: relative;
@@ -245,16 +227,17 @@
     flex-shrink: 0;
   }
 
-  .badge-NBA { color: #c9a227; border-color: rgba(201,162,39,0.3); background: rgba(201,162,39,0.07); }
-  .badge-NFL { color: #5aa1e0; border-color: rgba(90,161,224,0.3); background: rgba(90,161,224,0.07); }
-  .badge-NHL { color: #70c8f0; border-color: rgba(112,200,240,0.3); background: rgba(112,200,240,0.07); }
-  .badge-MLB { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.07); }
-  .badge-CFB { color: #a07ad0; border-color: rgba(160,122,208,0.3); background: rgba(160,122,208,0.07); }
-  .badge-CBB { color: #60c890; border-color: rgba(96,200,144,0.3); background: rgba(96,200,144,0.07); }
-  .badge-EPL { color: #4ec5a5; border-color: rgba(78,197,165,0.3); background: rgba(78,197,165,0.07); }
-  .badge-WNBA { color: #e89f4a; border-color: rgba(232,159,74,0.3); background: rgba(232,159,74,0.07); }
-  .badge-UCL { color: #6b8cff; border-color: rgba(107,140,255,0.3); background: rgba(107,140,255,0.07); }
-  .badge-MMA { color: #d64545; border-color: rgba(214,69,69,0.3); background: rgba(214,69,69,0.07); }
+  .badge-NBA  { color: #c9a227; border-color: rgba(201,162,39,0.3);  background: rgba(201,162,39,0.07);  }
+  .badge-NFL  { color: #5aa1e0; border-color: rgba(90,161,224,0.3);  background: rgba(90,161,224,0.07);  }
+  .badge-NHL  { color: #70c8f0; border-color: rgba(112,200,240,0.3); background: rgba(112,200,240,0.07); }
+  .badge-MLB  { color: #e07070; border-color: rgba(224,112,112,0.3); background: rgba(224,112,112,0.07); }
+  .badge-CFB  { color: #a07ad0; border-color: rgba(160,122,208,0.3); background: rgba(160,122,208,0.07); }
+  .badge-CBB  { color: #60c890; border-color: rgba(96,200,144,0.3);  background: rgba(96,200,144,0.07);  }
+  .badge-EPL  { color: #4ec5a5; border-color: rgba(78,197,165,0.3);  background: rgba(78,197,165,0.07);  }
+  .badge-WNBA { color: #e89f4a; border-color: rgba(232,159,74,0.3);  background: rgba(232,159,74,0.07);  }
+  .badge-UCL  { color: #6b8cff; border-color: rgba(107,140,255,0.3); background: rgba(107,140,255,0.07); }
+  .badge-MMA  { color: #d64545; border-color: rgba(214,69,69,0.3);   background: rgba(214,69,69,0.07);   }
+  .badge-WC   { color: #e8c84a; border-color: rgba(232,200,74,0.3);  background: rgba(232,200,74,0.07);  }
 
   .game-teams { min-width: 0; }
 
@@ -413,7 +396,6 @@
     color: #ff3060;
   }
 
-  /* ——— SHARE BUTTON ——— */
   .share-btn {
     background: transparent;
     border: 1px solid var(--border);
@@ -433,7 +415,6 @@
     color: var(--gold);
   }
 
-  /* ——— SHARE POPUP ——— */
   #share-popup {
     display: none;
     position: fixed;
@@ -495,7 +476,6 @@
     margin-bottom: 8px;
   }
 
-  /* ——— SCORE BREAKDOWN CHART ——— */
   .breakdown-card {
     grid-column: span 4;
     background: var(--surface);
@@ -824,11 +804,12 @@
       min-width: unset;
       justify-content: flex-start;
       padding: 6px 0;
-      overflow-x: auto;
-      gap: 6px;
+      gap: 8px;
     }
 
     .filter-label { display: none; }
+
+    .league-select { width: 100%; }
 
     .page-header {
       padding: 20px 16px 16px;
@@ -842,67 +823,7 @@
 
     .games-container { padding: 0 16px 40px; }
 
-    .pwa-banner {
-    display: none;
-    position: relative;
-    z-index: 1;
-    margin: 12px 16px 0;
-    background: rgba(188,155,106,0.08);
-    border: 1px solid rgba(188,155,106,0.25);
-    border-radius: 8px;
-    padding: 12px 16px;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-  }
-
-  .pwa-banner-text {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.4;
-  }
-
-  .pwa-banner-text strong {
-    color: var(--text);
-    display: block;
-    font-size: 13px;
-    margin-bottom: 2px;
-  }
-
-  .pwa-banner-actions {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    flex-shrink: 0;
-  }
-
-  .pwa-banner-btn {
-    background: var(--gold);
-    color: #0d0d0d;
-    border: none;
-    border-radius: 4px;
-    padding: 7px 14px;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.3px;
-    cursor: pointer;
-    font-family: 'DM Sans', sans-serif;
-    white-space: nowrap;
-    text-decoration: none;
-    display: inline-block;
-  }
-
-  .pwa-banner-dismiss {
-    background: transparent;
-    border: none;
-    color: var(--text-dim);
-    font-size: 18px;
-    cursor: pointer;
-    padding: 0 4px;
-    line-height: 1;
-  }
-
-  .live-now-banner { margin: 12px 16px 0; }
+    .live-now-banner { margin: 12px 16px 0; }
 
     .col-headers { display: none; }
 
@@ -1075,21 +996,22 @@
 
 {% block nav_right %}
 <span class="filter-label">Filter</span>
-<div class="league-pills">
-  <button class="pill {% if selected_league == 'top10' %}active{% endif %}" onclick="filterLeague('top10', this)">Top 10</button>
-  <button class="pill {% if selected_league == 'all' %}active{% endif %}" onclick="filterLeague('all', this)">All</button>
-  <button class="pill live-pill" id="live-now-pill" onclick="filterLeague('live', this)">Live</button>
-  <button class="pill {% if selected_league == 'NBA' %}active{% endif %}" onclick="filterLeague('NBA', this)">NBA</button>
-  <button class="pill {% if selected_league == 'NFL' %}active{% endif %}" onclick="filterLeague('NFL', this)">NFL</button>
-  <button class="pill {% if selected_league == 'NHL' %}active{% endif %}" onclick="filterLeague('NHL', this)">NHL</button>
-  <button class="pill {% if selected_league == 'MLB' %}active{% endif %}" onclick="filterLeague('MLB', this)">MLB</button>
-  <button class="pill {% if selected_league == 'CFB' %}active{% endif %}" onclick="filterLeague('CFB', this)">CFB</button>
-  <button class="pill {% if selected_league == 'CBB' %}active{% endif %}" onclick="filterLeague('CBB', this)">CBB</button>
-  <button class="pill {% if selected_league == 'EPL' %}active{% endif %}" onclick="filterLeague('EPL', this)">EPL</button>
-  <button class="pill {% if selected_league == 'UCL' %}active{% endif %}" onclick="filterLeague('UCL', this)">UCL</button>
-  <button class="pill {% if selected_league == 'WNBA' %}active{% endif %}" onclick="filterLeague('WNBA', this)">WNBA</button>
-  <button class="pill {% if selected_league == 'MMA' %}active{% endif %}" onclick="filterLeague('MMA', this)">MMA</button>
-</div>
+<select class="league-select" id="league-select" onchange="filterLeague(this.value)">
+  <option value="top10" {% if selected_league == 'top10' %}selected{% endif %}>Top 10</option>
+  <option value="all"   {% if selected_league == 'all'   %}selected{% endif %}>All</option>
+  <option value="live">Live Now</option>
+  <option value="NBA"  {% if selected_league == 'NBA'  %}selected{% endif %}>NBA</option>
+  <option value="NFL"  {% if selected_league == 'NFL'  %}selected{% endif %}>NFL</option>
+  <option value="NHL"  {% if selected_league == 'NHL'  %}selected{% endif %}>NHL</option>
+  <option value="MLB"  {% if selected_league == 'MLB'  %}selected{% endif %}>MLB</option>
+  <option value="CFB"  {% if selected_league == 'CFB'  %}selected{% endif %}>CFB</option>
+  <option value="CBB"  {% if selected_league == 'CBB'  %}selected{% endif %}>CBB</option>
+  <option value="EPL"  {% if selected_league == 'EPL'  %}selected{% endif %}>EPL</option>
+  <option value="UCL"  {% if selected_league == 'UCL'  %}selected{% endif %}>UCL</option>
+  <option value="WC"   {% if selected_league == 'WC'   %}selected{% endif %}>WC</option>
+  <option value="WNBA" {% if selected_league == 'WNBA' %}selected{% endif %}>WNBA</option>
+  <option value="MMA"  {% if selected_league == 'MMA'  %}selected{% endif %}>MMA</option>
+</select>
 {% endblock %}
 
 {% block content %}
@@ -1248,7 +1170,7 @@
         <div class="detail-card-label">Win Probability</div>
         <div class="detail-card-value mono" id="winprob-body-{{ loop.index }}"></div>
       </div>
-      {% if game.league in ['NFL', 'MLB', 'EPL', 'UCL', 'CFB'] %}
+      {% if game.league in ['NFL', 'MLB', 'EPL', 'UCL', 'CFB', 'WC'] %}
       <div class="detail-card" id="weather-card-{{ loop.index }}" style="display: none;">
         <div class="detail-card-label">Weather at Game Time (Unroofed stadiums)</div>
         <div class="detail-card-value" id="weather-body-{{ loop.index }}"></div>
@@ -1524,10 +1446,7 @@
     }
   }
 
-  function filterLeague(league, btn) {
-    document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-
+  function filterLeague(league) {
     const items = document.querySelectorAll('.game-item');
     let shown = 0;
 
@@ -1565,7 +1484,7 @@
     }
   }
 
-  filterLeague('top10', document.querySelector('.pill.active') || document.querySelector('.pill'));
+  filterLeague('top10');
 
   function scrollToLiveGame() {
     const liveItem = document.querySelector('.game-item[data-live="true"]');
@@ -1594,7 +1513,6 @@
       let bestLiveGame = null;
       let bestLiveRank = Infinity;
 
-      
       document.querySelectorAll('.game-item').forEach(item => {
         const matchup = item.dataset.matchup;
         const rank = parseInt(item.dataset.overallRank, 10);
@@ -1609,8 +1527,8 @@
         const isFinal = status.includes('final');
 
         item.dataset.live = isLive ? 'true' : 'false';
-        const activeLeague = document.querySelector('.pill.active');
-        if (activeLeague && activeLeague.id === 'live-now-pill') {
+        const activeSelect = document.getElementById('league-select');
+        if (activeSelect && activeSelect.value === 'live') {
           item.style.display = isLive ? '' : 'none';
         }
 
@@ -1624,7 +1542,7 @@
             bestLiveGame = game;
             bestLiveGame.rank = rank;
           }
-          
+
           if (upsetBadge && game.home_score !== null && game.away_score !== null && game.favored) {
             const favored = game.favored.toLowerCase();
             const matchupParts = matchup.split(' vs ');
@@ -1724,7 +1642,6 @@
     if (e.key === 'Enter') submitEmail();
   });
 
-  
   const sharePopup = document.createElement('div');
   sharePopup.id = 'share-popup';
   sharePopup.innerHTML = `
@@ -1741,7 +1658,7 @@
   let currentShareData = null;
 
   function shareGame(event, btn) {
-    event.stopPropagation(); 
+    event.stopPropagation();
 
     const matchup  = btn.dataset.matchup;
     const score    = btn.dataset.score;
@@ -1751,7 +1668,7 @@
     const league   = btn.dataset.league;
     const eventId  = btn.dataset.eventId;
 
-    const leagueEmojis = { NBA:'🏀', NFL:'🏈', NHL:'🏒', MLB:'⚾', CFB:'🏈', CBB:'🏀', EPL:'⚽', WNBA:'🏀', UCL:'⚽', MMA:'🥊' };
+    const leagueEmojis = { NBA:'🏀', NFL:'🏈', NHL:'🏒', MLB:'⚾', CFB:'🏈', CBB:'🏀', EPL:'⚽', WNBA:'🏀', UCL:'⚽', WC:'⚽', MMA:'🥊' };
     const emoji = leagueEmojis[league] || '🏟️';
 
     const shareUrl = eventId
@@ -1763,7 +1680,6 @@
 
     currentShareData = { tweetText, copyText, matchup, score, shareUrl };
 
-
     if (navigator.share) {
       navigator.share({
         title: `W2W Sports — ${matchup}`,
@@ -1773,7 +1689,6 @@
       return;
     }
 
-    
     const rect = btn.getBoundingClientRect();
     sharePopup.style.display = 'block';
 
@@ -1807,7 +1722,6 @@
     });
   });
 
-  
   document.addEventListener('click', (e) => {
     if (!sharePopup.contains(e.target) && !e.target.classList.contains('share-btn')) {
       sharePopup.style.display = 'none';
