@@ -7,19 +7,19 @@ team_marketability = {
 }
 
 rivalries = [
-    ("IND_WNBA", "CHI_WNBA", 11),
-    ("NY_WNBA", "LV_WNBA", 9),
-    ("IND_WNBA", "NY_WNBA", 8),
-    ("NY_WNBA", "CHI_WNBA", 7),
-    ("LV_WNBA", "SEA_WNBA", 7),
-    ("IND_WNBA", "LV_WNBA", 6),
-    ("NY_WNBA", "CONN_WNBA", 6),
-    ("LV_WNBA", "MIN_WNBA", 6),
-    ("MIN_WNBA", "NY_WNBA", 5),
-    ("LA_WNBA", "PHX_WNBA", 5),
-    ("CHI_WNBA", "CONN_WNBA", 4),
-    ("GS_WNBA", "LA_WNBA", 4),
-    ("SEA_WNBA", "MIN_WNBA", 3),
+    ("IND_WNBA", "CHI_WNBA", 9),
+    ("NY_WNBA", "LV_WNBA", 7),
+    ("IND_WNBA", "NY_WNBA", 6),
+    ("NY_WNBA", "CHI_WNBA", 5),
+    ("LV_WNBA", "SEA_WNBA", 5),
+    ("IND_WNBA", "LV_WNBA", 4),
+    ("NY_WNBA", "CONN_WNBA", 4),
+    ("LV_WNBA", "MIN_WNBA", 4),
+    ("MIN_WNBA", "NY_WNBA", 3),
+    ("LA_WNBA", "PHX_WNBA", 3),
+    ("CHI_WNBA", "CONN_WNBA", 2),
+    ("GS_WNBA", "LA_WNBA", 2),
+    ("SEA_WNBA", "MIN_WNBA", 1),
 ]
 
 def _parse_record(record_str):
@@ -42,7 +42,7 @@ def competitiveness(home, away, home_record="0-0", away_record="0-0"):
     hw, hl = _parse_record(home_record)
     aw, al = _parse_record(away_record)
     win_diff = abs(hw - aw)
-    return ((20 - win_diff) / 4) + 3
+    return ((20 - win_diff) / 5)
 
 def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     hw, hl = _parse_record(home_record)
@@ -51,7 +51,7 @@ def qualityOfPlay(home, away, home_record="0-0", away_record="0-0"):
     games_played = float(hw + hl + aw + al)
     if games_played == 0:
         return 0
-    return round((combined_wins / games_played) * 7, 3)
+    return round((combined_wins / games_played) * 3, 3)
 
 def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=None, away_seed=None):
     importance = 0
