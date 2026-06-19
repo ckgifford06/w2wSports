@@ -297,7 +297,16 @@ def fetch_games_for_date(date_str, local_tz):
 
     for key, sport in sports.items():
         try:
-            response = requests.get(sport["url"], params={"dates": date_str}, timeout=8)
+            # Soccer leagues (EPL/UCL/WC) file fixtures by UTC kickoff date, so a late-US-evening
+            # kickoff lands on the next UTC day and falls off a single-day query once it ends.
+            # Query a +/-1 day window and filter to the target local date below.
+            if sport["path"].startswith("soccer/"):
+                from datetime import timedelta
+                _d = datetime.strptime(date_str, "%Y%m%d")
+                query_dates = f"{(_d - timedelta(days=1)).strftime('%Y%m%d')}-{(_d + timedelta(days=1)).strftime('%Y%m%d')}"
+            else:
+                query_dates = date_str
+            response = requests.get(sport["url"], params={"dates": query_dates}, timeout=8)
             if not response.ok:
                 continue
             data = response.json()
@@ -379,6 +388,11 @@ def fetch_games_for_date(date_str, local_tz):
                     game_datetime_local = game_datetime_utc.astimezone(local_tz)
                     game_time = game_datetime_local.strftime("%I:%M %p").lstrip("0")
                 except:
+                    continue
+
+                # For soccer we queried a date window; keep only games whose local kickoff
+                # falls on the requested day.
+                if sport["path"].startswith("soccer/") and game_datetime_local.strftime("%Y%m%d") != date_str:
                     continue
 
                 status_type = competition.get("status", {}).get("type", {})
