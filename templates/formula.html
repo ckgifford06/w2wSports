@@ -7,131 +7,79 @@
 
 {% block extra_styles %}
 <style>
-  .formula-components {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 14px;
-    margin: 20px 0 32px;
-  }
-
-  .component-card {
-    background: var(--surface2);
+  .components {
     border: 1px solid var(--border);
-    border-radius: 8px;
-    padding: 20px;
-    border-top: 3px solid var(--crimson);
-    transition: transform 0.2s, border-color 0.2s;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 18px 0 36px;
   }
 
-  .component-card:hover {
-    transform: translateY(-2px);
-    border-color: var(--crimson);
+  .component {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 20px;
+    align-items: baseline;
+    padding: 18px 22px;
+    background: var(--surface2);
+  }
+
+  .component + .component {
+    border-top: 1px solid var(--border);
   }
 
   .component-title {
     font-family: 'Bebas Neue', sans-serif;
-    font-size: 18px;
-    letter-spacing: 2px;
-    color: var(--text);
-    margin-bottom: 8px;
-  }
-
-  .component-desc {
-    font-size: 13px;
-    color: var(--text-muted);
-    line-height: 1.6;
-  }
-
-  .component-range {
-    display: inline-block;
-    margin-top: 10px;
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--gold);
-    background: rgba(188,155,106,0.1);
-    border: 1px solid rgba(188,155,106,0.2);
-    padding: 2px 8px;
-    border-radius: 3px;
-  }
-
-  .formula-equation {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin: 32px 0;
-    padding: 32px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-  }
-
-  .eq-term {
-    font-family: 'Bebas Neue', sans-serif;
     font-size: 20px;
     letter-spacing: 2px;
     color: var(--text);
-    text-align: center;
   }
 
-  .eq-plus {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 24px;
-    color: var(--text-dim);
-  }
-
-  .eq-equals {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 28px;
-    color: var(--crimson);
-    margin: 0 4px;
-  }
-
-  .eq-result {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 22px;
-    letter-spacing: 2px;
+  .component-range {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
     color: var(--gold);
+    text-align: right;
+    white-space: nowrap;
   }
 
-  .info-box {
-    background: rgba(152,0,46,0.07);
-    border: 1px solid rgba(152,0,46,0.2);
-    border-radius: 8px;
-    padding: 20px 24px;
-    margin: 16px 0;
-  }
-
-  .info-box-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 15px;
-    letter-spacing: 2px;
-    color: var(--crimson);
-    margin-bottom: 8px;
-  }
-
-  .info-box p {
-    font-size: 14px;
+  .component-desc {
+    grid-column: 1 / -1;
+    font-size: 13.5px;
     color: var(--text-muted);
-    line-height: 1.7;
-    margin: 0;
+    line-height: 1.65;
+    max-width: 64ch;
   }
 
-  .info-box strong { color: var(--text); }
+  .formula-line {
+    margin: 18px 0 36px;
+    padding: 22px 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 14px;
+    line-height: 2;
+    color: var(--text);
+  }
+
+  .formula-line .lhs { color: var(--gold); }
+  .formula-line .op { color: var(--text-dim); padding: 0 2px; }
+
+  .source-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 14px;
+  }
 
   .source-tag {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
     background: var(--surface2);
     border: 1px solid var(--border);
     border-radius: 4px;
     padding: 6px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    color: var(--text-muted);
-    margin: 4px 4px 4px 0;
   }
 </style>
 {% endblock %}
@@ -143,68 +91,61 @@
   <hr class="page-divider">
 
   <p class="prose">
-    The <strong>W2W Score</strong> is a proprietary ranking system that evaluates every major sporting event across the
+    The <strong>W2W Score</strong> rates every game across the
     <span class="highlight">NBA</span>, <span class="highlight">WNBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>,
     <span class="highlight">MLB</span>, <span class="highlight">CFB</span>, <span class="highlight">CBB</span>,
     <span class="highlight">EPL</span>, <span class="highlight">UCL</span>, and <span class="highlight">MMA</span>
-    to determine which matchups are the most exciting to watch on any given day.
+    so you can tell at a glance which matchups are worth watching tonight.
   </p>
 
   <h2 class="section-heading">Core Components</h2>
-  <p class="prose">Five factors determine the watchability of every game:</p>
+  <p class="prose">Every score is the sum of five factors:</p>
 
-  <div class="formula-components">
-    <div class="component-card">
+  <div class="components">
+    <div class="component">
       <div class="component-title">Rivalry Value</div>
-      <div class="component-desc">Captures the historical and emotional significance of a matchup. Hard-coded based on sport-specific context.</div>
-      <span class="component-range">1 – 10</span>
+      <div class="component-range">1 – 10</div>
+      <div class="component-desc">The historical and emotional weight of a matchup. Set by hand for each sport.</div>
     </div>
-    <div class="component-card">
+    <div class="component">
       <div class="component-title">Marketability</div>
-      <div class="component-desc">Reflects overall team appeal: brand strength, fanbase size, star power, and media relevance.</div>
-      <span class="component-range">1 – 10</span>
+      <div class="component-range">1 – 10</div>
+      <div class="component-desc">Team appeal — brand strength, fanbase size, star power, and media relevance.</div>
     </div>
-    <div class="component-card">
+    <div class="component">
       <div class="component-title">Competitiveness</div>
-      <div class="component-desc">Measures how closely matched the teams are in the standings, emphasizing less predictable outcomes.</div>
-      <span class="component-range">Dynamic</span>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">How closely matched the teams are in the standings. Tighter matchups score higher.</div>
     </div>
-    <div class="component-card">
+    <div class="component">
       <div class="component-title">Quality of Play</div>
-      <div class="component-desc">Evaluates how well both teams are performing using their combined success throughout the season.</div>
-      <span class="component-range">Dynamic</span>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">How well both teams are playing, based on their combined record across the season.</div>
     </div>
-    <div class="component-card">
+    <div class="component">
       <div class="component-title">Importance</div>
-      <div class="component-desc">Accounts for where the game falls in the season, with higher weight for late-season and postseason matchups.</div>
-      <span class="component-range">Dynamic</span>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">Where the game falls in the season. Late-season and postseason matchups carry more weight.</div>
     </div>
   </div>
 
   <h2 class="section-heading">Final Formula</h2>
+  <p class="prose">The five factors add up to a single number — the higher the score, the more it's worth watching.</p>
 
-  <div class="formula-equation">
-    <span class="eq-term">Rivalry</span>
-    <span class="eq-plus">+</span>
-    <span class="eq-term">Marketability</span>
-    <span class="eq-plus">+</span>
-    <span class="eq-term">Competitiveness</span>
-    <span class="eq-plus">+</span>
-    <span class="eq-term">Quality of Play</span>
-    <span class="eq-plus">+</span>
-    <span class="eq-term">Importance</span>
-    <span class="eq-equals">=</span>
-    <span class="eq-result">W2W Score</span>
+  <div class="formula-line">
+    <span class="lhs">W2W Score</span> <span class="op">=</span>
+    Rivalry <span class="op">+</span> Marketability <span class="op">+</span> Competitiveness <span class="op">+</span> Quality of Play <span class="op">+</span> Importance
   </div>
 
   <h2 class="section-heading">Data Sources</h2>
   <p class="prose">
-    All live game-day data is pulled from the <strong>ESPN API</strong>. The only hard-coded values are
-    rivalry scores and marketability ratings, which we've carefully calibrated ourselves.
+    Live game data comes from the <strong>ESPN API</strong>. Rivalry and marketability are the only hand-set inputs,
+    calibrated by us.
   </p>
-  <div>
+  <div class="source-tags">
     <span class="source-tag">ESPN Scoreboard API</span>
     <span class="source-tag">DraftKings Sportsbook (odds)</span>
   </div>
+
 </div>
 {% endblock %}
