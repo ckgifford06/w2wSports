@@ -10,8 +10,8 @@
   .founders-row {
     display: flex;
     justify-content: center;
-    gap: 60px;
-    margin-top: 40px;
+    gap: 48px;
+    margin-top: 36px;
     flex-wrap: wrap;
   }
 
@@ -19,23 +19,17 @@
     text-align: center;
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 32px 40px;
-    transition: border-color 0.2s, transform 0.2s;
-  }
-
-  .founder-card:hover {
-    border-color: var(--crimson);
-    transform: translateY(-3px);
+    border-radius: 8px;
+    padding: 30px 36px;
   }
 
   .founder-card img {
-    width: 140px;
-    height: 140px;
+    width: 132px;
+    height: 132px;
     border-radius: 50%;
     object-fit: cover;
     object-position: center;
-    border: 3px solid var(--border);
+    border: 1px solid var(--border);
     display: block;
     margin: 0 auto 16px;
   }
@@ -68,38 +62,31 @@
   .roadmap-item {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 14px 18px;
-    margin-bottom: 10px;
+    gap: 16px;
+    padding: 14px 2px;
+    border-bottom: 1px solid var(--border);
     font-size: 15px;
     color: var(--text-muted);
+    line-height: 1.5;
   }
 
-  .roadmap-tag {
+  .roadmap-item:first-of-type {
+    border-top: 1px solid var(--border);
+  }
+
+  .roadmap-status {
     font-family: 'DM Mono', monospace;
     font-size: 10px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    padding: 3px 8px;
-    border-radius: 4px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    min-width: 56px;
+    padding-top: 3px;
     white-space: nowrap;
-    flex-shrink: 0;
-    margin-top: 1px;
   }
 
-  .tag-fixing {
-    background: rgba(255, 180, 50, 0.1);
-    border: 1px solid rgba(255, 180, 50, 0.3);
-    color: #ffb432;
-  }
-
-  .tag-adding {
-    background: rgba(96, 200, 144, 0.1);
-    border: 1px solid rgba(96, 200, 144, 0.3);
-    color: #60c890;
+  .roadmap-status.adding {
+    color: var(--text-dim);
   }
 </style>
 {% endblock %}
@@ -111,50 +98,49 @@
   <hr class="page-divider">
 
   <p class="prose">
-    <strong>W2W Sports</strong> is your daily destination for rating and ranking the most exciting matchups across the
+    <strong>W2W Sports</strong> rates and ranks the most watchable games each day across the
     <span class="highlight">NBA</span>, <span class="highlight">WNBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>,
     <span class="highlight">MLB</span>, <span class="highlight">CFB</span>, <span class="highlight">CBB</span>,
     <span class="highlight">EPL</span>, <span class="highlight">UCL</span>, and <span class="highlight">MMA</span>.
   </p>
 
   <p class="prose">
-    Every day, we break down every scheduled game and calculate a unique <strong>W2W Score</strong> — a number that
-    represents the energy, competitiveness, and storylines behind each matchup. The higher the score, the more it's
-    worth watching. Check out the <strong>Our Formula</strong> page to see exactly how it works.
+    Every day we score every scheduled game and give it a single <strong>W2W Score</strong>. The higher the score,
+    the more it's worth watching. See <strong>Our Formula</strong> for the full breakdown.
   </p>
 
   <h2 class="section-heading">Our Mission</h2>
   <p class="prose">
-    We quickly help fans find the best games to watch. Whether it's a heated rivalry, a playoff race, or a rising
-    underdog, our analytics-driven system ensures you never miss the most exciting action on any given night.
+    W2W exists to help you find the best games to watch — a heated rivalry, a playoff race, a rising underdog —
+    without scrolling through every schedule to figure out what's actually on.
   </p>
 
   <h2 class="section-heading">How It Works</h2>
-  <p class="prose">Each matchup is scored using a formula that measures:</p>
+  <p class="prose">Each matchup is scored on five factors:</p>
   <ul class="styled-list">
     <li><strong>Rivalry</strong> Divisional and historical battles get a boost.</li>
-    <li><strong>Marketability</strong> Star power and popularity increase the rating.</li>
-    <li><strong>Competitiveness</strong> Close team records = tighter games = a better watch.</li>
-    <li><strong>Quality of Play</strong> Team performance and consistency over time.</li>
+    <li><strong>Marketability</strong> Star power and popularity raise the rating.</li>
+    <li><strong>Competitiveness</strong> Close records mean tighter games and a better watch.</li>
+    <li><strong>Quality of Play</strong> Team performance and consistency over the season.</li>
     <li><strong>Importance</strong> Late-season and playoff-impacting games rank higher.</li>
   </ul>
 
   <h2 class="section-heading">How We Started</h2>
   <p class="prose">
-    We started W2W Sports in October 2025 because we were tired of endlessly scrolling through game schedules,
-    trying to figure out which matchups were actually worth watching. As lifelong sports fans (New York and Boston),
-    we wanted a way to turn stats, storylines, and hype into one easily understandable score. We hope you enjoy the site!
+    We started W2W Sports in October 2025 because we were tired of scrolling through game schedules trying to figure
+    out which matchups were actually worth watching. As lifelong sports fans — New York and Boston — we wanted a way
+    to turn stats, storylines, and hype into one clear score. We hope you enjoy the site.
   </p>
 
   <h2 class="section-heading">What We're Working On</h2>
 
   <div class="roadmap-item">
-    <span class="roadmap-tag tag-fixing">Fixing</span>
-    Betting odds disappear when a game is in progress.
+    <span class="roadmap-status">Fixing</span>
+    <span>Betting odds disappear when a game is in progress.</span>
   </div>
   <div class="roadmap-item">
-    <span class="roadmap-tag tag-fixing">Fixing</span>
-    Live score displays "Not Started" during breaks (halftime, end of period, etc.).
+    <span class="roadmap-status">Fixing</span>
+    <span>Live score shows "Not Started" during breaks like halftime or end of period.</span>
   </div>
 
   <h2 class="section-heading">Contact Us</h2>
@@ -163,7 +149,7 @@
     <div class="founder-card">
       <img src="{{ url_for('static', filename='IMG_2982.jpeg') }}" alt="Charles Gifford">
       <div class="founder-name">Charles Gifford</div>
-      <a href="mailto:giffor@bc.edu" class="founder-email">giffor@bc.edu<br></a>
+      <a href="mailto:giffor@bc.edu" class="founder-email">giffor@bc.edu</a><br>
       <a href="https://charliegifford.com" class="founder-email">charliegifford.com</a>
     </div>
 
