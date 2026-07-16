@@ -151,8 +151,8 @@ def quality_of_play(home, away, home_record, away_record):
 # Flip manually as the tournament progresses
 # stage options: "group", "round_of_32", "round_of_16", "quarterfinals", "semifinals", "final"
 STAGE = "group"
-is_must_win = False
-is_final_matchday = False
+is_must_win = True
+is_final_matchday = True
 
 STAGE_BONUS = {
     "group":         0,
