@@ -16,7 +16,6 @@
   <link rel="icon" type="image/svg+xml" href="/static/favicon.png">
   <link rel="manifest" href="/static/manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="W2W Sports">
   <link rel="apple-touch-icon" href="/static/icon-192.png">
@@ -30,14 +29,10 @@
   <meta property="og:title"       content="{% block og_title %}W2W Sports — Know What to Watch{% endblock %}">
   <meta property="og:description" content="{% block og_description %}Daily sports matchup rankings across NBA, NFL, NHL, MLB, CFB and CBB. Ranked by rivalry, marketability, competitiveness, quality, and importance.{% endblock %}">
   <meta property="og:url"         content="https://w2w-sports.com{% block og_url %}/{% endblock %}">
-  <meta property="og:image"       content="{% block og_image %}https://w2w-sports.com/static/icon-512.png{% endblock %}">
-  <meta property="og:image:width" content="{% block og_image_width %}512{% endblock %}">
-  <meta property="og:image:height" content="{% block og_image_height %}512{% endblock %}">
 
-  <meta name="twitter:card"        content="{% block twitter_card %}summary{% endblock %}">
+  <meta name="twitter:card"        content="summary">
   <meta name="twitter:title"       content="{% block twitter_title %}W2W Sports — Know What to Watch{% endblock %}">
   <meta name="twitter:description" content="{% block twitter_description %}Daily sports matchup rankings. Know what to watch every night.{% endblock %}">
-  <meta name="twitter:image"       content="{% block twitter_image %}https://w2w-sports.com/static/icon-512.png{% endblock %}">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -248,26 +243,44 @@
       list-style: none;
       padding: 0;
       margin: 0 0 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
+      counter-reset: styled-item;
+      border-top: 1px solid var(--border);
     }
 
     .styled-list li {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 18px;
+      counter-increment: styled-item;
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 18px;
+      padding: 16px 2px;
+      border-bottom: 1px solid var(--border);
       font-size: 15px;
       color: var(--text-muted);
-      line-height: 1.5;
-      border-left: 3px solid var(--crimson);
+      line-height: 1.6;
+    }
+
+    .styled-list li::before {
+      content: counter(styled-item, decimal-leading-zero);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      color: var(--gold-muted);
+      letter-spacing: 1px;
+      padding-top: 4px;
     }
 
     .styled-list li strong {
       color: var(--text);
       display: block;
-      margin-bottom: 2px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      letter-spacing: 0.2px;
+    }
+
+    @media (max-width: 600px) {
+      .styled-list li {
+        grid-template-columns: 24px 1fr;
+        gap: 12px;
+      }
     }
   </style>
   {% block extra_styles %}{% endblock %}
