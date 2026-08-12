@@ -1,451 +1,201 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta name="description" content="W2W Sports ranks every sports game daily by how worth watching it actually is. Top 10 matchups across NBA, NFL, NHL, MLB, CFB and CBB.">
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-8TYYDCDNEH"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-8TYYDCDNEH');
-  </script>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% extends "base.html" %}
 
+{% block title %}About — W2W Sports{% endblock %}
+{% block og_title %}About W2W Sports{% endblock %}
+{% block og_description %}Meet the team behind W2W Sports — the daily sports matchup ranking tool built by two BC students.{% endblock %}
+{% block og_url %}/about{% endblock %}
 
-  <link rel="icon" type="image/svg+xml" href="/static/favicon.png">
-  <link rel="manifest" href="/static/manifest.json">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="W2W Sports">
-  <link rel="apple-touch-icon" href="/static/icon-192.png">
-  <meta name="theme-color" content="#0d0d0d">
+{% block extra_styles %}
+<style>
+  .founders-row {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-top: 36px;
+    flex-wrap: wrap;
+  }
 
+  .founder-card {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 32px 40px 28px;
+    transition: transform 0.2s, border-color 0.2s;
+  }
 
-  <title>{% block title %}W2W Sports — Know What to Watch{% endblock %}</title>
+  .founder-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--crimson), transparent);
+  }
 
-  <meta property="og:type"        content="website">
-  <meta property="og:site_name"   content="W2W Sports">
-  <meta property="og:title"       content="{% block og_title %}W2W Sports — Know What to Watch{% endblock %}">
-  <meta property="og:description" content="{% block og_description %}Daily sports matchup rankings across NBA, NFL, NHL, MLB, CFB and CBB. Ranked by rivalry, marketability, competitiveness, quality, and importance.{% endblock %}">
-  <meta property="og:url"         content="https://w2w-sports.com{% block og_url %}/{% endblock %}">
-  <meta property="og:image"       content="{% block og_image %}https://w2w-sports.com/static/icon-512.png{% endblock %}">
-  <meta property="og:image:width" content="{% block og_image_width %}512{% endblock %}">
-  <meta property="og:image:height" content="{% block og_image_height %}512{% endblock %}">
+  .founder-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold-muted);
+  }
 
-  <meta name="twitter:card"        content="{% block twitter_card %}summary{% endblock %}">
-  <meta name="twitter:title"       content="{% block twitter_title %}W2W Sports — Know What to Watch{% endblock %}">
-  <meta name="twitter:description" content="{% block twitter_description %}Daily sports matchup rankings. Know what to watch every night.{% endblock %}">
-  <meta name="twitter:image"       content="{% block twitter_image %}https://w2w-sports.com/static/icon-512.png{% endblock %}">
+  .founder-card img {
+    width: 132px;
+    height: 132px;
+    border-radius: 50%;
+    object-fit: cover;
+    object-position: center;
+    border: 1px solid var(--border);
+    display: block;
+    margin: 0 auto 16px;
+  }
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      color-scheme: dark;
-      --crimson: #98002E;
-      --crimson-bright: #C0003A;
-      --gold: #BC9B6A;
-      --gold-muted: #9a7d52;
-      --bg: #0d0d0d;
-      --surface: #161616;
-      --surface2: #1e1e1e;
-      --border: #2a2a2a;
-      --text: #f0ece4;
-      --text-muted: #7a7670;
-      --text-dim: #4a4742;
-    }
+  .founder-card img.tweak-right {
+    object-position: 40% center;
+  }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+  .founder-role {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-muted);
+    margin-bottom: 4px;
+  }
 
-    body {
-      font-family: 'DM Sans', sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      overflow-x: hidden;
-    }
+  .founder-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--text);
+    margin-bottom: 8px;
+  }
 
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image:
-        radial-gradient(ellipse 80% 50% at 50% -10%, rgba(152,0,46,0.14) 0%, transparent 60%),
-        repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0 1px, transparent 1px 88px),
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='4' height='4' fill='%230d0d0d'/%3E%3Crect width='1' height='1' x='0' y='0' fill='%23ffffff' opacity='0.018'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 0;
-    }
+  .founder-email {
+    color: var(--gold);
+    text-decoration: none;
+    font-size: 14px;
+    font-family: 'DM Mono', monospace;
+    transition: color 0.2s;
+  }
 
-    nav {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 0 40px;
-      height: 60px;
-      background: rgba(13,13,13,0.92);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-    }
+  .founder-email:hover {
+    color: var(--gold-muted);
+    text-decoration: underline;
+  }
 
-    nav::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -1px;
-      height: 1px;
-      width: 100%;
-      background: linear-gradient(90deg, var(--crimson) 0%, transparent 34%);
-    }
+  .status-board {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 4px;
+  }
 
-    .nav-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 28px;
-      letter-spacing: 3px;
-      color: var(--text);
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 9px;
-      flex-shrink: 0;
-    }
+  .roadmap-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--crimson);
+    border-radius: 6px;
+    font-size: 15px;
+    color: var(--text-muted);
+    line-height: 1.5;
+    transition: border-left-color 0.2s, transform 0.2s;
+  }
 
-    .nav-logo .logo-tag {
-      background: var(--crimson);
-      color: #fff;
-      padding: 1px 9px 0;
-      transform: skewX(-9deg);
-      display: inline-block;
-    }
+  .roadmap-item:hover {
+    border-left-color: var(--gold);
+    transform: translateX(3px);
+  }
 
-    .nav-logo .logo-tag span { display: inline-block; transform: skewX(9deg); }
+  .roadmap-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #fff;
+    background: var(--crimson);
+    padding: 3px 9px 2px;
+    transform: skewX(-9deg);
+    flex-shrink: 0;
+  }
 
-    .nav-logo .logo-word { color: var(--text); }
+  .roadmap-status span { display: inline-block; transform: skewX(9deg); }
 
-    .nav-logo .logo-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--gold);
-      animation: pulse 2s ease-in-out infinite;
-    }
+  .roadmap-status.adding {
+    background: var(--surface);
+    color: var(--text-dim);
+    border: 1px solid var(--border);
+  }
+</style>
+{% endblock %}
 
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.4; transform: scale(0.75); }
-    }
+{% block content %}
+<div class="page-container">
 
-    .nav-center {
-      display: flex;
-      align-items: center;
-      gap: 34px;
-    }
+  <div class="kicker">Est. October 2025 // Boston College</div>
+  <h1 class="page-title">About <span>W2W</span> Sports</h1>
+  <hr class="page-divider">
 
-    .nav-center a {
-      position: relative;
-      color: var(--text-muted);
-      text-decoration: none;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 1.2px;
-      text-transform: uppercase;
-      padding-bottom: 3px;
-      transition: color 0.2s;
-      white-space: nowrap;
-    }
+  <p class="prose">
+    <strong>W2W Sports</strong> scores every game across the
+    <span class="highlight">NBA</span>, <span class="highlight">NFL</span>, <span class="highlight">NHL</span>,
+    <span class="highlight">MLB</span>, <span class="highlight">CFB</span>, <span class="highlight">CBB</span>, and
+    <span class="highlight">EPL</span> each day and ranks them by how worth watching they actually are.
+  </p>
 
-    .nav-center a::after {
-      content: '';
-      position: absolute;
-      left: 0;
-      bottom: -2px;
-      height: 2px;
-      width: 0;
-      background: var(--crimson-bright);
-      transition: width 0.25s ease;
-    }
+  <h2 class="section-heading">How It Works</h2>
+  <p class="prose">Each game gets a <strong>W2W Score</strong> based on five components:</p>
+  <ul class="styled-list">
+    <li><strong>Rivalry</strong> Historical and divisional matchups score higher.</li>
+    <li><strong>Marketability</strong> Based on each team's national following and star power.</li>
+    <li><strong>Competitiveness</strong> Teams with similar records tend to produce closer games.</li>
+    <li><strong>Quality of Play</strong> Win percentage across the season.</li>
+    <li><strong>Importance</strong> Playoff races, seeding battles, and postseason games score higher.</li>
+  </ul>
+  <p class="prose">See <a href="/formula" style="color:var(--gold);">Our Formula</a> for the full methodology.</p>
 
-    .nav-center a:hover { color: var(--text); }
-    .nav-center a:hover::after { width: 100%; }
+  <h2 class="section-heading">Background</h2>
+  <p class="prose">
+    Built in October 2025 by two BC students who wanted a single number to answer the nightly question of what to watch.
+    All game data comes from the ESPN API and updates daily.
+  </p>
 
-    .nav-center a.active { color: var(--gold); }
-    .nav-center a.active::after { width: 100%; background: var(--gold); }
-
-    .nav-right {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      justify-content: flex-end;
-      flex-shrink: 0;
-    }
-
-    .live-bug {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: var(--text-muted);
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      padding: 5px 10px;
-    }
-
-    .live-bug .live-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--crimson-bright);
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-
-    .live-bug .live-sep { color: var(--text-dim); }
-    .live-bug .live-clock { color: var(--gold); font-weight: 500; }
-
-    @media (max-width: 860px) {
-      nav {
-        height: 56px;
-        padding: 0 16px;
-        gap: 12px;
-      }
-      .nav-center {
-        gap: 22px;
-        overflow-x: auto;
-        flex: 1;
-        scrollbar-width: none;
-        -webkit-overflow-scrolling: touch;
-      }
-      .nav-center::-webkit-scrollbar { display: none; }
-      .live-bug .live-date, .live-bug .live-sep { display: none; }
-    }
-
-    footer {
-      position: relative;
-      z-index: 1;
-      border-top: 1px solid var(--border);
-      padding: 20px 40px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-top: auto;
-      background:
-        linear-gradient(180deg, transparent, rgba(152,0,46,0.04)),
-        var(--bg);
-    }
-
-    .footer-logo {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 16px;
-      letter-spacing: 3px;
-      color: var(--text-dim);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .footer-logo span { color: var(--crimson); }
-
-    .footer-logo::before {
-      content: '';
-      width: 6px;
-      height: 6px;
-      background: var(--crimson);
-      transform: skewX(-9deg);
-      display: inline-block;
-    }
-
-    .footer-note {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 0.4px;
-      color: var(--text-dim);
-      text-align: right;
-      line-height: 1.7;
-    }
-
-    .footer-note a { color: var(--text-dim); text-decoration: none; transition: color 0.2s; }
-    .footer-note a:hover { color: var(--text-muted); }
-
-    .page-container {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      width: 100%;
-      margin: 60px auto;
-      padding: 0 40px 80px;
-    }
-
-    .kicker {
-      font-family: 'DM Mono', monospace;
-      font-size: 11px;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--gold-muted);
-      display: inline-block;
-      margin-bottom: 12px;
-    }
-
-    .page-title {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 52px;
-      letter-spacing: 4px;
-      color: var(--text);
-      margin-bottom: 4px;
-      line-height: 1.02;
-    }
-
-    .page-title span { color: var(--crimson); }
-
-    .page-divider {
-      height: 2px;
-      background: linear-gradient(90deg, var(--crimson), transparent);
-      margin: 16px 0 40px;
-      border: none;
-    }
-
-    .section-heading {
-      font-family: 'Bebas Neue', sans-serif;
-      font-size: 22px;
-      letter-spacing: 3px;
-      color: var(--text);
-      margin: 48px 0 16px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .section-heading::before {
-      content: '';
-      display: block;
-      width: 5px;
-      height: 20px;
-      background: var(--crimson);
-      transform: skewX(-12deg);
-      flex-shrink: 0;
-    }
-
-    .prose {
-      font-size: 16px;
-      line-height: 1.8;
-      color: var(--text-muted);
-      margin-bottom: 16px;
-    }
-
-    .prose strong { color: var(--text); font-weight: 600; }
-
-    .highlight { color: var(--gold); font-weight: 600; }
-
-    .styled-list {
-      list-style: none;
-      padding: 0;
-      margin: 0 0 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .styled-list li {
-      background: var(--surface2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 14px 18px;
-      font-size: 15px;
-      color: var(--text-muted);
-      line-height: 1.5;
-      border-left: 3px solid var(--crimson);
-      transition: border-left-color 0.2s, transform 0.2s;
-    }
-
-    .styled-list li:hover {
-      border-left-color: var(--gold);
-      transform: translateX(3px);
-    }
-
-    .styled-list li strong {
-      color: var(--text);
-      display: block;
-      margin-bottom: 2px;
-    }
-  </style>
-  {% block extra_styles %}{% endblock %}
-</head>
-<body>
-
-  <nav>
-    <a href="/" class="nav-logo">
-      <span class="logo-tag"><span>W2W</span></span>
-      <span class="logo-word">SPORTS</span>
-      <span class="logo-dot"></span>
-    </a>
-    <div class="nav-center">
-      <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Today</a>
-      <a href="/calendar" {% if active_page == 'calendar' %}class="active"{% endif %}>Calendar</a>
-      <a href="/records" {% if active_page == 'records' %}class="active"{% endif %}>Records</a>
-      <a href="/formula" {% if active_page == 'formula' %}class="active"{% endif %}>Our Formula</a>
-      <a href="/about" {% if active_page == 'about' %}class="active"{% endif %}>About</a>
+  <h2 class="section-heading">Known Issues</h2>
+  <div class="status-board">
+    <div class="roadmap-item">
+      <span class="roadmap-status"><span>Fixing</span></span>
+      <span>Betting odds disappear when a game is in progress.</span>
     </div>
-    <div class="nav-right">
-      <div class="live-bug">
-        <span class="live-dot"></span>
-        <span class="live-date" id="liveDate"></span>
-        <span class="live-sep">/</span>
-        <span class="live-clock" id="liveClock"></span>
-      </div>
-      {% block nav_right %}{% endblock %}
+    <div class="roadmap-item">
+      <span class="roadmap-status"><span>Fixing</span></span>
+      <span>Live score shows "Not Started" during breaks like halftime or end of period.</span>
     </div>
-  </nav>
+  </div>
 
-  {% block content %}{% endblock %}
+  <h2 class="section-heading">Contact</h2>
 
-  <footer>
-    <div class="footer-logo">W2W<span>SPORTS</span></div>
-    <div class="footer-note">
-      Odds via DraftKings Sportsbook &middot; Data via ESPN API &middot; Rankings updated daily
-      <br>
-      <a href="/privacy">Privacy Policy</a>
-      &middot;
-      <a href="/terms">Terms of Use</a>
+  <div class="founders-row">
+    <div class="founder-card">
+      <img src="{{ url_for('static', filename='IMG_2982.jpeg') }}" alt="Charles Gifford">
+      <div class="founder-role">Co-Founder</div>
+      <div class="founder-name">Charles Gifford</div>
+      <a href="mailto:giffor@bc.edu" class="founder-email">giffor@bc.edu</a><br>
+      <a href="https://charliegifford.com" class="founder-email">charliegifford.com</a>
     </div>
-  </footer>
 
-  <script>
-    (function () {
-      var dEl = document.getElementById('liveDate');
-      var cEl = document.getElementById('liveClock');
-      var days = ['SUN','MON','TUE','WED','THU','FRI','SAT'];
-      var months = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-      function tick() {
-        var now = new Date();
-        if (dEl) dEl.textContent = days[now.getDay()] + ' ' + months[now.getMonth()] + ' ' + now.getDate();
-        var h = now.getHours();
-        var m = now.getMinutes();
-        var ap = h >= 12 ? 'PM' : 'AM';
-        h = h % 12; if (h === 0) h = 12;
-        if (cEl) cEl.textContent = h + ':' + (m < 10 ? '0' + m : m) + ' ' + ap;
-      }
-      tick();
-      setInterval(tick, 1000);
-    })();
+    <div class="founder-card">
+      <img class="tweak-right" src="{{ url_for('static', filename='vicBio.jpg') }}" alt="Vic Ganson">
+      <div class="founder-role">Co-Founder</div>
+      <div class="founder-name">Vic Ganson</div>
+      <a href="mailto:gansonv@bc.edu" class="founder-email">gansonv@bc.edu</a>
+    </div>
+  </div>
 
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/static/sw.js')
-          .catch(function (err) { console.log('SW registration failed:', err); });
-      });
-    }
-  </script>
-</body>
-</html>
+</div>
+{% endblock %}
