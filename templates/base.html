@@ -124,7 +124,6 @@
       padding: 1px 9px 0;
       transform: skewX(-9deg);
       display: inline-block;
-      box-shadow: 0 0 18px rgba(152,0,46,0.4);
     }
 
     .nav-logo .logo-tag span { display: inline-block; transform: skewX(9deg); }
@@ -208,7 +207,6 @@
       height: 6px;
       border-radius: 50%;
       background: var(--crimson-bright);
-      box-shadow: 0 0 8px var(--crimson-bright);
       animation: pulse 1.4s ease-in-out infinite;
     }
 
@@ -390,6 +388,7 @@
     <a href="/" class="nav-logo">
       <span class="logo-tag"><span>W2W</span></span>
       <span class="logo-word">SPORTS</span>
+      <span class="logo-dot"></span>
     </a>
     <div class="nav-center">
       <a href="/" {% if active_page == 'home' %}class="active"{% endif %}>Today</a>
@@ -400,6 +399,7 @@
     </div>
     <div class="nav-right">
       <div class="live-bug">
+        <span class="live-dot"></span>
         <span class="live-date" id="liveDate"></span>
         <span class="live-sep">/</span>
         <span class="live-clock" id="liveClock"></span>
