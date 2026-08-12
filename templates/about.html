@@ -7,38 +7,99 @@
 
 {% block extra_styles %}
 <style>
+  .components {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 18px 0 36px;
+  }
+
+  .component {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 8px 20px;
+    align-items: baseline;
+    padding: 18px 22px;
+    background: var(--surface2);
+  }
+
+  .component + .component {
+    border-top: 1px solid var(--border);
+  }
+
+  .component-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .component-range {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    text-align: right;
+    white-space: nowrap;
+  }
+
+  .component-desc {
+    grid-column: 1 / -1;
+    font-size: 13.5px;
+    color: var(--text-muted);
+    line-height: 1.65;
+    max-width: 64ch;
+  }
+
+  .issues {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 18px 0 36px;
+  }
+
+  .issue {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 18px;
+    align-items: start;
+    padding: 16px 22px;
+    background: var(--surface2);
+  }
+
+  .issue + .issue {
+    border-top: 1px solid var(--border);
+  }
+
+  .issue-status {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    padding-top: 1px;
+    white-space: nowrap;
+  }
+
+  .issue-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
   .founders-row {
     display: flex;
     justify-content: center;
     gap: 40px;
-    margin-top: 36px;
+    margin-top: 24px;
     flex-wrap: wrap;
   }
 
   .founder-card {
-    position: relative;
-    overflow: hidden;
     text-align: center;
     background: var(--surface2);
     border: 1px solid var(--border);
-    border-radius: 8px;
+    border-radius: 6px;
     padding: 32px 40px 28px;
-    transition: transform 0.2s, border-color 0.2s;
-  }
-
-  .founder-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 3px;
-    background: linear-gradient(90deg, var(--crimson), transparent);
-  }
-
-  .founder-card:hover {
-    transform: translateY(-3px);
-    border-color: var(--gold-muted);
   }
 
   .founder-card img {
@@ -85,60 +146,12 @@
     color: var(--gold-muted);
     text-decoration: underline;
   }
-
-  .status-board {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 4px;
-  }
-
-  .roadmap-item {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 18px;
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    border-left: 3px solid var(--crimson);
-    border-radius: 6px;
-    font-size: 15px;
-    color: var(--text-muted);
-    line-height: 1.5;
-    transition: border-left-color 0.2s, transform 0.2s;
-  }
-
-  .roadmap-item:hover {
-    border-left-color: var(--gold);
-    transform: translateX(3px);
-  }
-
-  .roadmap-status {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    color: #fff;
-    background: var(--crimson);
-    padding: 3px 9px 2px;
-    transform: skewX(-9deg);
-    flex-shrink: 0;
-  }
-
-  .roadmap-status span { display: inline-block; transform: skewX(9deg); }
-
-  .roadmap-status.adding {
-    background: var(--surface);
-    color: var(--text-dim);
-    border: 1px solid var(--border);
-  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="page-container">
 
-  <div class="kicker">Est. October 2025 // Boston College</div>
   <h1 class="page-title">About <span>W2W</span> Sports</h1>
   <hr class="page-divider">
 
@@ -150,14 +163,36 @@
   </p>
 
   <h2 class="section-heading">How It Works</h2>
-  <p class="prose">Each game gets a <strong>W2W Score</strong> based on five components:</p>
-  <ul class="styled-list">
-    <li><strong>Rivalry</strong> Historical and divisional matchups score higher.</li>
-    <li><strong>Marketability</strong> Based on each team's national following and star power.</li>
-    <li><strong>Competitiveness</strong> Teams with similar records tend to produce closer games.</li>
-    <li><strong>Quality of Play</strong> Win percentage across the season.</li>
-    <li><strong>Importance</strong> Playoff races, seeding battles, and postseason games score higher.</li>
-  </ul>
+  <p class="prose">Each game gets a <strong>W2W Score</strong> built from five components:</p>
+
+  <div class="components">
+    <div class="component">
+      <div class="component-title">Rivalry</div>
+      <div class="component-range">1 – 10</div>
+      <div class="component-desc">Historical and divisional matchups score higher.</div>
+    </div>
+    <div class="component">
+      <div class="component-title">Marketability</div>
+      <div class="component-range">1 – 10</div>
+      <div class="component-desc">Based on each team's national following and star power.</div>
+    </div>
+    <div class="component">
+      <div class="component-title">Competitiveness</div>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">Teams with similar records tend to produce closer games.</div>
+    </div>
+    <div class="component">
+      <div class="component-title">Quality of Play</div>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">Win percentage across the season.</div>
+    </div>
+    <div class="component">
+      <div class="component-title">Importance</div>
+      <div class="component-range">Dynamic</div>
+      <div class="component-desc">Playoff races, seeding battles, and postseason games score higher.</div>
+    </div>
+  </div>
+
   <p class="prose">See <a href="/formula" style="color:var(--gold);">Our Formula</a> for the full methodology.</p>
 
   <h2 class="section-heading">Background</h2>
@@ -167,14 +202,14 @@
   </p>
 
   <h2 class="section-heading">Known Issues</h2>
-  <div class="status-board">
-    <div class="roadmap-item">
-      <span class="roadmap-status"><span>Fixing</span></span>
-      <span>Betting odds disappear when a game is in progress.</span>
+  <div class="issues">
+    <div class="issue">
+      <div class="issue-status">Fixing</div>
+      <div class="issue-text">Betting odds disappear when a game is in progress.</div>
     </div>
-    <div class="roadmap-item">
-      <span class="roadmap-status"><span>Fixing</span></span>
-      <span>Live score shows "Not Started" during breaks like halftime or end of period.</span>
+    <div class="issue">
+      <div class="issue-status">Fixing</div>
+      <div class="issue-text">Live score shows "Not Started" during breaks like halftime or end of period.</div>
     </div>
   </div>
 
