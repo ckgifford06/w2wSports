@@ -38,24 +38,39 @@ team_marketability = {
     "DUKE_CFB": 7, "SYR_CFB": 7, "UVA_CFB": 7
 }
 rivalries = {
-    "ALA_CFB": [("AUB_CFB", 10), ("LSU_CFB", 9), ("TENN_CFB", 8)],
-    "AUB_CFB": [("ALA_CFB", 10), ("GA_CFB", 8)],
-    "LSU_CFB": [("ALA_CFB", 9), ("ARK_CFB", 7)],
-    "GA_CFB": [("FLA_CFB", 9), ("AUB_CFB", 8)],
-    
-    "MICH_CFB": [("OSU_CFB", 10), ("MSU_CFB", 8)],
-    "OSU_CFB": [("MICH_CFB", 10), ("UM_CFB", 7)],
-    
-    "TEX_CFB": [("OK_CFB", 9), ("UT_CFB", 8)],
-    "OK_CFB": [("TEX_CFB", 9)],
-    
-    "USC_CFB": [("ND_CFB", 8), ("UCLA_CFB", 7)],
-    "ND_CFB": [("USC_CFB", 8)],
-    
-    "FLA_CFB": [("GA_CFB", 9), ("FSU_CFB", 8)],
-    "FSU_CFB": [("FLA_CFB", 8)]
+    "ALA_CFB": [("AUB_CFB", 10), ("TENN_CFB", 8), ("LSU_CFB", 9)],
+    "AUB_CFB": [("UGA_CFB", 8)],
+    "LSU_CFB": [("ARK_CFB", 7)],
+    "UGA_CFB": [("FLA_CFB", 9), ("GT_CFB", 8)],
+    "FLA_CFB": [("FSU_CFB", 9)],
+    "MISS_CFB": [("MSST_CFB", 9)],
+    "TEX_CFB": [("OK_CFB", 10), ("TEXAM_CFB", 8)],
+    "SCAR_CFB": [("CLEM_CFB", 9)],
+    "MIZZ_CFB": [("ARK_CFB", 6)],
+    "TENN_CFB": [("VANDY_CFB", 5)],
+    "ARK_CFB": [("TEXAM_CFB", 7)],
 
-    #adding more soon
+    "MICH_CFB": [("OSU_CFB", 10), ("MSU_CFB", 8)],
+    "OSU_CFB": [("PSU_CFB", 7)],
+    "MINN_CFB": [("WISC_CFB", 8), ("IOWA_CFB", 7)],
+    "IOWA_CFB": [("NEB_CFB", 7)],
+    "IND_CFB": [("PUR_CFB", 7)],
+    "ILL_CFB": [("NW_CFB", 6)],
+    "MD_CFB": [("RUTG_CFB", 5)],
+
+    "KU_CFB": [("KSU_CFB", 7)],
+    "BAY_CFB": [("TCU_CFB", 6)],
+    "TTU_CFB": [("TCU_CFB", 6)],
+
+    "CLEM_CFB": [("FSU_CFB", 7)],
+    "FSU_CFB": [("MIA_CFB", 9)],
+    "MIA_CFB": [("VT_CFB", 6)],
+    "VT_CFB": [("UVA_CFB", 8)],
+    "PITT_CFB": [("WVU_CFB", 8)],
+    "UNC_CFB": [("NCST_CFB", 7), ("DUKE_CFB", 6)],
+    "ND_CFB": [("USC_CFB", 8)],
+    "BC_CFB": [("SYR_CFB", 5)],
+    "LOU_CFB": [("UK_CFB", 8)]
 }
 team_conference = {
     # SEC
