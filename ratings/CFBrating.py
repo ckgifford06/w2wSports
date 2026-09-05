@@ -1,5 +1,4 @@
 import requests
-import team_resolver
 
 URL = "https://site.api.espn.com/apis/site/v2/sports/football/college-football/scoreboard"
 
@@ -14,7 +13,55 @@ def _get_data():
 season_length = 13
 playoffs = True
 
-team_marketability = {
+_ALIASES = {
+    "GA": "UGA",
+    "OK": "OU",
+    "OKLA": "OU",
+    "TEXAM": "TAMU",
+    "TEXASAM": "TAMU",
+    "TAM": "TAMU",
+    "UT": "TEX",
+    "TEXAS": "TEX",
+    "MIZZ": "MIZ",
+    "MO": "MIZ",
+    "MISSOURI": "MIZ",
+    "IND": "IU",
+    "KANS": "KU",
+    "KAN": "KU",
+    "FLS": "FSU",
+    "KY": "UK",
+    "UM": "MICH",
+    "WF": "WAKE",
+    "MARY": "MD",
+    "SC": "SCAR",
+    "SCARO": "SCAR",
+    "OLEMISS": "MISS",
+    "MISSST": "MSST",
+    "PITTSBURGH": "PITT",
+    "SYRACUSE": "SYR",
+    "LOUISVILLE": "LOU",
+}
+
+def _canon(team):
+    if team is None:
+        return ""
+    key = str(team).upper()
+    if key.endswith("_CFB"):
+        key = key[:-4]
+    key = "".join(ch for ch in key if ch.isalnum())
+    return _ALIASES.get(key, key)
+
+def _remap(mapping):
+    out = {}
+    for key, value in mapping.items():
+        canon = _canon(key)
+        if isinstance(value, list):
+            out[canon] = [(_canon(r), w) for r, w in value]
+        else:
+            out[canon] = value
+    return out
+
+team_marketability = _remap({
     # SEC
     "ALA_CFB": 10, "TEX_CFB": 10, "UGA_CFB": 9.5, "LSU_CFB": 9, "FLA_CFB": 9,
     "TENN_CFB": 8.5, "AUB_CFB": 8.5, "TEXAM_CFB": 8, "ARK_CFB": 7,
@@ -35,9 +82,9 @@ team_marketability = {
     "UNC_CFB": 8, "VT_CFB": 8, "NCST_CFB": 7.5, "LOU_CFB": 7.5,
     "PITT_CFB": 7, "GT_CFB": 7, "WAKE_CFB": 6.5, "BC_CFB": 6.5,
     "DUKE_CFB": 7, "SYR_CFB": 7, "UVA_CFB": 7
-}
+})
 
-rivalries = {
+rivalries = _remap({
     "ALA_CFB": [("AUB_CFB", 10), ("TENN_CFB", 8), ("LSU_CFB", 9)],
     "AUB_CFB": [("UGA_CFB", 8)],
     "LSU_CFB": [("ARK_CFB", 7)],
@@ -68,52 +115,38 @@ rivalries = {
     "ND_CFB": [("USC_CFB", 8)],
     "BC_CFB": [("SYR_CFB", 5)],
     "LOU_CFB": [("UK_CFB", 8)]
-}
+})
 
-team_conference = {
+team_conference = _remap({
     # SEC
     "ALA_CFB": "SEC", "ARK_CFB": "SEC", "AUB_CFB": "SEC", "FLA_CFB": "SEC",
-    "GA_CFB": "SEC", "KY_CFB": "SEC", "LSU_CFB": "SEC", "MSST_CFB": "SEC",
-    "MO_CFB": "SEC", "MIA_CFB": "SEC", "TENN_CFB": "SEC", "VANDY_CFB": "SEC",
-    "TEXASAM_CFB": "SEC", "UGA_CFB": "SEC", "USC_CFB": "SEC",
+    "UGA_CFB": "SEC", "UK_CFB": "SEC", "LSU_CFB": "SEC", "MSST_CFB": "SEC",
+    "MISS_CFB": "SEC", "MIZZ_CFB": "SEC", "TENN_CFB": "SEC", "VANDY_CFB": "SEC",
+    "TEXAM_CFB": "SEC", "SCAR_CFB": "SEC", "TEX_CFB": "SEC", "OK_CFB": "SEC",
     # Big Ten
     "ILL_CFB": "Big Ten", "IND_CFB": "Big Ten", "IOWA_CFB": "Big Ten",
-    "MARY_CFB": "Big Ten", "MICH_CFB": "Big Ten", "MINN_CFB": "Big Ten",
+    "MD_CFB": "Big Ten", "MICH_CFB": "Big Ten", "MINN_CFB": "Big Ten",
     "NEB_CFB": "Big Ten", "NW_CFB": "Big Ten", "OSU_CFB": "Big Ten",
     "PSU_CFB": "Big Ten", "RUTG_CFB": "Big Ten", "WISC_CFB": "Big Ten",
+    "MSU_CFB": "Big Ten", "PUR_CFB": "Big Ten",
     # Big 12
     "BAY_CFB": "Big 12", "BYU_CFB": "Big 12", "CIN_CFB": "Big 12",
-    "KANS_CFB": "Big 12", "KSU_CFB": "Big 12", "OK_CFB": "Big 12",
-    "OKST_CFB": "Big 12", "TCU_CFB": "Big 12", "UT_CFB": "Big 12",
-    "UTSA_CFB": "Big 12", "WVU_CFB": "Big 12",
+    "KU_CFB": "Big 12", "KSU_CFB": "Big 12", "OKST_CFB": "Big 12",
+    "TCU_CFB": "Big 12", "TTU_CFB": "Big 12", "UTSA_CFB": "Big 12",
+    "WVU_CFB": "Big 12", "UCF_CFB": "Big 12", "HOU_CFB": "Big 12",
+    "ISU_CFB": "Big 12",
     # ACC
-    "BC_CFB": "ACC", "CLEM_CFB": "ACC", "Duke_CFB": "ACC", "FLS_CFB": "ACC",
+    "BC_CFB": "ACC", "CLEM_CFB": "ACC", "DUKE_CFB": "ACC", "FSU_CFB": "ACC",
     "GT_CFB": "ACC", "MIA_CFB": "ACC", "NCST_CFB": "ACC", "ND_CFB": "ACC",
-    "PITT_CFB": "ACC", "Syracuse_CFB": "ACC", "UVA_CFB": "ACC", "VT_CFB": "ACC",
-    "WF_CFB": "ACC", "UNC_CFB": "ACC"
-}
-
-try:
-    team_marketability, _unresolved_m = team_resolver.remap(team_marketability)
-    rivalries, _unresolved_r = team_resolver.remap(rivalries)
-    team_conference, _unresolved_c = team_resolver.remap(team_conference)
-    for _key in sorted(set(_unresolved_m + _unresolved_r + _unresolved_c)):
-        _hint = ", ".join(team_resolver.suggest(_key))
-        print("UNRESOLVED " + _key + (" -> " + _hint if _hint else ""))
-except Exception as _err:
-    print("team_resolver unavailable, using raw keys: " + str(_err))
-
-def _canon(team):
-    try:
-        return team_resolver.resolve(team) or team
-    except Exception:
-        return team
+    "PITT_CFB": "ACC", "SYR_CFB": "ACC", "UVA_CFB": "ACC", "VT_CFB": "ACC",
+    "WAKE_CFB": "ACC", "UNC_CFB": "ACC", "LOU_CFB": "ACC"
+})
 
 def buildRecords():
     records = {}
     for event in _get_data().get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_CFB"
+            team_abbr = _canon(competitor["team"]["abbreviation"])
             record_summary = None
             if "records" in competitor and len(competitor["records"]) > 0:
                 record_summary = competitor["records"][0].get("summary", "0-0")
@@ -121,11 +154,10 @@ def buildRecords():
     return records
 
 def buildSeeds():
-  # gets the seeding or playoff rank if present
     seeds = {}
     for event in _get_data().get("events", []):
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_CFB"
+            team_abbr = _canon(competitor["team"]["abbreviation"])
             seed = competitor.get("seed", {}).get("rank")
             if not seed and "curatedRank" in competitor:
                 seed = competitor["curatedRank"].get("current")
@@ -155,6 +187,8 @@ def calculate_score_breakdown(home, away):
     }
 
 def rivalry(home, away):
+    home = _canon(home)
+    away = _canon(away)
     rating = 0
     home_conf = team_conference.get(home)
     away_conf = team_conference.get(away)
@@ -167,9 +201,11 @@ def rivalry(home, away):
     return rating
 
 def marketability(home, away):
-    return team_marketability.get(home, 2) + team_marketability.get(away, 2)
+    return team_marketability.get(_canon(home), 2) + team_marketability.get(_canon(away), 2)
 
 def qualityOfPlay(home, away):
+    home = _canon(home)
+    away = _canon(away)
     seeds = buildSeeds()
     records = buildRecords()
     homeRank = seeds.get(home, 0)
@@ -189,13 +225,15 @@ def qualityOfPlay(home, away):
 
 def competitiveness(home, away):
     records = buildRecords()
-    homeRecord = records.get(home, "0-0").split("-")
-    awayRecord = records.get(away, "0-0").split("-")
+    homeRecord = records.get(_canon(home), "0-0").split("-")
+    awayRecord = records.get(_canon(away), "0-0").split("-")
     winDiff = abs(int(homeRecord[0]) - int(awayRecord[0]))
     comp = max(1, 10 - winDiff)
     return round(comp * 0.7, 2)
 
 def gameImportance(home, away):
+    home = _canon(home)
+    away = _canon(away)
     records = buildRecords()
     seeds = buildSeeds()
     importance = 2
