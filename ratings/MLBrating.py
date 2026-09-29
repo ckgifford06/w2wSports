@@ -10,7 +10,7 @@ def _get_data():
     return _cached_data
 
 season_length = 162
-playoffs = False
+playoffs = True
 
 
 team_marketability = {
