@@ -96,7 +96,7 @@ def gameImportance(home, away):
     away_seed = seeds.get(away)
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
-        importance += 30
+        importance += 15
     else:
         if gamesLeft <= 50:
             importance += 1
