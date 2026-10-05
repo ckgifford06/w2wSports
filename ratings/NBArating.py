@@ -1,4 +1,4 @@
-playoffs = True #playoffs start April 12
+playoffs = False
 
 from playoff_bonus import playoff_bonus
 
