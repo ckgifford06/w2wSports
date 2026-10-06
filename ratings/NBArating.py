@@ -1,5 +1,5 @@
 playoffs = False
-pre-season = True # first friend suggestion
+preseason = True # first friend suggestion
 
 from playoff_bonus import playoff_bonus
 
@@ -72,7 +72,7 @@ def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=N
     if playoffs:
         importance += playoff_bonus(playoff_game_number, series_length=7, leader_wins=leader_wins, default=8)
         importance += 20
-    elif preason:
+    elif preseason:
         importance -= 20
     else:
         if games_left <= 50:
