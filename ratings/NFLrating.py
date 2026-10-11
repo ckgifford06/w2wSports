@@ -33,7 +33,7 @@ team_marketability = {
     "KC_NFL": 10, "LV_NFL": 9, "LAC_NFL": 6.5, "LAR_NFL": 8, "MIA_NFL": 8,
     "MIN_NFL": 7.5, "NE_NFL": 10, "NO_NFL": 8, "NYG_NFL": 9, "NYJ_NFL": 8.5,
     "PHI_NFL": 9.5, "PIT_NFL": 9, "SF_NFL": 10, "SEA_NFL": 8, "TB_NFL": 8,
-    "TEN_NFL": 6.5, "WAS_NFL": 7
+    "TEN_NFL": 6.5, "WSH_NFL": 7
 }
 
 rivalries = [
@@ -50,8 +50,7 @@ rivalries = [
     ("KC_NFL", "LV_NFL"), ("KC_NFL", "LAC_NFL"), ("LV_NFL", "LAC_NFL"),
 
     ("DAL_NFL", "NYG_NFL"), ("DAL_NFL", "PHI_NFL"), ("DAL_NFL", "WAS_NFL"),
-    ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WAS_NFL"), ("PHI_NFL", "WAS_NFL"),
-    ("WAS_NFL", "NYG_NFL"),
+    ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WAS_NFL"), ("PHI_NFL", "WSH_NFL"),
 
     ("CHI_NFL", "DET_NFL"), ("CHI_NFL", "GB_NFL"), ("CHI_NFL", "MIN_NFL"),
     ("DET_NFL", "GB_NFL"), ("DET_NFL", "MIN_NFL"), ("GB_NFL", "MIN_NFL"),
@@ -70,7 +69,7 @@ team_division = {
     "BAL_NFL": "AFC North", "CIN_NFL": "AFC North", "CLE_NFL": "AFC North", "PIT_NFL": "AFC North",
     "HOU_NFL": "AFC South", "IND_NFL": "AFC South", "JAX_NFL": "AFC South", "TEN_NFL": "AFC South",
     "DEN_NFL": "AFC West", "KC_NFL": "AFC West", "LV_NFL": "AFC West", "LAC_NFL": "AFC West",
-    "DAL_NFL": "NFC East", "NYG_NFL": "NFC East", "PHI_NFL": "NFC East", "WAS_NFL": "NFC East",
+    "DAL_NFL": "NFC East", "NYG_NFL": "NFC East", "PHI_NFL": "NFC East", "WSH_NFL": "NFC East",
     "CHI_NFL": "NFC North", "DET_NFL": "NFC North", "GB_NFL": "NFC North", "MIN_NFL": "NFC North",
     "ATL_NFL": "NFC South", "CAR_NFL": "NFC South", "NO_NFL": "NFC South", "TB_NFL": "NFC South",
     "ARI_NFL": "NFC West", "LAR_NFL": "NFC West", "SF_NFL": "NFC West", "SEA_NFL": "NFC West"
