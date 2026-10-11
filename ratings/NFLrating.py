@@ -4,11 +4,24 @@ import logging
 URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 _cached_data = None
 
+ABBR_ALIASES = {"WSH": "WAS"}
+
 def _get_data():
     global _cached_data
     if _cached_data is None:
         _cached_data = requests.get(URL).json()
     return _cached_data
+
+def _team_key(competitor):
+    abbr = competitor["team"]["abbreviation"]
+    return ABBR_ALIASES.get(abbr, abbr) + "_NFL"
+
+def _parse_record(record):
+    parts = [int(p) for p in record.split("-")]
+    wins = parts[0] if len(parts) > 0 else 0
+    losses = parts[1] if len(parts) > 1 else 0
+    ties = parts[2] if len(parts) > 2 else 0
+    return wins, losses, ties
 
 season_length = 17
 playoffs = False
@@ -48,7 +61,8 @@ rivalries = [
     ("ARI_NFL", "LAR_NFL"), ("ARI_NFL", "SF_NFL"), ("ARI_NFL", "SEA_NFL"),
     ("LAR_NFL", "SF_NFL"), ("LAR_NFL", "SEA_NFL"), ("SF_NFL", "SEA_NFL"),
 ]
-    
+
+rivalry_set = {frozenset(pair) for pair in rivalries}
 
 team_division = {
     "BUF_NFL": "AFC East", "MIA_NFL": "AFC East", "NE_NFL": "AFC East", "NYJ_NFL": "AFC East",
@@ -60,33 +74,34 @@ team_division = {
     "ATL_NFL": "NFC South", "CAR_NFL": "NFC South", "NO_NFL": "NFC South", "TB_NFL": "NFC South",
     "ARI_NFL": "NFC West", "LAR_NFL": "NFC West", "SF_NFL": "NFC West", "SEA_NFL": "NFC West"
 }
+
 def buildRecords():
     records = {}
     for event in _get_data()["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
-            record = competitor["records"][0]["summary"]  # e.g. "5-2"
-            records[team_abbr] = record
+            team_abbr = _team_key(competitor)
+            team_records = competitor.get("records") or []
+            records[team_abbr] = team_records[0]["summary"] if team_records else "0-0"
     return records
 
 def buildSeeds():
     seeds = {}
     for event in _get_data()["events"]:
         for competitor in event["competitions"][0]["competitors"]:
-            team_abbr = competitor["team"]["abbreviation"] + "_NFL"
+            team_abbr = _team_key(competitor)
             seed = competitor.get("seed", {}).get("rank", None)
             seeds[team_abbr] = int(seed) if seed else None
     return seeds
 
 def qualityOfPlay(home, away):
     records = buildRecords()
-    homeRecord = list(map(int, records.get(home, "0-0").split("-")))
-    awayRecord = list(map(int, records.get(away, "0-0").split("-")))
-    combinedWins = float(homeRecord[0] + awayRecord[0])
-    gamesPlayed = float(homeRecord[0] + homeRecord[1] + awayRecord[0] + awayRecord[1])
+    homeWins, homeLosses, homeTies = _parse_record(records.get(home, "0-0"))
+    awayWins, awayLosses, awayTies = _parse_record(records.get(away, "0-0"))
+    combinedWins = float(homeWins + awayWins)
+    gamesPlayed = float(homeWins + homeLosses + homeTies + awayWins + awayLosses + awayTies)
     if gamesPlayed == 0:
         return 0
-    quality = round(((combinedWins / gamesPlayed)*10), 3)
+    quality = round(((combinedWins / gamesPlayed) * 10), 3)
     return quality
 
 def calculate_score(home, away):
@@ -98,47 +113,42 @@ def calculate_score(home, away):
 
     return round((r + m + c + q + g), 2) + 5
 
-
 def calculate_score_breakdown(home, away):
     return {
-        "rivalry":        round(rivalry(home, away), 2),
-        "marketability":  round(marketability(home, away), 2),
-        "competitiveness":round(competitiveness(home, away), 2),
-        "quality":        round(qualityOfPlay(home, away), 2),
-        "importance":     round(gameImportance(home, away), 2),
+        "rivalry":         round(rivalry(home, away), 2),
+        "marketability":   round(marketability(home, away), 2),
+        "competitiveness": round(competitiveness(home, away), 2),
+        "quality":         round(qualityOfPlay(home, away), 2),
+        "importance":      round(gameImportance(home, away), 2),
     }
 
 def rivalry(home, away):
-    rating = 0
-    if team_division.get(home) == team_division.get(away):
-        rating += 5
-    for t1, t2, r in rivalries:
-        if (t1 == home and t2 == away) or (t2 == home and t1 == away):
-            rating += r
-    return rating
+    if frozenset((home, away)) in rivalry_set:
+        return 5
+    return 0
 
 def marketability(home, away):
     return team_marketability.get(home, 5) + team_marketability.get(away, 5)
-    
+
 def competitiveness(home, away):
     records = buildRecords()
-    homeRecord = records.get(home, "0-0").split("-")
-    awayRecord = records.get(away, "0-0").split("-")
-    winDiff = abs(int(homeRecord[0]) - int(awayRecord[0]))
+    homeWins, _, _ = _parse_record(records.get(home, "0-0"))
+    awayWins, _, _ = _parse_record(records.get(away, "0-0"))
+    winDiff = abs(homeWins - awayWins)
     compRank = (10 - winDiff)
     return compRank
-    
+
 def gameImportance(home, away):
     records = buildRecords()
     seeds = buildSeeds()
     importance = 2
-    homeRecord = records.get(home, "0-0").split("-")
-    awayRecord = records.get(away, "0-0").split("-")
-    homeGamesPlayed = int(homeRecord[0]) + int(homeRecord[1])
-    awayGamesPlayed = int(awayRecord[0]) + int(awayRecord[1])
+    homeWins, homeLosses, homeTies = _parse_record(records.get(home, "0-0"))
+    awayWins, awayLosses, awayTies = _parse_record(records.get(away, "0-0"))
+    homeGamesPlayed = homeWins + homeLosses + homeTies
+    awayGamesPlayed = awayWins + awayLosses + awayTies
     home_seed = seeds.get(home)
     away_seed = seeds.get(away)
-    gamesLeft = 17 - max(homeGamesPlayed, awayGamesPlayed)
+    gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
         importance += 15
     else:
