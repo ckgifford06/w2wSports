@@ -51,6 +51,7 @@ rivalries = [
 
     ("DAL_NFL", "NYG_NFL"), ("DAL_NFL", "PHI_NFL"), ("DAL_NFL", "WAS_NFL"),
     ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WAS_NFL"), ("PHI_NFL", "WAS_NFL"),
+    ("WAS_NFL", "NYG_NFL"),
 
     ("CHI_NFL", "DET_NFL"), ("CHI_NFL", "GB_NFL"), ("CHI_NFL", "MIN_NFL"),
     ("DET_NFL", "GB_NFL"), ("DET_NFL", "MIN_NFL"), ("GB_NFL", "MIN_NFL"),
