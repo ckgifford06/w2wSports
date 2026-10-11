@@ -4,7 +4,6 @@ import logging
 URL = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard"
 _cached_data = None
 
-ABBR_ALIASES = {"WSH": "WAS"}
 
 def _get_data():
     global _cached_data
@@ -13,8 +12,7 @@ def _get_data():
     return _cached_data
 
 def _team_key(competitor):
-    abbr = competitor["team"]["abbreviation"]
-    return ABBR_ALIASES.get(abbr, abbr) + "_NFL"
+    return competitor["team"]["abbreviation"] + "_NFL"
 
 def _parse_record(record):
     parts = [int(p) for p in record.split("-")]
@@ -49,8 +47,8 @@ rivalries = [
     ("DEN_NFL", "KC_NFL"), ("DEN_NFL", "LV_NFL"), ("DEN_NFL", "LAC_NFL"),
     ("KC_NFL", "LV_NFL"), ("KC_NFL", "LAC_NFL"), ("LV_NFL", "LAC_NFL"),
 
-    ("DAL_NFL", "NYG_NFL"), ("DAL_NFL", "PHI_NFL"), ("DAL_NFL", "WAS_NFL"),
-    ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WAS_NFL"), ("PHI_NFL", "WSH_NFL"),
+    ("DAL_NFL", "NYG_NFL"), ("DAL_NFL", "PHI_NFL"), ("DAL_NFL", "WSH_NFL"),
+    ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WSH_NFL"), ("PHI_NFL", "WSH_NFL"),
 
     ("CHI_NFL", "DET_NFL"), ("CHI_NFL", "GB_NFL"), ("CHI_NFL", "MIN_NFL"),
     ("DET_NFL", "GB_NFL"), ("DET_NFL", "MIN_NFL"), ("GB_NFL", "MIN_NFL"),
