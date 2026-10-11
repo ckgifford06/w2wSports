@@ -23,7 +23,31 @@ team_marketability = {
     "TEN_NFL": 6.5, "WAS_NFL": 7
 }
 
-rivalries = []
+rivalries = [
+    ("BUF_NFL", "MIA_NFL"), ("BUF_NFL", "NE_NFL"), ("BUF_NFL", "NYJ_NFL"),
+    ("MIA_NFL", "NE_NFL"), ("MIA_NFL", "NYJ_NFL"), ("NE_NFL", "NYJ_NFL"),
+
+    ("BAL_NFL", "CIN_NFL"), ("BAL_NFL", "CLE_NFL"), ("BAL_NFL", "PIT_NFL"),
+    ("CIN_NFL", "CLE_NFL"), ("CIN_NFL", "PIT_NFL"), ("CLE_NFL", "PIT_NFL"),
+
+    ("HOU_NFL", "IND_NFL"), ("HOU_NFL", "JAX_NFL"), ("HOU_NFL", "TEN_NFL"),
+    ("IND_NFL", "JAX_NFL"), ("IND_NFL", "TEN_NFL"), ("JAX_NFL", "TEN_NFL"),
+
+    ("DEN_NFL", "KC_NFL"), ("DEN_NFL", "LV_NFL"), ("DEN_NFL", "LAC_NFL"),
+    ("KC_NFL", "LV_NFL"), ("KC_NFL", "LAC_NFL"), ("LV_NFL", "LAC_NFL"),
+
+    ("DAL_NFL", "NYG_NFL"), ("DAL_NFL", "PHI_NFL"), ("DAL_NFL", "WAS_NFL"),
+    ("NYG_NFL", "PHI_NFL"), ("NYG_NFL", "WAS_NFL"), ("PHI_NFL", "WAS_NFL"),
+
+    ("CHI_NFL", "DET_NFL"), ("CHI_NFL", "GB_NFL"), ("CHI_NFL", "MIN_NFL"),
+    ("DET_NFL", "GB_NFL"), ("DET_NFL", "MIN_NFL"), ("GB_NFL", "MIN_NFL"),
+
+    ("ATL_NFL", "CAR_NFL"), ("ATL_NFL", "NO_NFL"), ("ATL_NFL", "TB_NFL"),
+    ("CAR_NFL", "NO_NFL"), ("CAR_NFL", "TB_NFL"), ("NO_NFL", "TB_NFL"),
+
+    ("ARI_NFL", "LAR_NFL"), ("ARI_NFL", "SF_NFL"), ("ARI_NFL", "SEA_NFL"),
+    ("LAR_NFL", "SF_NFL"), ("LAR_NFL", "SEA_NFL"), ("SF_NFL", "SEA_NFL"),
+]
     
 
 team_division = {
