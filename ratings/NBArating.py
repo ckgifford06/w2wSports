@@ -75,6 +75,7 @@ def gameImportance(home, away, home_record="0-0", away_record="0-0", home_seed=N
     elif preseason:
         importance -= 20
     else:
+        importance += 3
         if games_left <= 50:
             importance += 2
         if games_left <= 30:
