@@ -1,5 +1,5 @@
 playoffs = False
-preseason = True # first friend suggestion
+preseason = False # first friend suggestion
 
 from playoff_bonus import playoff_bonus
 
