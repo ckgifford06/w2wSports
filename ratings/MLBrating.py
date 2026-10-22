@@ -11,6 +11,7 @@ def _get_data():
 
 season_length = 162
 playoffs = True
+worldSeries = True
 
 
 team_marketability = {
@@ -97,6 +98,8 @@ def gameImportance(home, away):
     gamesLeft = season_length - max(homeGamesPlayed, awayGamesPlayed)
     if playoffs:
         importance += 15
+    if worldSeries:
+        importance += 12
     else:
         if gamesLeft <= 50:
             importance += 1
